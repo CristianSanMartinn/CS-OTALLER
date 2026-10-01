@@ -1,0 +1,2 @@
+// Plantilla: implementacion pendiente.
+export {};

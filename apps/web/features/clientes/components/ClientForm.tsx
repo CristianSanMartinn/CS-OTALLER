@@ -1,0 +1,123 @@
+import { FormEvent, useState } from "react";
+import { ReminderPreferenceFields } from "./ReminderPreferenceFields";
+import {
+  defaultReminderPreferences,
+  validateReminderPreferences,
+  withConsentTimestamp,
+} from "../services/reminderPreferences";
+import { Customer } from "@/features/shared/types/domain";
+import { Field, TextField } from "@/components/ui/primitives";
+import { useStore } from "@/features/shared/components/StoreProvider";
+import { today, uid } from "@/utils/format";
+export function ClientForm({
+  client,
+  onSave,
+  onCancel,
+}: {
+  client?: Customer;
+  onSave: (c: Customer) => void;
+  onCancel: () => void;
+}) {
+  const { data, user } = useStore();
+  const [error, setError] = useState("");
+  const [preferences, setPreferences] = useState(
+    client?.reminderPreferences ?? defaultReminderPreferences,
+  );
+  function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const get = (key: string) => String(f.get(key) ?? "").trim();
+    const rut = get("rut");
+    if (
+      data.customers.some(
+        (c) =>
+          c.id !== client?.id &&
+          c.rut.replace(/[.\s-]/g, "").toLowerCase() ===
+            rut.replace(/[.\s-]/g, "").toLowerCase(),
+      )
+    ) {
+      setError("Ya existe un cliente con este RUT.");
+      return;
+    }
+    const preferenceError = validateReminderPreferences(preferences, {
+      email: get("email"),
+      phone: get("phone"),
+    });
+    if (preferenceError) {
+      setError(preferenceError);
+      return;
+    }
+    onSave({
+      publicAccessToken:
+        client?.publicAccessToken ??
+        (client ? "demo-client-" + client.id : "demo-" + uid()),
+      reminderPreferences: withConsentTimestamp(
+        preferences,
+        client?.reminderPreferences,
+      ),
+      id: client?.id ?? uid(),
+      workshopId: user!.workshopId,
+      name: get("name"),
+      rut,
+      phone: get("phone"),
+      email: get("email"),
+      address: get("address"),
+      notes: get("notes"),
+      createdAt: client?.createdAt ?? today(),
+    });
+  }
+  return (
+    <form onSubmit={submit}>
+      <div className="form-grid">
+        <Field
+          label="Nombre completo"
+          name="name"
+          required
+          defaultValue={client?.name}
+        />
+        <Field
+          label="RUT"
+          name="rut"
+          required
+          placeholder="12.345.678-9"
+          defaultValue={client?.rut}
+        />
+        <Field
+          label="Teléfono"
+          name="phone"
+          type="tel"
+          required
+          defaultValue={client?.phone}
+        />
+        <Field
+          label="Correo electrónico"
+          name="email"
+          type="email"
+          defaultValue={client?.email}
+        />
+        <Field
+          label="Dirección"
+          name="address"
+          defaultValue={client?.address}
+        />
+        <TextField
+          label="Observaciones"
+          name="notes"
+          defaultValue={client?.notes}
+        />
+      </div>
+      <ReminderPreferenceFields value={preferences} onChange={setPreferences} />
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <div className="form-actions">
+        <button type="button" className="button" onClick={onCancel}>
+          Cancelar
+        </button>
+        <button className="button primary">Guardar cliente</button>
+      </div>
+    </form>
+  );
+}
