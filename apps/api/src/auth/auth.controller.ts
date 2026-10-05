@@ -37,6 +37,9 @@ export class AuthController {
   ) {
     return this.auth.updateProfile(req.user, body);
   }
+  @Patch("preferences") @UseGuards(AuthGuard) preferences(@Req() req:AuthRequest,@Body() body:unknown) {
+    return this.auth.preferences(req.user,body);
+  }
   @Get("setup") setupStatus() {
     return this.auth.setupStatus();
   }

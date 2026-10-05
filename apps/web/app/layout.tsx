@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StoreProvider } from "@/features/shared/components/StoreProvider";
 import { AppShell } from "@/components/AppShell";
 import { PresenceProvider } from "@/features/trabajadores/components/PresenceProvider";
+import { ThemeProvider } from "@/features/preferencias/components/ThemeProvider";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "C.S.OTALLER | Gestión de talleres",
@@ -16,9 +17,11 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <StoreProvider live={Boolean(process.env.API_URL)}>
-          <PresenceProvider>
-            <AppShell>{children}</AppShell>
-          </PresenceProvider>
+          <ThemeProvider>
+            <PresenceProvider>
+              <AppShell>{children}</AppShell>
+            </PresenceProvider>
+          </ThemeProvider>
         </StoreProvider>
       </body>
     </html>

@@ -22,6 +22,7 @@ export interface User extends Entity {
   phone: string;
   specialty: string;
   avatarUrl?: string;
+  theme?: "light" | "dark";
 }
 export interface ReminderPreferences {
   emailEnabled: boolean;

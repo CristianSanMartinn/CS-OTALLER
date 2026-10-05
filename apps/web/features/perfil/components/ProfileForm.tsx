@@ -4,6 +4,7 @@ import { Save } from "lucide-react";
 import { Avatar, Field, Panel } from "@/components/ui/primitives";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { profileFields } from "../services/profileService";
+import { ThemePreference } from "@/features/preferencias/components/ThemeToggle";
 export function ProfileForm() {
   const { user, saveProfile, notify, live } = useStore();
   const [profile, setProfile] = useState(() => profileFields(user!));
@@ -52,6 +53,7 @@ export function ProfileForm() {
   }
   return (
     <form onSubmit={submit} className="narrow-panel">
+      <ThemePreference />
       <Panel
         title="Información personal"
         subtitle="Mantén tus datos de contacto actualizados"

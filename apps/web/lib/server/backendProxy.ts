@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 const cookieName = "otaller.auth";
 const protectedPaths =
-  /^(auth\/(me|profile)|customers(?:\/[0-9a-f-]{36}(?:\/(portal|archive|restore))?)?|presence(?:\/(heartbeat|disconnect))?|users(?:\/[0-9a-f-]{36})?|work-orders(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|appointments(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|maintenance|workshop(?:\/(activity|related-customers))?|vehicles(?:\/[0-9a-f-]{36})?)$/i;
+  /^(auth\/(me|profile|preferences)|customers(?:\/[0-9a-f-]{36}(?:\/(portal|archive|restore))?)?|notifications(?:\/(?:read-all|[0-9a-f-]{36}\/read))?|presence(?:\/(heartbeat|disconnect))?|users(?:\/[0-9a-f-]{36})?|work-orders(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|appointments(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|maintenance|workshop(?:\/(activity|related-customers))?|vehicles(?:\/[0-9a-f-]{36})?)$/i;
 export async function backendProxy(request: NextRequest, segments: string[]) {
   const path = segments.join("/");
   const publicRoute =

@@ -50,6 +50,12 @@ export class AuthService {
       return mapUser(r.rows[0]);
     } catch(e) { if((e as {code?:string}).code==='23505')throw new ConflictException('Ese correo ya pertenece a otro usuario del taller.');throw e; }
   }
+  async preferences(user:AuthUser,body:unknown) {
+    const input=bodyObject(body,['theme']);
+    if(input.theme!=='light' && input.theme!=='dark')throw new BadRequestException('Tema inválido.');
+    await this.db.query('UPDATE users SET theme=$1 WHERE id=$2 AND workshop_id=$3',[input.theme,user.id,user.workshopId]);
+    return {theme:input.theme};
+  }
   async setupStatus() { const r=await this.db.query('SELECT EXISTS(SELECT 1 FROM users) AS configured');return {setupRequired:!r.rows[0].configured}; }
   async setup(body: unknown) {
     const input=bodyObject(body,['setupToken','workshopName','firstName','lastName','email','password']);

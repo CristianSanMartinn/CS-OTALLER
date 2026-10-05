@@ -7,7 +7,9 @@ import { Sidebar } from "./Sidebar/Sidebar";
 import { Header } from "./Header/Header";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { adminRoutes } from "@/features/shared/services/permissions";
+import { useTheme } from "@/features/preferencias/components/ThemeProvider";
 export function AppShell({ children }: { children: ReactNode }) {
+  const { theme } = useTheme();
   const { user, ready, live } = useAuth();
   const { data } = useStore();
   const path = usePathname();
@@ -53,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {publicScreen ? (
         children
       ) : screenReady ? (
-        <div className="app-shell">
+        <div className="app-shell" data-theme={theme}>
           <Sidebar open={open} onClose={closeMenu} />
           <div className="app-body" inert={open}>
             <Header onMenu={() => setOpen(true)} />

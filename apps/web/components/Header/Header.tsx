@@ -1,11 +1,14 @@
 "use client";
-import { Menu, Bell, LogOut } from "lucide-react";
-import { useState } from "react";
+import { Menu, LogOut } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AccountMenu } from "./AccountMenu";
+import { NotificationBell } from "@/features/notificaciones/components/NotificationBell";
+import { ThemeToggle } from "@/features/preferencias/components/ThemeToggle";
 export function Header({ onMenu }: { onMenu: () => void }) {
   const { data, logout, live } = useAuth();
   const [show, setShow] = useState(false);
+  const closeNotifications = useCallback(() => setShow(false), []);
   return (
     <header className="header">
       <div className="header-left">
@@ -21,25 +24,12 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         <span className="demo-label">{live ? "EN LÍNEA" : "DEMO"}</span>
       </div>
       <div className="header-right">
-        <div className="notification-wrap">
-          <button
-            className="icon-button"
-            aria-label="Ver notificaciones"
-            aria-expanded={show}
-            onClick={() => setShow(!show)}
-          >
-            <Bell size={20} />
-          </button>
-          {show && (
-            <div className="notification-popover">
-              <strong>Notificaciones</strong>
-              <p>
-                Las notificaciones automáticas estarán disponibles en una
-                próxima etapa.
-              </p>
-            </div>
-          )}
-        </div>
+        <ThemeToggle />
+        <NotificationBell
+          open={show}
+          onToggle={() => setShow(!show)}
+          onClose={closeNotifications}
+        />
         <span className="header-divider" />
         <AccountMenu onOpen={() => setShow(false)} />
         <button
