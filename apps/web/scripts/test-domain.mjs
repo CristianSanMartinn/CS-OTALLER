@@ -564,4 +564,69 @@ test("El perfil se conserva al restaurar sin guardar permisos ni contraseñas", 
   browserStorage.clear();
 });
 
+const { vehicleMaintenanceSummary: summarize } = load(
+  "features/portal-cliente/services/vehicleMaintenanceSummary",
+);
+const maintenanceFixture = {
+  id: "m1",
+  type: "Aceite",
+  date: "2026-09-01",
+  mileage: 85000,
+  nextMileage: 95000,
+  nextDate: "2027-03-01",
+};
+test("El portal distingue historial vacío y mantenciones sin programación", () => {
+  assert.equal(summarize([], 85000, "2026-10-04").status, "Sin historial");
+  assert.equal(
+    summarize(
+      [{ ...maintenanceFixture, nextMileage: null, nextDate: null }],
+      85000,
+      "2026-10-04",
+    ).status,
+    "Sin programación",
+  );
+});
+test("La próxima mantención considera kilometraje y fecha", () => {
+  assert.equal(
+    summarize([maintenanceFixture], 85000, "2026-10-04").status,
+    "Al día",
+  );
+  assert.equal(
+    summarize([maintenanceFixture], 92500, "2026-10-04").status,
+    "Próxima",
+  );
+  assert.equal(
+    summarize([maintenanceFixture], 95000, "2026-10-04").status,
+    "Vencida",
+  );
+  assert.equal(
+    summarize(
+      [{ ...maintenanceFixture, nextDate: "2026-10-01" }],
+      85000,
+      "2026-10-04",
+    ).status,
+    "Vencida",
+  );
+});
+test("Una mantención nueva reemplaza la anterior del mismo tipo y conserva otros servicios pendientes", () => {
+  const old = {
+    ...maintenanceFixture,
+    id: "old",
+    date: "2025-01-01",
+    nextMileage: 60000,
+  };
+  assert.equal(
+    summarize([old, maintenanceFixture], 85000, "2026-10-04").status,
+    "Al día",
+  );
+  assert.equal(
+    summarize(
+      [{ ...old, type: "Frenos" }, maintenanceFixture],
+      85000,
+      "2026-10-04",
+    ).status,
+    "Vencida",
+  );
+});
+
 console.log("\n" + count + " pruebas completadas.");

@@ -11,7 +11,7 @@ import { AppointmentList } from "./AppointmentList";
 import { AppointmentFilters } from "./AppointmentFilters";
 import { AppointmentForm } from "./AppointmentForm";
 export function AgendaPage() {
-  const { data, user, update, notify } = useStore();
+  const { data, user, notify } = useStore();
   const [date, setDate] = useState(today);
   const [filter, setFilter] = useState("");
   const [open, setOpen] = useState(false);
@@ -85,13 +85,7 @@ export function AgendaPage() {
             appointment={editing}
             date={date}
             onCancel={() => setOpen(false)}
-            onSave={(a) => {
-              update((d) => ({
-                ...d,
-                appointments: editing
-                  ? d.appointments.map((x) => (x.id === a.id ? a : x))
-                  : [a, ...d.appointments],
-              }));
+            onSave={() => {
               notify("Cita guardada");
               setOpen(false);
             }}

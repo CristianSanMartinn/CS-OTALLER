@@ -35,7 +35,7 @@ export function WorkersTable({
                   className="person-inline text-button"
                   onClick={() => onView(u)}
                 >
-                  <Avatar name={u.name} />
+                  <Avatar name={u.name} src={u.avatarUrl} />
                   <span>
                     <strong>{u.name}</strong>
                     <small>{u.email}</small>

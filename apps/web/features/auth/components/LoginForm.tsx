@@ -5,23 +5,29 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
 import { PasswordInput } from "./PasswordInput";
 import { Field } from "@/components/ui/primitives";
-export function LoginForm() {
-  const { login } = useAuth();
+export function LoginForm({ workshopId = "" }: { workshopId?: string }) {
+  const { login, live } = useAuth();
   const router = useRouter();
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [recover, setRecover] = useState(false);
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    setBusy(true);
+    setError("");
     try {
-      login(
+      await login(
         String(fd.get("email")),
         String(fd.get("password")),
         fd.get("remember") === "on",
+        String(fd.get("workshopId") ?? "").trim() || undefined,
       );
       router.push("/dashboard");
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setBusy(false);
     }
   }
   return (
@@ -58,7 +64,9 @@ export function LoginForm() {
       </section>
       <section className="login-form-side">
         <div className="login-form-wrap">
-          <span className="demo-label">ENTORNO DEMO</span>
+          <span className="demo-label">
+            {live ? "ACCESO AL TALLER" : "ENTORNO DEMO"}
+          </span>
           <h2>Bienvenido de nuevo</h2>
           <p>Ingresa a tu espacio de trabajo.</p>
           <form onSubmit={submit}>
@@ -71,6 +79,21 @@ export function LoginForm() {
               placeholder="nombre@taller.cl"
             />
             <PasswordInput />
+            {live && (
+              <details open={!!workshopId}>
+                <summary>¿Accedes a más de un taller?</summary>
+                <Field
+                  label="Código del taller"
+                  name="workshopId"
+                  defaultValue={workshopId}
+                  maxLength={36}
+                />
+                <p className="help-text">
+                  Solo es necesario si tu correo está registrado en varios
+                  talleres. Usa el código entregado al crear el taller.
+                </p>
+              </details>
+            )}
             <div className="login-options">
               <label>
                 <input type="checkbox" name="remember" /> Recordarme
@@ -85,8 +108,9 @@ export function LoginForm() {
             </div>
             {recover && (
               <p className="info-box" role="status">
-                En esta demo no se envían correos. Utiliza las credenciales de
-                prueba que aparecen abajo.
+                {live
+                  ? "Contacta al administrador del taller para recuperar tu acceso. La recuperación automática se incorporará posteriormente."
+                  : "En esta demo no se envían correos. Utiliza las credenciales de prueba que aparecen abajo."}
               </p>
             )}
             {error && (
@@ -94,24 +118,38 @@ export function LoginForm() {
                 {error}
               </p>
             )}
-            <button className="button primary login-submit">
-              Iniciar sesión <ArrowRight size={18} />
+            <button className="button primary login-submit" disabled={busy}>
+              {busy ? "Ingresando…" : "Iniciar sesión"} <ArrowRight size={18} />
             </button>
           </form>
-          <div className="demo-credentials">
-            <ShieldCheck size={19} />
-            <div>
-              <strong>Accesos de demostración</strong>
-              <p>
-                Admin: admin@otaller.cl
-                <br />
-                Mecánico: mecanico@otaller.cl
-                <br />
-                Contraseña: <code>Taller2026!</code>
-              </p>
-              <small>Los cambios se reinician al recargar la página.</small>
+          {!live && (
+            <div className="demo-credentials">
+              <ShieldCheck size={19} />
+              <div>
+                <strong>Accesos de demostración</strong>
+                <p>
+                  Admin: admin@otaller.cl
+                  <br />
+                  Mecánico: mecanico@otaller.cl
+                  <br />
+                  Contraseña: <code>Taller2026!</code>
+                </p>
+                <small>Los cambios se reinician al recargar la página.</small>
+              </div>
             </div>
-          </div>
+          )}
+          {live && (
+            <p>
+              <a className="text-link" href="/registro">
+                Registrar un nuevo taller
+              </a>
+            </p>
+          )}
+          {live && (
+            <a className="text-link" href="/setup">
+              Configuración inicial
+            </a>
+          )}
         </div>
         <small className="login-copyright">© 2026 C.S.OTALLER</small>
       </section>

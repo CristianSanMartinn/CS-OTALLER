@@ -9,6 +9,13 @@ import { OrderSectionProps } from "../types/editor.types";
 import { ScannerCode } from "@/features/shared/types/domain";
 import { uid } from "@/utils/format";
 export function ScannerCodesSection({ order, onChange }: OrderSectionProps) {
+  const addCode = () =>
+    onChange({
+      codes: [
+        ...order.codes,
+        { id: uid(), code: "", description: "", status: "Activo", notes: "" },
+      ],
+    });
   const edit = (id: string, patch: Partial<ScannerCode>) =>
     onChange({
       codes: order.codes.map((c) => (c.id === id ? { ...c, ...patch } : c)),
@@ -16,26 +23,9 @@ export function ScannerCodesSection({ order, onChange }: OrderSectionProps) {
   return (
     <Panel
       title="Códigos de scanner"
-      subtitle="Diagnóstico electrónico del vehículo"
+      subtitle="Agrega un registro por cada código de falla: P0011, P0014, P0300…"
       action={
-        <button
-          type="button"
-          className="button small"
-          onClick={() =>
-            onChange({
-              codes: [
-                ...order.codes,
-                {
-                  id: uid(),
-                  code: "",
-                  description: "",
-                  status: "Activo",
-                  notes: "",
-                },
-              ],
-            })
-          }
-        >
+        <button type="button" className="button small" onClick={addCode}>
           <Plus size={16} />
           Agregar código
         </button>
@@ -44,11 +34,11 @@ export function ScannerCodesSection({ order, onChange }: OrderSectionProps) {
       {!order.codes.length && (
         <p className="section-hint">No se han registrado códigos de falla.</p>
       )}
-      {order.codes.map((c) => (
+      {order.codes.map((c, index) => (
         <div className="repeat-row" key={c.id}>
           <div className="form-grid">
             <Field
-              label="Código"
+              label={"Código " + (index + 1)}
               placeholder="P0300"
               required
               pattern="[PBCUpbcu][0-9A-Fa-f]{4}"
@@ -58,8 +48,7 @@ export function ScannerCodesSection({ order, onChange }: OrderSectionProps) {
               }
             />
             <Field
-              label="Descripción"
-              required
+              label="Descripción (opcional)"
               value={c.description}
               onChange={(e) => edit(c.id, { description: e.target.value })}
             />
@@ -81,7 +70,7 @@ export function ScannerCodesSection({ order, onChange }: OrderSectionProps) {
           <button
             type="button"
             className="icon-button danger"
-            aria-label="Eliminar código"
+            aria-label={"Eliminar código " + (index + 1)}
             onClick={() =>
               onChange({ codes: order.codes.filter((x) => x.id !== c.id) })
             }
@@ -90,6 +79,17 @@ export function ScannerCodesSection({ order, onChange }: OrderSectionProps) {
           </button>
         </div>
       ))}
+      {order.codes.length > 0 && (
+        <div className="panel-padding">
+          <button type="button" className="button" onClick={addCode}>
+            <Plus size={16} /> Agregar otro código
+          </button>
+          <p className="help-text">
+            {order.codes.length} códigos en esta orden. Se guardan todos al
+            guardar la orden.
+          </p>
+        </div>
+      )}
     </Panel>
   );
 }

@@ -1,4 +1,4 @@
-import { CustomerPortal } from "@/features/portal-cliente/components/CustomerPortal";
+import { CustomerPortal } from "@/features/portal-cliente/components/portal/CustomerPortal";
 export default async function Page({
   params,
 }: {

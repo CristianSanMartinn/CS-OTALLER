@@ -4,7 +4,7 @@ export const statusLabels: Record<OrderStatus, string> = {
   DIAGNOSIS: "Diagnóstico",
   WAITING_PARTS: "Esperando repuestos",
   IN_REPAIR: "En reparación",
-  READY: "Listo para entregar",
+  READY: "Listo para retirar",
   DELIVERED: "Entregado",
   CANCELLED: "Cancelado",
 };

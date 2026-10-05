@@ -1,3 +1,4 @@
+import { CancellationDetails } from "@/components/ui/CancellationDetails";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { WorkOrder } from "@/features/shared/types/domain";
@@ -52,6 +53,9 @@ export function WorkOrdersTable({ orders }: { orders: WorkOrder[] }) {
                 </td>
                 <td>
                   <WorkOrderStatus status={o.status} />
+                  {o.status === "CANCELLED" && (
+                    <CancellationDetails cancellation={o.cancellation} />
+                  )}
                 </td>
                 <td>
                   <Link

@@ -5,13 +5,21 @@ import { ImagePreview } from "@/components/ImageUploader/ImagePreview";
 import { Photo } from "@/features/shared/types/domain";
 import { dateLabel } from "@/utils/format";
 const categories = { BEFORE: "ANTES", DURING: "DURANTE", AFTER: "DESPUÉS" };
-export function PhotoGallery({ photos }: { photos: Omit<Photo, "userId">[] }) {
+export function PhotoGallery({
+  photos,
+  title = "Fotografías de tu vehículo",
+  subtitle = "Evidencias de la recepción y de los trabajos realizados",
+}: {
+  photos: Omit<Photo, "userId">[];
+  title?: string;
+  subtitle?: string;
+}) {
   const [filter, setFilter] = useState("ALL");
   const rows = photos.filter((p) => filter === "ALL" || p.category === filter);
   return (
     <Panel
-      title="Fotografías de tu vehículo"
-      subtitle="Evidencias de la recepción y de los trabajos realizados"
+      title={title}
+      subtitle={subtitle}
       action={
         <select
           aria-label="Filtrar fotografías"

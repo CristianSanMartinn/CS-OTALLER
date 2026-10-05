@@ -78,7 +78,11 @@ export function DashboardStats() {
         <div>
           {admin ? <Users size={18} /> : <Wrench size={18} />}
           <span>{admin ? "Clientes registrados" : "Órdenes asignadas"}</span>
-          <b>{admin ? data.customers.length : data.orders.length}</b>
+          <b>
+            {admin
+              ? data.customers.filter((c) => c.active !== false).length
+              : data.orders.length}
+          </b>
         </div>
         <div>
           <CarFront size={18} />

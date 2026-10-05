@@ -5,12 +5,14 @@ import { Customer } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { PageHeading, Panel } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
+import { DeleteClientDialog } from "./DeleteClientDialog";
 import { ClientSearch } from "./ClientSearch";
 import { ClientFilters } from "./ClientFilters";
 import { ClientsTable } from "./ClientsTable";
 import { ClientForm } from "./ClientForm";
 export function ClientsPage() {
-  const { data, update, notify, user } = useStore();
+  const { data, notify, user } = useStore();
+  const [deleting, setDeleting] = useState<Customer | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [editing, setEditing] = useState<Customer | undefined>();
@@ -18,8 +20,10 @@ export function ClientsPage() {
   if (user?.role !== "ADMIN") return null;
   const rows = data.customers.filter(
     (c) =>
+      (filter === "archived" ? c.active === false : c.active !== false) &&
       (c.name + c.rut + c.email).toLowerCase().includes(query.toLowerCase()) &&
       (filter === "all" ||
+        filter === "archived" ||
         (filter === "vehicles") ===
           data.vehicles.some((v) => v.customerId === c.id)),
   );
@@ -49,12 +53,19 @@ export function ClientsPage() {
         </div>
         <ClientsTable
           clients={rows}
+          onDelete={setDeleting}
           onEdit={(c) => {
             setEditing(c);
             setOpen(true);
           }}
         />
       </Panel>
+      {deleting && (
+        <DeleteClientDialog
+          client={deleting}
+          onClose={() => setDeleting(null)}
+        />
+      )}
       {open && (
         <Modal
           title={editing ? "Editar cliente" : "Nuevo cliente"}
@@ -63,13 +74,7 @@ export function ClientsPage() {
           <ClientForm
             client={editing}
             onCancel={() => setOpen(false)}
-            onSave={(c) => {
-              update((d) => ({
-                ...d,
-                customers: editing
-                  ? d.customers.map((x) => (x.id === c.id ? c : x))
-                  : [c, ...d.customers],
-              }));
+            onSave={() => {
               notify("Cliente guardado correctamente");
               setOpen(false);
             }}

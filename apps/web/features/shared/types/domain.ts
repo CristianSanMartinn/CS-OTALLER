@@ -1,3 +1,13 @@
+export type CancellationReason =
+  "CLIENT_CANCELLED" | "NO_BUDGET" | "DIAGNOSIS_ONLY" | "OTHER";
+export interface Cancellation {
+  reason: CancellationReason;
+  notes: string;
+  date: string;
+  userId: string;
+}
+export type VisitKind = "order" | "appointment";
+export type CancellationInput = Pick<Cancellation, "reason" | "notes">;
 export type Role = "ADMIN" | "WORKER";
 export interface Entity {
   id: string;
@@ -21,6 +31,8 @@ export interface ReminderPreferences {
   daysBefore: 7 | 15 | 30;
 }
 export interface Customer extends Entity {
+  active?: boolean;
+  photos?: Photo[];
   publicAccessToken?: string;
   reminderPreferences?: ReminderPreferences;
   name: string;
@@ -87,6 +99,7 @@ export interface Photo {
   userId: string;
 }
 export interface WorkOrder extends Entity {
+  cancellation?: Cancellation;
   number: string;
   date: string;
   time: string;
@@ -125,6 +138,7 @@ export interface Maintenance extends Entity {
 export type AppointmentStatus =
   "Programada" | "Confirmada" | "En taller" | "Finalizada" | "Cancelada";
 export interface Appointment extends Entity {
+  cancellation?: Cancellation;
   customerId: string;
   vehicleId: string;
   mechanicId: string;

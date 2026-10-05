@@ -1,4 +1,5 @@
 "use client";
+import { apiRequest } from "@/lib/http";
 import { useState } from "react";
 import Link from "next/link";
 import { QrCode, ExternalLink, Copy, Printer } from "lucide-react";
@@ -14,14 +15,47 @@ export function CustomerAccessCard({
   customerId: string;
   plate?: string;
 }) {
-  const { data, notify } = useStore();
+  const { data, notify, live } = useStore();
+  const [selectedPlate, setSelectedPlate] = useState(plate ?? "");
+  const [token, setToken] = useState("");
+  const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [origin, setOrigin] = useState("");
   const customer = data.customers.find(
     (c) => c.id === customerId && c.workshopId === data.workshop.id,
   );
   if (!customer) return null;
-  const path = clientAccessPath(customer);
+  const vehicles = data.vehicles.filter((v) => v.customerId === customerId);
+  const labelPlate =
+    plate ??
+    (vehicles.some((v) => v.plate === selectedPlate)
+      ? selectedPlate
+      : vehicles[0]?.plate);
+  const path = live
+    ? token
+      ? "/mi-taller/" + encodeURIComponent(token)
+      : ""
+    : clientAccessPath(customer);
+  async function prepare() {
+    if (!customer) return;
+    setBusy(true);
+    try {
+      if (live) {
+        const result = await apiRequest<{ token: string }>(
+          "customers/" + customer.id + "/portal",
+          "POST",
+          {},
+        );
+        setToken(result.token);
+      }
+      setOrigin(window.location.origin);
+      setOpen(true);
+    } catch (e) {
+      notify((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   let url = "";
   try {
     const parsed = new URL(origin);
@@ -46,41 +80,65 @@ export function CustomerAccessCard({
           </p>
         </div>
         <div className="row-actions">
-          <Link href={path} className="button">
-            <ExternalLink size={16} />
-            Ver como cliente
-          </Link>
-          <button
-            className="button primary"
-            onClick={() => {
-              setOrigin(window.location.origin);
-              setOpen(true);
-            }}
-          >
+          {path && (
+            <Link href={path} className="button">
+              <ExternalLink size={16} />
+              Ver como cliente
+            </Link>
+          )}
+          <button className="button primary" disabled={busy} onClick={prepare}>
             <QrCode size={16} />
-            Ver / imprimir QR
+            {busy ? "Preparando…" : "Ver / imprimir QR"}
           </button>
         </div>
       </section>
       {open && (
         <Modal title="Etiqueta QR del cliente" onClose={() => setOpen(false)}>
           <div className="qr-content">
+            {!plate && vehicles.length > 0 && (
+              <label className="field">
+                Patente para la etiqueta
+                <select
+                  value={labelPlate ?? ""}
+                  onChange={(e) => setSelectedPlate(e.target.value)}
+                >
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.plate}>
+                      {v.plate} · {v.brand} {v.model}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <p className="help-text">
+              El nombre y logo se toman de Configuración del taller. La patente
+              identifica esta etiqueta; el QR sigue siendo el mismo para todos
+              los vehículos del cliente.
+            </p>
             {url && (
               <>
                 <QrLabelContent
                   url={url}
                   workshop={data.workshop.name}
-                  plate={plate}
+                  plate={labelPlate}
+                  logo={data.workshop.logo}
+                  demo={!live}
                 />
                 <QrPrintLabel
                   url={url}
                   workshop={data.workshop.name}
-                  plate={plate}
+                  plate={labelPlate}
+                  logo={data.workshop.logo}
+                  demo={!live}
                 />
               </>
             )}
             <Field
-              label="Dirección donde se ejecuta la demo"
+              label={
+                live
+                  ? "Dirección del taller"
+                  : "Dirección donde se ejecuta la demo"
+              }
               value={origin}
               placeholder="https://mi-taller.example"
               onChange={(e) => setOrigin(e.target.value)}
@@ -123,12 +181,14 @@ export function CustomerAccessCard({
               encabezados ni pies del navegador. Cada auto puede llevar su
               patente y el mismo QR del cliente.
             </p>
-            <p className="info-box">
-              Demo: para escanear desde otro teléfono usa una dirección
-              accesible por red, no localhost. Las modificaciones no se
-              sincronizan todavía. Antes de imprimir etiquetas definitivas
-              necesitaremos una dirección estable y almacenamiento real.
-            </p>
+            {!live && (
+              <p className="info-box">
+                Demo: para escanear desde otro teléfono usa una dirección
+                accesible por red, no localhost. Las modificaciones no se
+                sincronizan todavía. Antes de imprimir etiquetas definitivas
+                necesitaremos una dirección estable y almacenamiento real.
+              </p>
+            )}
             <p className="help-text">
               Acceso público: cualquiera que tenga el código verá los vehículos
               asociados y sus mantenciones. La etiqueta no incluye RUT ni datos

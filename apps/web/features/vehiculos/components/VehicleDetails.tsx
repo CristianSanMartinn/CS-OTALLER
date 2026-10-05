@@ -16,7 +16,7 @@ import { VehicleMaintenanceHistory } from "./VehicleMaintenanceHistory";
 import { NextMaintenanceCard } from "@/features/mantenciones/components/NextMaintenanceCard";
 import { km } from "@/utils/format";
 export function VehicleDetails({ id }: { id: string }) {
-  const { data } = useStore();
+  const { data, user } = useStore();
   const v = data.vehicles.find((v) => v.id === id);
   if (!v) return <EmptyState title="Vehículo no encontrado o sin acceso" />;
   const orders = data.orders.filter((o) => o.vehicleId === id);
@@ -57,7 +57,9 @@ export function VehicleDetails({ id }: { id: string }) {
           ]}
         />
       </Panel>
-      <CustomerAccessCard customerId={v.customerId} plate={v.plate} />
+      {user?.role === "ADMIN" && (
+        <CustomerAccessCard customerId={v.customerId} plate={v.plate} />
+      )}
       {oil && <OilChangeSummary record={oil} />}
       <NextMaintenanceCard records={maintenance} />
       <Panel title="Órdenes anteriores">
@@ -83,7 +85,7 @@ export function VehicleDetails({ id }: { id: string }) {
       <Panel title="Mantenciones">
         <VehicleMaintenanceHistory records={maintenance} />
       </Panel>
-      <VehiclePhotoGallery vehicle={v} />
+      <VehiclePhotoGallery key={v.id} vehicle={v} />
     </>
   );
 }

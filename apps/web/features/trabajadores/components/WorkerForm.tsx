@@ -1,3 +1,4 @@
+import { AvatarUploader } from "@/components/ImageUploader/AvatarUploader";
 import { FormEvent, useState } from "react";
 import { User, Role } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
@@ -10,14 +11,18 @@ export function WorkerForm({
   onCancel,
 }: {
   worker?: User;
-  onSave: (u: User, password?: string) => void;
+  onSave: (u: User, password?: string) => void | Promise<void>;
   onCancel: () => void;
 }) {
-  const { data, user } = useStore();
+  const { data, user, live, saveWorker } = useStore();
   const [role, setRole] = useState<Role>(worker?.role ?? "WORKER");
+  const [avatarUrl, setAvatarUrl] = useState(worker?.avatarUrl ?? "");
+  const [preparingPhoto, setPreparingPhoto] = useState(false);
   const [error, setError] = useState("");
-  function submit(e: FormEvent<HTMLFormElement>) {
+  const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy || preparingPhoto) return;
     const f = new FormData(e.currentTarget);
     const get = (k: string) => String(f.get(k) ?? "").trim();
     if (
@@ -30,8 +35,10 @@ export function WorkerForm({
       setError("Este correo ya pertenece a un trabajador.");
       return;
     }
-    onSave(
-      {
+    setBusy(true);
+    setError("");
+    try {
+      const draft: User = {
         id: worker?.id ?? uid(),
         workshopId: user!.workshopId,
         name: get("name"),
@@ -41,12 +48,25 @@ export function WorkerForm({
         specialty: get("specialty"),
         role,
         active: worker?.active ?? true,
-      },
-      worker ? undefined : get("password"),
-    );
+        avatarUrl,
+      };
+      const password = worker ? undefined : String(f.get("password") ?? "");
+      const saved = await saveWorker(draft, password, Boolean(worker));
+      await onSave(saved);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <form onSubmit={submit}>
+      <AvatarUploader
+        name={worker?.name ?? "Trabajador"}
+        value={avatarUrl}
+        onChange={setAvatarUrl}
+        onBusyChange={setPreparingPhoto}
+      />
       <div className="form-grid">
         <Field
           label="Nombre completo"
@@ -90,9 +110,9 @@ export function WorkerForm({
             name="password"
             type="password"
             autoComplete="new-password"
-            minLength={8}
+            minLength={live ? 12 : 8}
             required
-            placeholder="Mínimo 8 caracteres"
+            placeholder={live ? "Mínimo 12 caracteres" : "Mínimo 8 caracteres"}
           />
         )}
       </div>
@@ -100,9 +120,9 @@ export function WorkerForm({
         <WorkerPermissions role={role} />
         {!worker && (
           <p className="help-text">
-            Entrega el correo y la contraseña temporal al trabajador. Las
-            credenciales nuevas solo funcionan durante esta sesión de demo; no
-            se almacenan contraseñas en el navegador.
+            {live
+              ? "Elige Administrador para darle acceso administrativo al mismo taller. Esta cuenta se guardará en Neon; nunca se muestran contraseñas existentes."
+              : "Las credenciales nuevas solo funcionan durante esta sesión de demostración."}
           </p>
         )}
       </div>
@@ -115,8 +135,8 @@ export function WorkerForm({
         <button type="button" className="button" onClick={onCancel}>
           Cancelar
         </button>
-        <button className="button primary">
-          {worker ? "Guardar cambios" : "Crear trabajador"}
+        <button className="button primary" disabled={busy || preparingPhoto}>
+          {busy ? "Guardando…" : worker ? "Guardar cambios" : "Crear cuenta"}
         </button>
       </div>
     </form>

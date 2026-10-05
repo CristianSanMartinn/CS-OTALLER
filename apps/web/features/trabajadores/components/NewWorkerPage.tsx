@@ -3,9 +3,8 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { PageHeading, Panel, Breadcrumb } from "@/components/ui/primitives";
 import { WorkerForm } from "./WorkerForm";
-import { authService } from "@/features/auth/services/authService";
 export function NewWorkerPage() {
-  const { user, update, notify } = useStore();
+  const { user, notify } = useStore();
   const router = useRouter();
   if (user?.role !== "ADMIN") return null;
   return (
@@ -22,9 +21,7 @@ export function NewWorkerPage() {
       <Panel className="narrow-panel">
         <WorkerForm
           onCancel={() => router.push("/trabajadores")}
-          onSave={(u, password) => {
-            if (password) authService.registerCredential(u.id, password);
-            update((d) => ({ ...d, users: [...d.users, u] }));
+          onSave={() => {
             notify(
               "Trabajador creado. Entrega las credenciales que acabas de definir.",
             );

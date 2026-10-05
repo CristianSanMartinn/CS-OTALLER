@@ -5,7 +5,7 @@ import { Avatar, Field, Panel } from "@/components/ui/primitives";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { profileFields } from "../services/profileService";
 export function ProfileForm() {
-  const { user, saveProfile, notify } = useStore();
+  const { user, saveProfile, notify, live } = useStore();
   const [profile, setProfile] = useState(() => profileFields(user!));
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -14,11 +14,11 @@ export function ProfileForm() {
     setProfile((p) => ({ ...p, ...patch }));
     setSaved(false);
   }
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     try {
-      saveProfile(profile);
+      await saveProfile(profile);
       setSaved(true);
       notify("Perfil guardado correctamente");
     } catch (err) {
@@ -120,8 +120,9 @@ export function ProfileForm() {
           se usará en tu próximo inicio de sesión.
         </p>
         <p className="section-hint">
-          Los datos del perfil se guardan en este navegador. La sincronización
-          entre dispositivos se incorporará posteriormente.
+          {live
+            ? "Los datos de tu perfil se guardan en el taller."
+            : "Los datos del perfil se guardan en este navegador. La sincronización entre dispositivos se incorporará posteriormente."}
         </p>
         {error && (
           <p className="error" role="alert">

@@ -14,7 +14,7 @@ export function MaintenanceForm({
   onSave: (m: Maintenance) => void;
   onCancel: () => void;
 }) {
-  const { data, user } = useStore();
+  const { data, user, saveMaintenance } = useStore();
   const order = data.orders.find((o) => o.id === orderId);
   const [value, setValue] = useState<Maintenance>({
     id: uid(),
@@ -36,9 +36,10 @@ export function MaintenanceForm({
     notes: "",
   });
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const change = (patch: Partial<Maintenance>) =>
     setValue((m) => ({ ...m, ...patch }));
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
     const v = data.vehicles.find((v) => v.id === value.vehicleId);
     if (!v || value.mileage < v.mileage) {
@@ -57,7 +58,16 @@ export function MaintenanceForm({
       );
       return;
     }
-    onSave(value);
+    setBusy(true);
+    setError("");
+    try {
+      const saved = await saveMaintenance(value);
+      onSave(saved);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <form onSubmit={submit}>
@@ -170,7 +180,9 @@ export function MaintenanceForm({
         <button type="button" className="button" onClick={onCancel}>
           Cancelar
         </button>
-        <button className="button primary">Guardar mantención</button>
+        <button className="button primary" disabled={busy}>
+          {busy ? "Guardando…" : "Guardar mantención"}
+        </button>
       </div>
     </form>
   );

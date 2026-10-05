@@ -14,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <StoreProvider>
+        <StoreProvider live={Boolean(process.env.API_URL)}>
           <AppShell>{children}</AppShell>
         </StoreProvider>
       </body>

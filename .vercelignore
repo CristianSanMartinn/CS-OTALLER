@@ -1,0 +1,10 @@
+.env*
+**/.env*
+!**/.env.example
+**/node_modules
+**/.next
+**/dist
+**/.vercel
+.vercel
+.neon
+**/*.before-fix.txt

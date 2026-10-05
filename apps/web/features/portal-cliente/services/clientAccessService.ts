@@ -15,12 +15,19 @@ export const clientVehiclePath = (token: string, vehicleId: string) =>
   encodeURIComponent(vehicleId);
 export function clientAccess(data: Store, token: string) {
   const customer = data.customers.find(
-    (c) => c.workshopId === data.workshop.id && clientAccessToken(c) === token,
+    (c) =>
+      c.workshopId === data.workshop.id &&
+      c.active !== false &&
+      clientAccessToken(c) === token,
   );
   if (!customer) return null;
   return {
     token,
-    workshop: { name: data.workshop.name, phone: data.workshop.phone },
+    workshop: {
+      name: data.workshop.name,
+      phone: data.workshop.phone,
+      logo: data.workshop.logo,
+    },
     vehicles: data.vehicles
       .filter(
         (v) =>
@@ -33,6 +40,18 @@ export function clientAccess(data: Store, token: string) {
         model: v.model,
         year: v.year,
         mileage: v.mileage,
+        maintenance: data.maintenance
+          .filter(
+            (m) => m.vehicleId === v.id && m.workshopId === customer.workshopId,
+          )
+          .map((m) => ({
+            id: m.id,
+            type: m.type,
+            date: m.date,
+            mileage: m.mileage,
+            nextMileage: m.nextMileage,
+            nextDate: m.nextDate,
+          })),
       })),
   };
 }

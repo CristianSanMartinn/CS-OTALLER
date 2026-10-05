@@ -10,7 +10,7 @@ import { MaintenanceTable } from "./MaintenanceTable";
 import { MaintenanceHistory } from "./MaintenanceHistory";
 import { maintenanceTypes } from "../types/maintenance.constants";
 export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
-  const { data, update, notify } = useStore();
+  const { data, notify } = useStore();
   const [open, setOpen] = useState(!!orderId);
   const [detail, setDetail] = useState<Maintenance>();
   const [q, setQ] = useState("");
@@ -67,16 +67,7 @@ export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
           <MaintenanceForm
             orderId={orderId}
             onCancel={() => setOpen(false)}
-            onSave={(m) => {
-              update((d) => ({
-                ...d,
-                maintenance: [m, ...d.maintenance],
-                vehicles: d.vehicles.map((v) =>
-                  v.id === m.vehicleId
-                    ? { ...v, mileage: Math.max(v.mileage, m.mileage) }
-                    : v,
-                ),
-              }));
+            onSave={() => {
               setOpen(false);
               notify("Mantención registrada");
             }}

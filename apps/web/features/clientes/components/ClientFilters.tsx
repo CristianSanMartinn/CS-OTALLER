@@ -11,7 +11,8 @@ export function ClientFilters({
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
-      <option value="all">Todos los clientes</option>
+      <option value="all">Clientes activos</option>
+      <option value="archived">Clientes eliminados</option>
       <option value="vehicles">Con vehículos registrados</option>
       <option value="empty">Sin vehículos</option>
     </select>

@@ -5,9 +5,11 @@ import { Avatar, EmptyState } from "@/components/ui/primitives";
 export function ClientsTable({
   clients,
   onEdit,
+  onDelete,
 }: {
   clients: Customer[];
   onEdit: (c: Customer) => void;
+  onDelete: (c: Customer) => void;
 }) {
   if (!clients.length) return <EmptyState />;
   return (
@@ -37,8 +39,19 @@ export function ClientsTable({
               <td>
                 <div className="row-actions">
                   <button
+                    type="button"
+                    className="text-button"
+                    aria-label={
+                      (c.active === false ? "Restaurar " : "Eliminar ") + c.name
+                    }
+                    onClick={() => onDelete(c)}
+                  >
+                    {c.active === false ? "Restaurar" : "Eliminar"}
+                  </button>
+                  <button
                     className="icon-button"
                     aria-label={"Editar " + c.name}
+                    disabled={c.active === false}
                     onClick={() => onEdit(c)}
                   >
                     <Pencil size={16} />

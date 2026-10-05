@@ -9,7 +9,7 @@ import { VehicleSearch } from "./VehicleSearch";
 import { VehiclesTable } from "./VehiclesTable";
 import { VehicleForm } from "./VehicleForm";
 export function VehiclesPage() {
-  const { data, update, notify, user } = useStore();
+  const { data, notify, user } = useStore();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<Vehicle>();
   const [open, setOpen] = useState(false);
@@ -62,13 +62,7 @@ export function VehiclesPage() {
           <VehicleForm
             vehicle={editing}
             onCancel={() => setOpen(false)}
-            onSave={(v) => {
-              update((d) => ({
-                ...d,
-                vehicles: editing
-                  ? d.vehicles.map((x) => (x.id === v.id ? v : x))
-                  : [v, ...d.vehicles],
-              }));
+            onSave={() => {
               notify("Vehículo guardado");
               setOpen(false);
             }}

@@ -10,11 +10,13 @@ import { WorkersTable } from "./WorkersTable";
 import { WorkerForm } from "./WorkerForm";
 import { WorkerDetails } from "./WorkerDetails";
 export function WorkersPage() {
-  const { data, user, update, notify } = useStore();
+  const { data, user, saveWorker, notify } = useStore();
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<User>();
   const [detail, setDetail] = useState<User>();
   const [toggle, setToggle] = useState<User>();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   if (user?.role !== "ADMIN") return null;
   return (
     <>
@@ -28,6 +30,11 @@ export function WorkersPage() {
           </Link>
         }
       />
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
       <Panel>
         <div className="toolbar">
           <SearchBox
@@ -56,11 +63,7 @@ export function WorkersPage() {
           <WorkerForm
             worker={editing}
             onCancel={() => setEditing(undefined)}
-            onSave={(u) => {
-              update((d) => ({
-                ...d,
-                users: d.users.map((x) => (x.id === u.id ? u : x)),
-              }));
+            onSave={() => {
               setEditing(undefined);
               notify("Trabajador actualizado");
             }}
@@ -96,19 +99,27 @@ export function WorkersPage() {
             </button>
             <button
               className="button primary"
-              onClick={() => {
-                update((d) => ({
-                  ...d,
-                  users: d.users.map((u) =>
-                    u.id === toggle.id ? { ...u, active: !u.active } : u,
-                  ),
-                }));
-                notify(
-                  toggle.active
-                    ? "Trabajador desactivado"
-                    : "Trabajador reactivado",
-                );
-                setToggle(undefined);
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  await saveWorker(
+                    { ...toggle, active: !toggle.active },
+                    undefined,
+                    true,
+                  );
+                  notify(
+                    toggle.active
+                      ? "Trabajador desactivado"
+                      : "Trabajador reactivado",
+                  );
+                  setToggle(undefined);
+                } catch (e) {
+                  setError((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
               }}
             >
               Confirmar

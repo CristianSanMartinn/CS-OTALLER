@@ -14,9 +14,10 @@ export function VehicleForm({
   onSave: (v: Vehicle) => void;
   onCancel: () => void;
 }) {
-  const { data, user } = useStore();
+  const { data, user, saveVehicle } = useStore();
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const get = (k: string) => String(f.get(k) ?? "").trim();
@@ -31,23 +32,35 @@ export function VehicleForm({
       setError("Esta patente ya está registrada.");
       return;
     }
-    onSave({
-      id: vehicle?.id ?? uid(),
-      workshopId: user!.workshopId,
-      customerId: ownerId ?? get("customerId"),
-      plate,
-      brand: get("brand"),
-      model: get("model"),
-      version: get("version"),
-      year: Number(get("year")),
-      vin: get("vin"),
-      engine: get("engine"),
-      fuel: get("fuel"),
-      transmission: get("transmission"),
-      mileage: Number(get("mileage")),
-      color: get("color"),
-      photos: vehicle?.photos,
-    });
+    setBusy(true);
+    setError("");
+    try {
+      const saved = await saveVehicle(
+        {
+          id: vehicle?.id ?? uid(),
+          workshopId: user!.workshopId,
+          customerId: ownerId ?? get("customerId"),
+          plate,
+          brand: get("brand"),
+          model: get("model"),
+          version: get("version"),
+          year: Number(get("year")),
+          vin: get("vin"),
+          engine: get("engine"),
+          fuel: get("fuel"),
+          transmission: get("transmission"),
+          mileage: Number(get("mileage")),
+          color: get("color"),
+          photos: vehicle?.photos,
+        },
+        !!vehicle,
+      );
+      onSave(saved);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <form onSubmit={submit}>
@@ -60,11 +73,13 @@ export function VehicleForm({
           disabled={!!ownerId}
         >
           <option value="">Seleccionar cliente</option>
-          {data.customers.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
+          {data.customers
+            .filter((c) => c.active !== false)
+            .map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
         </SelectField>
         {(
           [
@@ -128,10 +143,17 @@ export function VehicleForm({
         </p>
       )}
       <div className="form-actions">
-        <button type="button" className="button" onClick={onCancel}>
+        <button
+          type="button"
+          className="button"
+          onClick={onCancel}
+          disabled={busy}
+        >
           Cancelar
         </button>
-        <button className="button primary">Guardar vehículo</button>
+        <button className="button primary" disabled={busy}>
+          {busy ? "Guardando…" : "Guardar vehículo"}
+        </button>
       </div>
     </form>
   );

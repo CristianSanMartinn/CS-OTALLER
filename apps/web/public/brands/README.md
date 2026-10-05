@@ -1,0 +1,1 @@
+Iconos SVG de marcas obtenidos del proyecto Simple Icons: https://github.com/simple-icons/simple-icons (CC0). Los nombres y emblemas pertenecen a sus respectivas marcas. Los archivos se sirven localmente.

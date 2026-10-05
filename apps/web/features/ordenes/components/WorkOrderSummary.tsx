@@ -8,13 +8,15 @@ export function WorkOrderSummary({
   initialStatus,
   onStatus,
   isNew,
+  busy = false,
 }: {
   order: WorkOrder;
   initialStatus: WorkOrder["status"];
   onStatus: (s: WorkOrder["status"]) => void;
   isNew: boolean;
+  busy?: boolean;
 }) {
-  const { user, data } = useStore();
+  const { user, data, live } = useStore();
   const admin = user?.role === "ADMIN";
   const services = order.services.reduce((n, s) => n + s.price, 0);
   const parts = order.parts.reduce((n, p) => n + p.quantity * p.price, 0);
@@ -74,11 +76,17 @@ export function WorkOrderSummary({
             </>
           )}
         </dl>
-        <button className="button primary full-width" type="submit">
+        <button
+          className="button primary full-width"
+          type="submit"
+          disabled={busy}
+        >
           {isNew ? "Crear orden de trabajo" : "Guardar cambios"}
         </button>
         <p className="help-text">
-          Los cambios se guardan en la sesión de demostración.
+          {live
+            ? "Los cambios se guardan en el historial del taller."
+            : "Los cambios se guardan en la sesión de demostración."}
         </p>
       </div>
     </Panel>

@@ -9,3 +9,9 @@ coverage/
 !.env.example
 *.log
 *.tsbuildinfo
+.neon
+
+.vercel/
+
+# Copias locales de recuperación
+*.before-fix.txt

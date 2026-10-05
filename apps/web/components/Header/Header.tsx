@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AccountMenu } from "./AccountMenu";
 export function Header({ onMenu }: { onMenu: () => void }) {
-  const { data, logout } = useAuth();
+  const { data, logout, live } = useAuth();
   const [show, setShow] = useState(false);
   return (
     <header className="header">
@@ -18,7 +18,7 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         </button>
         <span className="header-workshop">{data.workshop.name}</span>
         <span className="header-divider" />
-        <span className="demo-label">DEMO</span>
+        <span className="demo-label">{live ? "EN LÍNEA" : "DEMO"}</span>
       </div>
       <div className="header-right">
         <div className="notification-wrap">

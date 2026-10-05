@@ -2,7 +2,11 @@ import { Panel } from "@/components/ui/primitives";
 import { ImageUploader } from "@/components/ImageUploader/ImageUploader";
 import { OrderSectionProps } from "../types/editor.types";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-export function PhotoEvidenceSection({ order, onChange }: OrderSectionProps) {
+export function PhotoEvidenceSection({
+  order,
+  onChange,
+  onBusyChange,
+}: OrderSectionProps & { onBusyChange?: (busy: boolean) => void }) {
   const { user } = useAuth();
   return (
     <Panel
@@ -14,6 +18,7 @@ export function PhotoEvidenceSection({ order, onChange }: OrderSectionProps) {
           photos={order.photos}
           onChange={(photos) => onChange({ photos })}
           userId={user!.id}
+          onBusyChange={onBusyChange}
         />
       </div>
     </Panel>

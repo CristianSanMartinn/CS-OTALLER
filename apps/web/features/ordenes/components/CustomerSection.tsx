@@ -28,11 +28,13 @@ export function CustomerSection({
       {onCreate && !disabled && (
         <option value="__new__">+ Registrar nuevo cliente</option>
       )}
-      {customers.map((c) => (
-        <option key={c.id} value={c.id}>
-          {c.name} · {c.rut}
-        </option>
-      ))}
+      {customers
+        .filter((c) => c.active !== false)
+        .map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name} · {c.rut}
+          </option>
+        ))}
     </SelectField>
   );
 }

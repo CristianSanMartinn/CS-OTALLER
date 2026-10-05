@@ -2564,49 +2564,142 @@ td .wrap-cell {
   box-sizing: border-box;
   width: 80mm;
   max-width: 100%;
-  border: 1px dashed #7d8c9e;
-  border-radius: 8px;
-  padding: 5mm;
+  overflow: hidden;
+  border: 2px solid #00bee8;
+  border-radius: 14px;
+  background: #fff;
+  color: #080f19;
+  text-align: center;
+  break-inside: avoid;
+  box-shadow:
+    inset 0 0 0 3px #fff,
+    0 8px 24px #082c4210;
+}
+.sticker-header {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 7px;
-  color: #142137;
-  background: white;
-  break-inside: avoid;
+  padding: 12px 14px 18px;
+  color: #00d4f4;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    #124457 0%,
+    #06131d 55%,
+    #020a10 100%
+  );
+  border-bottom: 4px solid #00c9ed;
+}
+.sticker-header::before,
+.sticker-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 8px;
+  height: 65px;
+  background: linear-gradient(#04d7fc, #027695);
+  pointer-events: none;
+}
+.sticker-header::before {
+  left: 15px;
+  transform: rotate(-42deg);
+}
+.sticker-header::after {
+  right: 15px;
+  transform: rotate(42deg);
+}
+.sticker-car {
+  width: 85%;
+  height: 61px;
+  flex-shrink: 0;
+}
+.sticker-logo {
+  width: 100%;
+  max-height: 105px;
+  height: auto;
+  object-fit: contain;
+  margin: 3px 0 9px;
 }
 .qr-sticker .sticker-brand {
-  font-size: 19px;
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: 0.4px;
+  overflow-wrap: anywhere;
+  color: #eefbff;
+  position: relative;
 }
-.qr-sticker > span {
+.sticker-specialty {
   font-size: 10px;
-  letter-spacing: 1px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  margin-top: 7px;
+  position: relative;
 }
-.qr-sticker svg {
+.sticker-body {
+  padding: 16px 10px 10px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.sticker-body h2 {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+.sticker-divider {
+  width: 75%;
+  height: 3px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, transparent, #00c6ee, transparent);
+}
+.sticker-plate {
+  font-size: 24px;
+  letter-spacing: 3px;
+  border: 2px solid #00c5ed;
+  border-radius: 9px;
+  padding: 5px 16px;
+  background: #f5fbfd;
+  line-height: 1.2;
+}
+.sticker-qr-frame {
+  border: 2px solid #00c7ed;
+  border-radius: 8px;
+  background: #fff;
+  padding: 2px;
+  max-width: 100%;
+}
+.sticker-qr-frame svg {
+  display: block;
   width: 55mm;
   height: 55mm;
   max-width: 100%;
-  flex-shrink: 0;
 }
-.qr-sticker > strong:not(.sticker-brand) {
-  font-size: 12px;
+.sticker-instruction {
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 800;
 }
-.qr-sticker > small,
-.qr-sticker > p {
+.sticker-features {
+  font-size: 10px;
+  color: #33475d;
+  margin: 0;
+  line-height: 1.4;
+}
+.sticker-note {
+  border-top: 1px solid #d5dde4;
+  padding-top: 9px;
   font-size: 9px;
   line-height: 1.5;
-}
-.sticker-plate {
-  font-size: 14px;
-  letter-spacing: 2px;
-  border: 1px solid #ccd5e1;
-  border-radius: 4px;
-  padding: 4px 12px;
+  margin: 0;
 }
 .sticker-demo {
-  color: #777;
-  font-size: 8px !important;
+  font-size: 7px;
+  color: #7a8c9d;
+  letter-spacing: 1px;
 }
 #customer-qr-print {
   display: none;
@@ -2653,7 +2746,7 @@ td .wrap-cell {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-  #customer-qr-print svg {
+  #customer-qr-print .sticker-qr-frame svg {
     width: 55mm;
     height: 55mm;
   }
@@ -2780,3 +2873,1861 @@ td .wrap-cell {
     padding: 3px;
   }
 }
+
+/* Identidad original del taller en la etiqueta impresa. */
+.sticker-header.has-logo {
+  padding: 0;
+  background: #000;
+}
+.sticker-header.has-logo::before,
+.sticker-header.has-logo::after {
+  display: none;
+}
+.sticker-header.has-logo .sticker-logo {
+  width: 100%;
+  height: 180px;
+  max-height: none;
+  object-fit: cover;
+  object-position: center;
+  margin: 0;
+}
+
+/* Etiqueta inspirada en la referencia CSM: marco doble y detalles turquesa. */
+.qr-sticker {
+  border: 3px solid #00c7ee;
+  border-radius: 14px;
+  padding: 3px;
+  box-shadow: inset 0 0 0 1px #074863;
+  background: #fff;
+}
+.sticker-header {
+  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 73%,
+    88% 96%,
+    61% 96%,
+    58% 100%,
+    42% 100%,
+    39% 96%,
+    12% 96%,
+    0 73%
+  );
+}
+.sticker-header.has-logo::before,
+.sticker-header.has-logo::after {
+  display: block;
+  width: 13px;
+  height: 105px;
+  bottom: 2px;
+  background: linear-gradient(90deg, #0086ac, #00dbff, #026985);
+  z-index: 1;
+}
+.sticker-header.has-logo::before {
+  left: 21px;
+  transform: rotate(-44deg);
+}
+.sticker-header.has-logo::after {
+  right: 21px;
+  transform: rotate(44deg);
+}
+.sticker-body {
+  padding: 14px 9px 15px;
+  gap: 12px;
+}
+.sticker-body h2 {
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -0.5px;
+}
+.sticker-divider {
+  width: 88%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #00c8ef 42%,
+    #00c8ef 58%,
+    transparent 100%
+  );
+}
+.sticker-plate {
+  font-size: 30px;
+  border-radius: 9px;
+  padding: 4px 15px;
+  letter-spacing: 2px;
+}
+.sticker-qr-frame {
+  border: none;
+  border-radius: 0;
+  padding: 5px;
+  background:
+    linear-gradient(#00c9f0, #00c9f0) left top/14px 3px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) left top/3px 14px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) right top/14px 3px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) right top/3px 14px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) left bottom/14px 3px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) left bottom/3px 14px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) right bottom/14px 3px no-repeat,
+    linear-gradient(#00c9f0, #00c9f0) right bottom/3px 14px no-repeat,
+    #fff;
+}
+.sticker-instruction {
+  font-size: 14px;
+  font-weight: 900;
+}
+.sticker-features {
+  font-size: 10px;
+}
+.sticker-note {
+  width: 95%;
+  padding-top: 10px;
+  font-size: 9px;
+}
+
+/* Portal público de vehículos: identidad automotriz y lectura clara en móvil. */
+.public-garage {
+  min-height: 100dvh;
+  color: #f7fbff;
+  background:
+    linear-gradient(180deg, #00101b40 0%, #03131ff2 440px, #071925 100%),
+    url("/images/garage-backdrop.svg") center top/cover no-repeat,
+    #06131c;
+}
+.public-garage-content {
+  max-width: 880px;
+  margin: auto;
+  padding: 0 24px 28px;
+}
+.public-workshop-logo {
+  height: 172px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.public-workshop-logo img {
+  width: 220px;
+  height: 152px;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+.public-workshop-logo strong {
+  font-size: 30px;
+  color: #12d0f0;
+  text-align: center;
+}
+.public-welcome h1,
+.public-vehicles-section h2 {
+  font-size: 27px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin: 0 0 5px;
+}
+.public-welcome p,
+.public-vehicles-section > p {
+  font-size: 15px;
+  color: #dde6ee;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 560px;
+}
+.public-qr-info,
+.public-new-vehicle {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #147ab1;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #063252c9, #021729eb);
+  padding: 15px;
+  margin: 19px 0;
+  color: #edf7ff;
+}
+.public-qr-info > span {
+  display: grid;
+  place-items: center;
+  background: #0d4167;
+  border-radius: 10px;
+  min-width: 52px;
+  height: 52px;
+  color: #8ddfff;
+}
+.public-qr-info strong,
+.public-new-vehicle strong {
+  font-size: 14px;
+}
+.public-qr-info em {
+  font-style: normal;
+  color: #62d5ff;
+}
+.public-qr-info p,
+.public-new-vehicle p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #c2d1df;
+  margin: 5px 0 0;
+}
+.public-vehicles-section > p {
+  margin-bottom: 15px;
+}
+.public-vehicles-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+.public-vehicle-card {
+  background: #fff;
+  color: #08152a;
+  border: 1px solid #dce5ef;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 5px 16px #0004;
+  transition: transform 0.15s;
+}
+.public-vehicle-card:hover {
+  transform: translateY(-2px);
+}
+.public-vehicle-card:focus-visible {
+  outline: 3px solid #00cfff;
+  outline-offset: 4px;
+}
+.public-vehicle-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.public-brand-emblem {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  background: #edf5ff;
+  border-radius: 50%;
+  color: #0b2844;
+}
+.public-brand-emblem img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+.public-vehicle-name {
+  min-width: 0;
+  flex: 1;
+}
+.public-vehicle-name h3 {
+  font-size: 20px;
+  line-height: 1.1;
+  margin: 0 0 4px;
+  font-weight: 850;
+}
+.public-vehicle-name > strong {
+  font-size: 13px;
+  display: block;
+}
+.public-vehicle-name p {
+  font-size: 12px;
+  color: #536a87;
+  margin: 4px 0 0;
+}
+.public-vehicle-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 11px;
+}
+.public-maintenance-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  border-radius: 9px;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+.public-maintenance-status.current {
+  background: #dcf8ec;
+  color: #00885f;
+}
+.public-maintenance-status.soon {
+  background: #fff0d2;
+  color: #b66b00;
+}
+.public-maintenance-status.overdue {
+  background: #fee9e7;
+  color: #b93d32;
+}
+.public-maintenance-status.neutral {
+  background: #edf1f7;
+  color: #566579;
+}
+.public-vehicle-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #d9e3ef;
+  padding-top: 11px;
+}
+.public-vehicle-metrics > div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 4px;
+  padding: 0 5px;
+}
+.public-vehicle-metrics > div + div {
+  border-left: 1px solid #e5ebf3;
+}
+.public-vehicle-metrics svg {
+  color: #0b2143;
+}
+.public-vehicle-metrics span {
+  font-size: 10px;
+  color: #5a6a83;
+}
+.public-vehicle-metrics strong {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.public-vehicle-metrics small {
+  font-size: 9px;
+  color: #60728d;
+}
+.public-new-vehicle {
+  margin-top: 15px;
+}
+.public-new-vehicle > svg {
+  flex-shrink: 0;
+  color: #81d8fb;
+}
+.public-garage-footer {
+  font-size: 11px;
+  color: #92a9ba;
+  line-height: 1.5;
+  text-align: center;
+  margin-top: 22px;
+}
+.public-garage-footer span {
+  display: block;
+  margin-top: 8px;
+}
+.public-empty {
+  border: 1px solid #214d66;
+  background: #062436;
+  padding: 22px;
+  border-radius: 12px;
+  grid-column: 1/-1;
+}
+.public-empty h3 {
+  font-size: 17px;
+  color: white;
+  margin: 0 0 8px;
+}
+.public-empty p {
+  font-size: 13px;
+  color: #bdd1df;
+}
+@media (max-width: 740px) {
+  .public-garage-content {
+    max-width: 520px;
+    padding: 0 20px 24px;
+  }
+  .public-vehicles-list {
+    grid-template-columns: 1fr;
+  }
+  .public-workshop-logo {
+    height: 148px;
+  }
+  .public-workshop-logo img {
+    width: 220px;
+    height: 140px;
+  }
+  .public-welcome h1,
+  .public-vehicles-section h2 {
+    font-size: 24px;
+  }
+}
+@media (max-width: 360px) {
+  .public-garage-content {
+    padding-inline: 12px;
+  }
+  .public-vehicle-card {
+    padding: 12px;
+  }
+  .public-brand-emblem {
+    width: 43px;
+    height: 43px;
+  }
+  .public-vehicle-top {
+    gap: 8px;
+  }
+  .public-maintenance-status {
+    font-size: 10px;
+    padding: 5px;
+  }
+  .public-vehicle-metrics span {
+    font-size: 9px;
+  }
+}
+
+/* Distribución de escritorio del portal; el diseño móvil se conserva. */
+@media (min-width: 741px) {
+  .public-garage {
+    background-size:
+      auto,
+      1600px 760px,
+      auto;
+    background-position: center top;
+    padding: 40px 24px;
+  }
+  .public-garage-content {
+    max-width: 1120px;
+    padding: 28px 36px;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    column-gap: 36px;
+    align-items: center;
+    background: linear-gradient(150deg, #092333e8, #061622f5);
+    border: 1px solid #24485c;
+    border-radius: 24px;
+    box-shadow: 0 24px 70px #0005;
+  }
+  .public-workshop-logo {
+    height: 172px;
+  }
+  .public-welcome h1 {
+    font-size: 34px;
+    margin-bottom: 10px;
+  }
+  .public-welcome p {
+    font-size: 17px;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  .public-qr-info,
+  .public-vehicles-section,
+  .public-new-vehicle,
+  .public-garage-footer {
+    grid-column: 1 / -1;
+  }
+  .public-qr-info {
+    margin: 12px 0 30px;
+    padding: 18px 20px;
+  }
+  .public-qr-info strong,
+  .public-new-vehicle strong {
+    font-size: 16px;
+  }
+  .public-qr-info p,
+  .public-new-vehicle p {
+    font-size: 14px;
+  }
+  .public-vehicles-section > p {
+    max-width: none;
+    margin-bottom: 22px;
+  }
+  .public-vehicles-list {
+    gap: 22px;
+  }
+  .public-vehicle-card {
+    padding: 24px;
+    min-width: 0;
+    display: block;
+  }
+  .public-vehicle-top {
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+  .public-vehicle-name h3 {
+    font-size: 24px;
+  }
+  .public-vehicle-name > strong {
+    font-size: 15px;
+  }
+  .public-vehicle-name p {
+    font-size: 13px;
+  }
+  .public-maintenance-status {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+  .public-vehicle-metrics {
+    padding-top: 18px;
+  }
+  .public-vehicle-metrics > div {
+    padding: 0 9px;
+    gap: 7px;
+  }
+  .public-vehicle-metrics span {
+    font-size: 12px;
+  }
+  .public-vehicle-metrics strong {
+    font-size: 14px;
+  }
+  .public-vehicle-metrics small {
+    font-size: 11px;
+  }
+  .public-new-vehicle {
+    margin: 24px 0 0;
+    padding: 18px 20px;
+  }
+  .public-garage-footer {
+    margin-top: 24px;
+    font-size: 12px;
+  }
+}
+@media (min-width: 741px) and (max-width: 1000px) {
+  .public-garage {
+    padding: 24px 20px;
+  }
+  .public-garage-content {
+    padding: 20px 24px;
+    column-gap: 24px;
+  }
+  .public-vehicles-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ficha pública del vehículo: resumen, historial y detalle de mantenciones. */
+.vehicle-detail-portal {
+  min-height: 100dvh;
+  background:
+    linear-gradient(180deg, #020c1480, #06131deb 400px, #13222d),
+    url("/images/garage-backdrop.svg") center top/1400px 700px no-repeat,
+    #06131c;
+  color: #f5faff;
+  padding: 0 24px 32px;
+}
+.vehicle-detail-content {
+  max-width: 1120px;
+  margin: auto;
+}
+.portal-heading-anchor:focus {
+  outline: none;
+}
+.vehicle-portal-header {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0 36px;
+  align-items: center;
+  padding: 22px 0 30px;
+}
+.portal-return {
+  grid-column: 1/-1;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: #c3e3f5;
+  font-size: 14px;
+  width: fit-content;
+  background: none;
+  border: 0;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.portal-return:hover {
+  color: white;
+}
+.vehicle-portal-brand {
+  min-height: 155px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.vehicle-portal-brand img {
+  width: 220px;
+  height: 150px;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+.vehicle-portal-brand strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #31d1f1;
+  font-size: 24px;
+}
+.vehicle-portal-welcome > span {
+  font-size: 11px;
+  color: #67cef1;
+  letter-spacing: 1.4px;
+}
+.vehicle-portal-welcome h1 {
+  font-size: 34px;
+  line-height: 1.18;
+  letter-spacing: -0.8px;
+  margin: 10px 0;
+}
+.vehicle-portal-welcome p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #d9e6f0;
+  max-width: 610px;
+  margin: 0;
+}
+.vehicle-selector-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  position: relative;
+  gap: 18px;
+  padding: 24px 28px;
+  background: linear-gradient(125deg, #fff, #f1f6fb);
+  color: #0b1930;
+  border: 1px solid #dce6ee;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px #0003;
+}
+.vehicle-selector-info {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px 16px;
+  flex: 1;
+  min-width: 200px;
+}
+.vehicle-selector-info h2 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+.vehicle-selector-info p {
+  color: #536c88;
+  margin: 0;
+  font-size: 14px;
+}
+.vehicle-selector-plate {
+  grid-column: 1/-1;
+  background: white;
+  border: 1px solid #dbe5ef;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 24px;
+  letter-spacing: 1px;
+  width: fit-content;
+  box-shadow: 0 2px 6px #182f4210;
+}
+.vehicle-selector-photo {
+  width: 220px;
+  height: 126px;
+  display: grid;
+  place-items: center;
+  color: #2b5576;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.vehicle-selector-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vehicle-switcher {
+  color: #526881;
+  font-size: 12px;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vehicle-switcher select {
+  width: 100%;
+  padding: 10px 30px 10px 10px;
+  border: 1px solid #c9d8e5;
+  border-radius: 9px;
+  color: #102843;
+  background: #fff;
+  font-size: 13px;
+}
+.vehicle-portal-tabs {
+  display: flex;
+  gap: 14px;
+  margin: 20px 0;
+}
+.vehicle-portal-tabs button {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  color: #deebf7;
+  background: #12232fa8;
+  border: 1px solid #284253;
+  border-radius: 14px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.vehicle-portal-tabs button[aria-pressed="true"] {
+  background: linear-gradient(125deg, #008cff, #0663fa);
+  border-color: #008bff;
+  color: white;
+  box-shadow: 0 6px 16px #0073ef30;
+}
+.vehicle-portal-tabs button:focus-visible,
+.vehicle-detail-portal button:focus-visible,
+.vehicle-detail-portal a:focus-visible {
+  outline: 3px solid #28bdfa;
+  outline-offset: 3px;
+}
+.vehicle-summary-layout,
+.vehicle-history-layout,
+.maintenance-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+.vehicle-portal-section {
+  background: #fff;
+  color: #0b1930;
+  border: 1px solid #dce6ef;
+  border-radius: 19px;
+  padding: 24px;
+  box-shadow: 0 7px 20px #0002;
+  min-width: 0;
+}
+.vehicle-portal-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.vehicle-portal-section h2 {
+  font-size: 20px;
+  line-height: 1.3;
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+.vehicle-portal-section h3 {
+  font-size: 17px;
+  margin: 24px 0 15px;
+}
+.portal-muted {
+  color: #59718a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.maintenance-card-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.maintenance-card-title > div {
+  flex: 1;
+}
+.maintenance-card-title p {
+  margin: 0 0 5px;
+  font-size: 14px;
+}
+.maintenance-card-title h2 {
+  font-size: 25px;
+}
+.maintenance-icon {
+  width: 58px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.maintenance-icon.amber {
+  background: #fff0bf;
+  color: #f3a300;
+}
+.maintenance-progress {
+  margin: 26px 0 20px;
+}
+.maintenance-progress-track {
+  height: 10px;
+  background: #edf1f5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.maintenance-progress-track > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #00b77e, #0fbe8c);
+  border-radius: 999px;
+}
+.maintenance-progress > div + div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  margin: 10px 0 7px;
+}
+.maintenance-progress span {
+  color: #4c6883;
+}
+.maintenance-progress small {
+  font-size: 11px;
+  color: #6d8093;
+}
+.maintenance-metric-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.maintenance-metric-pair > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 12px;
+  background: #f6f8fb;
+  border: 1px solid #e8edf3;
+  border-radius: 12px;
+}
+.maintenance-metric-pair svg {
+  width: 22px;
+  flex-shrink: 0;
+}
+.maintenance-metric-pair span {
+  display: block;
+  color: #56708b;
+  font-size: 12px;
+}
+.maintenance-metric-pair strong {
+  display: block;
+  color: #10213a;
+  font-size: 15px;
+  margin-top: 5px;
+}
+.portal-primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 17px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #008aff, #0864f5);
+  color: white;
+  font-size: 16px;
+  margin-top: 18px;
+  font-weight: 650;
+}
+.portal-primary-button > svg:last-child {
+  margin-left: auto;
+}
+.last-maintenance-button {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  color: #10213a;
+  border: 1px solid #e3eaf1;
+  border-radius: 14px;
+  padding: 0 14px 0 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.last-maintenance-visual {
+  width: 125px;
+  min-height: 140px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(150deg, #e4f1ff, #cae6ff);
+  color: #007aff;
+}
+.last-maintenance-visual img {
+  width: 125px;
+  height: 150px;
+  object-fit: cover;
+}
+.last-maintenance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+  padding: 15px 0;
+  min-width: 0;
+}
+.last-maintenance-info > strong {
+  font-size: 17px;
+}
+.last-maintenance-info > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #496782;
+}
+.other-services-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 13px;
+}
+.other-services-heading h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.portal-text-button {
+  background: none;
+  border: 0;
+  color: #007aff;
+  font-size: 13px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+.other-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.other-services-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 15px 7px;
+  border: 1px solid #e4ebf2;
+  border-radius: 13px;
+  background: #fff;
+  color: #10213a;
+  cursor: pointer;
+}
+.other-services-grid svg {
+  color: #087fff;
+}
+.other-services-grid strong {
+  font-size: 12px;
+}
+.other-services-grid small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #59718a;
+}
+.portal-care-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+.portal-care-note svg {
+  color: #008aff;
+  flex-shrink: 0;
+}
+.portal-care-note p {
+  margin: 0;
+  color: #3b5873;
+  line-height: 1.6;
+  font-size: 14px;
+}
+.portal-appointment-callout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 25px;
+  border: 1px solid #386073;
+  background:
+    linear-gradient(110deg, #071722e3, #0b2c41ce),
+    url("/images/garage-backdrop.svg") center/cover;
+  border-radius: 18px;
+  min-height: 140px;
+}
+.portal-appointment-callout > svg {
+  color: #21cdff;
+  flex-shrink: 0;
+}
+.portal-appointment-callout h2 {
+  font-size: 19px;
+  margin: 0 0 8px;
+}
+.portal-appointment-callout p {
+  margin: 0;
+  color: #c5d6e5;
+  font-size: 14px;
+}
+.portal-appointment-callout a {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #14253a;
+  padding: 12px;
+  border-radius: 999px;
+}
+.maintenance-history-row {
+  width: 100%;
+  background: white;
+  color: #10213a;
+  border: 0;
+  border-bottom: 1px solid #e3ebf2;
+  padding: 17px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.maintenance-history-row span {
+  flex: 1;
+}
+.maintenance-history-row strong,
+.maintenance-history-row small {
+  display: block;
+}
+.maintenance-history-row small {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #59718a;
+}
+.portal-work-history-item {
+  border: 1px solid #e3ebf2;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.portal-work-history-item summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.portal-work-history-item summary::-webkit-details-marker {
+  display: none;
+}
+.portal-work-history-item summary > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.portal-work-history-item summary strong {
+  display: block;
+  font-size: 14px;
+}
+.portal-work-history-item summary small {
+  display: block;
+  font-size: 11px;
+  color: #59718a;
+  margin-top: 6px;
+}
+.portal-work-history-body {
+  padding: 0 16px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3f5972;
+}
+.performed-work-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 15px;
+}
+.performed-work-list li {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  color: #3d5874;
+  font-size: 14px;
+}
+.performed-work-list svg {
+  color: #00ac7c;
+  width: 22px;
+  flex-shrink: 0;
+}
+.performed-work-list small {
+  display: block;
+  font-size: 11px;
+  margin-top: 3px;
+}
+.performed-work-list p {
+  margin: 5px 0 0;
+  font-size: 13px;
+}
+.portal-service-photos .panel {
+  background: #fff;
+  color: #10213a;
+  border-radius: 19px;
+  border: 1px solid #dce6ef;
+  overflow: hidden;
+}
+.portal-service-photos .panel-heading h2 {
+  color: #10213a;
+}
+.portal-service-photos .photo-grid {
+  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.portal-service-photos .photo-grid .empty-state {
+  grid-column: 1/-1;
+}
+.maintenance-detail-layout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+.maintenance-detail-layout > div {
+  display: grid;
+  gap: 20px;
+}
+.maintenance-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: #506a85;
+  font-size: 13px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9edf2;
+}
+.maintenance-detail-meta > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.maintenance-record-badge {
+  color: #00835f;
+  background: #d9f6e9;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.maintenance-products {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.maintenance-products article {
+  border: 1px solid #e3ebf2;
+  border-radius: 14px;
+  padding: 16px;
+}
+.product-illustration {
+  display: grid;
+  place-items: center;
+  height: 112px;
+  background: #f1f7fd;
+  border-radius: 10px;
+  color: #007eff;
+  margin-bottom: 14px;
+}
+.maintenance-products h4 {
+  font-size: 15px;
+  margin: 0 0 7px;
+}
+.maintenance-products strong {
+  display: block;
+  font-size: 14px;
+}
+.maintenance-products p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #526c85;
+}
+.maintenance-next-strip {
+  background: #eef6ff;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 28px;
+}
+.maintenance-next-strip h3 {
+  color: #007aff;
+  margin: 0 0 16px;
+}
+.maintenance-next-strip p {
+  font-size: 12px;
+  color: #59718a;
+  margin-bottom: 0;
+}
+.maintenance-parts {
+  color: #526c85;
+  padding-left: 20px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+.vehicle-detail-footer {
+  text-align: center;
+  padding: 28px 10px 0;
+  color: #9ab0c0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.vehicle-detail-footer strong,
+.vehicle-detail-footer span {
+  display: block;
+}
+.vehicle-detail-footer strong {
+  color: #cbdcea;
+}
+@media (max-width: 900px) {
+  .vehicle-summary-layout,
+  .vehicle-history-layout,
+  .maintenance-detail-layout {
+    grid-template-columns: 1fr;
+  }
+  .vehicle-selector-photo {
+    width: 170px;
+  }
+  .vehicle-switcher {
+    max-width: none;
+    width: 100%;
+  }
+  .vehicle-portal-header {
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+  }
+  .vehicle-portal-welcome h1 {
+    font-size: 29px;
+  }
+}
+@media (max-width: 600px) {
+  .vehicle-detail-portal {
+    padding: 0 16px 24px;
+  }
+  .vehicle-portal-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 12px 4px 24px;
+  }
+  .portal-return {
+    font-size: 12px;
+  }
+  .vehicle-portal-brand {
+    min-height: 138px;
+  }
+  .vehicle-portal-brand img {
+    width: 220px;
+    height: 140px;
+  }
+  .vehicle-portal-welcome > span {
+    font-size: 9px;
+  }
+  .vehicle-portal-welcome h1 {
+    font-size: 26px;
+    margin-top: 10px;
+  }
+  .vehicle-portal-welcome p {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .vehicle-selector-card {
+    gap: 10px;
+    padding: 18px;
+    border-radius: 17px;
+  }
+  .vehicle-selector-info {
+    min-width: 160px;
+    grid-template-columns: 43px 1fr;
+    gap: 12px;
+  }
+  .vehicle-selector-info .public-brand-emblem {
+    width: 43px;
+    height: 43px;
+  }
+  .vehicle-selector-info .public-brand-emblem img {
+    width: 30px;
+    height: 30px;
+  }
+  .vehicle-selector-info h2 {
+    font-size: 19px;
+  }
+  .vehicle-selector-info p {
+    font-size: 12px;
+  }
+  .vehicle-selector-plate {
+    font-size: 21px;
+    padding: 7px 13px;
+  }
+  .vehicle-selector-photo {
+    width: 105px;
+    height: 98px;
+  }
+  .vehicle-selector-photo > svg {
+    width: 96px;
+  }
+  .vehicle-portal-tabs {
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .vehicle-portal-tabs button {
+    flex-direction: column;
+    gap: 9px;
+    font-size: 13px;
+    min-height: 76px;
+    border-radius: 13px;
+  }
+  .vehicle-summary-layout,
+  .vehicle-history-layout,
+  .maintenance-detail-layout {
+    gap: 18px;
+  }
+  .vehicle-portal-section {
+    padding: 18px;
+    border-radius: 17px;
+  }
+  .vehicle-portal-section h2 {
+    font-size: 18px;
+  }
+  .vehicle-portal-section-heading {
+    margin-bottom: 17px;
+  }
+  .vehicle-portal-section-heading > .portal-muted {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .maintenance-card-title {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .maintenance-icon {
+    width: 47px;
+    height: 54px;
+  }
+  .maintenance-card-title h2 {
+    font-size: 21px;
+  }
+  .maintenance-card-title p {
+    font-size: 12px;
+  }
+  .maintenance-card-title .public-maintenance-status {
+    font-size: 10px;
+    padding: 6px;
+  }
+  .maintenance-metric-pair {
+    gap: 8px;
+  }
+  .maintenance-metric-pair > div {
+    padding: 12px 9px;
+    gap: 7px;
+  }
+  .maintenance-metric-pair span {
+    font-size: 10px;
+  }
+  .maintenance-metric-pair strong {
+    font-size: 13px;
+  }
+  .maintenance-progress > div + div {
+    font-size: 12px;
+  }
+  .portal-primary-button {
+    font-size: 14px;
+    padding: 15px;
+    gap: 9px;
+  }
+  .last-maintenance-button {
+    gap: 10px;
+    padding-right: 9px;
+  }
+  .last-maintenance-visual {
+    width: 85px;
+  }
+  .last-maintenance-visual img {
+    width: 85px;
+  }
+  .last-maintenance-info > strong {
+    font-size: 15px;
+  }
+  .last-maintenance-info > span {
+    font-size: 11px;
+  }
+  .last-maintenance-info svg {
+    flex-shrink: 0;
+  }
+  .portal-appointment-callout {
+    padding: 18px;
+    gap: 12px;
+  }
+  .portal-appointment-callout h2 {
+    font-size: 16px;
+  }
+  .portal-appointment-callout p {
+    font-size: 12px;
+  }
+  .portal-appointment-callout a {
+    padding: 10px;
+  }
+  .portal-appointment-callout a > svg:first-child {
+    display: none;
+  }
+  .maintenance-products {
+    gap: 10px;
+  }
+  .maintenance-products article {
+    padding: 12px;
+  }
+  .maintenance-products strong {
+    font-size: 12px;
+  }
+  .maintenance-products h4 {
+    font-size: 14px;
+  }
+  .maintenance-products p {
+    font-size: 12px;
+  }
+  .product-illustration {
+    height: 95px;
+  }
+  .portal-work-history-item summary {
+    flex-wrap: wrap;
+  }
+  .portal-service-photos .panel-heading {
+    flex-wrap: wrap;
+  }
+  .vehicle-portal-header.is-detail .vehicle-portal-brand {
+    min-height: 100px;
+  }
+  .vehicle-portal-header.is-detail .vehicle-portal-brand img {
+    width: 160px;
+    height: 100px;
+  }
+}
+@media (max-width: 360px) {
+  .vehicle-detail-portal {
+    padding-inline: 12px;
+  }
+  .vehicle-selector-photo {
+    width: 75px;
+  }
+  .vehicle-selector-photo > svg {
+    width: 70px;
+  }
+  .maintenance-metric-pair {
+    grid-template-columns: 1fr;
+  }
+  .maintenance-card-title .public-maintenance-status {
+    margin-left: 57px;
+  }
+}
+
+/* Entrada premium del portal y microinteracciones automotrices. */
+.portal-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  color: white;
+  background:
+    linear-gradient(180deg, #020b14e8, #071522fa),
+    url("/images/garage-backdrop.svg") center/cover;
+  opacity: 1;
+  transition: opacity 250ms ease;
+}
+.portal-loading-screen.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+.portal-loading-halo {
+  position: absolute;
+  width: min(80vw, 520px);
+  height: 520px;
+  background: radial-gradient(ellipse, #00a8db17, transparent 65%);
+  pointer-events: none;
+}
+.portal-loading-composition {
+  position: relative;
+  width: min(100%, 420px);
+  text-align: center;
+}
+.portal-loading-tools {
+  position: relative;
+  height: 130px;
+  width: 230px;
+  margin: auto;
+}
+.portal-loading-tools > svg {
+  position: absolute;
+  stroke-width: 1.45;
+}
+.portal-loading-gear {
+  width: 120px;
+  height: 120px;
+  left: 55px;
+  top: 2px;
+  color: #164159;
+  opacity: 0.5;
+  animation: portal-gear 7s linear infinite;
+}
+.portal-loading-wrench {
+  width: 76px;
+  height: 76px;
+  top: 25px;
+  left: 68px;
+  color: #a9e7ff;
+  filter: drop-shadow(0 0 7px #00b6ff30);
+  animation: portal-wrench 650ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.portal-loading-screwdriver {
+  width: 76px;
+  height: 76px;
+  top: 25px;
+  right: 68px;
+  color: #00d4ff;
+  animation: portal-screwdriver 650ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.portal-loading-flash {
+  position: absolute;
+  left: calc(50% - 4px);
+  top: 61px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dfffff;
+  box-shadow: 0 0 14px 5px #00d4ff7a;
+  opacity: 0;
+  animation: portal-flash 330ms 520ms ease-out both;
+}
+.portal-loading-brand {
+  opacity: 0;
+  animation: portal-brand 330ms 620ms ease-out forwards;
+}
+.portal-loading-brand img {
+  width: 220px;
+  height: 146px;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  margin: -10px auto 0;
+}
+.portal-loading-brand > strong {
+  display: block;
+  font-size: 58px;
+  line-height: 1;
+  font-weight: 850;
+  font-style: italic;
+  letter-spacing: 3px;
+  color: #f5fbff;
+  text-shadow: 0 0 20px #00d4ff30;
+}
+.portal-loading-brand > span {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: #00d4ff;
+  margin-top: 9px;
+}
+.portal-loading-brand > small {
+  display: block;
+  color: #9fb0c5;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin: 15px 0;
+}
+.portal-loading-composition > p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9fb0c5;
+  margin: 18px 0;
+}
+.portal-loading-line {
+  height: 2px;
+  width: 170px;
+  background: #163042;
+  margin: auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.portal-loading-line span {
+  display: block;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  animation: portal-loading-line 1500ms ease-in-out infinite;
+}
+.portal-ready-content:not([hidden]) {
+  animation: portal-content-enter 350ms ease-out both;
+}
+.portal-vehicle-transition {
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+.portal-vehicle-transition.is-switching {
+  opacity: 0;
+  pointer-events: none;
+}
+.public-vehicle-card,
+.vehicle-portal-section,
+.vehicle-selector-card {
+  animation: portal-card-enter 350ms ease-out both;
+}
+.public-vehicle-card:nth-child(2) {
+  animation-delay: 45ms;
+}
+.public-maintenance-status.current {
+  animation: portal-status-enter 300ms ease-out both;
+}
+.maintenance-progress-track > span {
+  animation: portal-progress-fill 800ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  transform-origin: left;
+}
+.maintenance-icon > svg {
+  animation: portal-oil-drop 700ms ease-out 1;
+}
+.public-vehicle-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 12px 8px;
+  color: #0674ed;
+  background: #eef6ff;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.public-qr-info {
+  order: 4;
+}
+.public-garage-content > .public-vehicles-section {
+  order: 3;
+}
+.public-garage-content > .public-workshop-logo {
+  order: 1;
+}
+.public-garage-content > .public-welcome {
+  order: 2;
+}
+.public-garage-content > .public-new-vehicle {
+  order: 5;
+}
+.public-garage-content > .public-garage-footer {
+  order: 6;
+}
+.portal-photos-horizontal {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 8px;
+}
+.portal-photos-horizontal figure {
+  margin: 0;
+  flex: 0 0 calc((100% - 24px) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.portal-photos-horizontal .image-preview-trigger {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  background: #eef4fa;
+}
+.portal-photos-horizontal img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+.portal-photos-horizontal figcaption {
+  color: #59718a;
+  font-size: 11px;
+  margin-top: 8px;
+}
+.portal-photos-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: #59718a;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.portal-photo-back {
+  color: #82caff;
+  background: none;
+  border: 0;
+  padding: 0 0 14px;
+  cursor: pointer;
+}
+.portal-text-button > svg {
+  vertical-align: middle;
+}
+@keyframes portal-wrench {
+  0% {
+    opacity: 0;
+    transform: translateX(-150px) rotate(-38deg);
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-12px) rotate(-7deg);
+  }
+}
+@keyframes portal-screwdriver {
+  0% {
+    opacity: 0;
+    transform: translateX(150px) rotate(38deg);
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(12px) rotate(90deg);
+  }
+}
+@keyframes portal-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.3);
+  }
+}
+@keyframes portal-brand {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes portal-gear {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes portal-loading-line {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+@keyframes portal-content-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes portal-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes portal-status-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes portal-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes portal-oil-drop {
+  0% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: none;
+  }
+}
+@media (min-width: 741px) {
+  .public-garage-content > .public-qr-info {
+    margin: 26px 0 0;
+  }
+  .public-garage-content > .public-vehicles-section {
+    margin-top: 20px;
+  }
+}
+@media (max-width: 600px) {
+  .portal-photos-horizontal {
+    gap: 9px;
+  }
+  .portal-photos-horizontal figure {
+    flex-basis: calc((100% - 18px) / 3);
+  }
+  .portal-photos-horizontal img {
+    height: 100px;
+  }
+  .public-vehicle-action {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-vehicle-transition {
+    transition: none;
+  }
+  .portal-ready-content,
+  .public-vehicle-card,
+  .vehicle-portal-section,
+  .vehicle-selector-card,
+  .public-maintenance-status.current,
+  .maintenance-progress-track > span,
+  .maintenance-icon > svg {
+    animation: none !important;
+  }
+  .portal-loading-brand {
+    opacity: 1;
+  }
+  .portal-loading-wrench {
+    transform: translateX(-12px) rotate(-7deg);
+  }
+  .portal-loading-screwdriver {
+    transform: translateX(12px) rotate(90deg);
+  }
+}
+
+.public-vehicle-card {
+  display: flex;
+  flex-direction: column;
+}
+.public-vehicle-card .public-vehicle-action {
+  margin-top: auto;
+}
+.public-vehicle-card .public-vehicle-metrics {
+  margin-bottom: 18px;
+}
+
+.portal-entrance-shell {
+  min-height: 100dvh;
+  background: transparent;
+}
+.portal-entrance-shell.is-loading {
+  background: #020b14;
+}
+.app-shell {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.portal-loading-brand > .loading-workshop-name {
+  font-size: clamp(25px, 6vw, 38px);
+  font-style: normal;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+

@@ -32,6 +32,7 @@ export function customerVehicle(data: Store, token: string) {
     },
     workshop: {
       name: data.workshop.name,
+      logo: data.workshop.logo,
       phone: data.workshop.phone,
       address: data.workshop.address,
       hours: data.workshop.hours,

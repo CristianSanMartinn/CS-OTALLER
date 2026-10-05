@@ -4,7 +4,7 @@ import { WorkerStatus } from "./WorkerStatus";
 export function WorkerCard({ worker }: { worker: User }) {
   return (
     <div className="worker-card">
-      <Avatar name={worker.name} />
+      <Avatar name={worker.name} src={worker.avatarUrl} />
       <h3>{worker.name}</h3>
       <p>{worker.specialty}</p>
       <WorkerStatus active={worker.active} />

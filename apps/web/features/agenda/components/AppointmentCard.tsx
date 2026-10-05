@@ -1,3 +1,7 @@
+"use client";
+import { useState } from "react";
+import { CancelVisitDialog } from "@/components/Modal/CancelVisitDialog";
+import { CancellationDetails } from "@/components/ui/CancellationDetails";
 import { Appointment } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { CalendarDays } from "lucide-react";
@@ -8,7 +12,8 @@ export function AppointmentCard({
   appointment: Appointment;
   onEdit?: (a: Appointment) => void;
 }) {
-  const { data } = useStore();
+  const { data, user } = useStore();
+  const [cancelOpen, setCancelOpen] = useState(false);
   return (
     <div className="appointment-card">
       <div className="appointment-time">
@@ -27,6 +32,9 @@ export function AppointmentCard({
             "Mecánico asignado"}
         </small>
         {a.notes && <p>{a.notes}</p>}
+        {a.status === "Cancelada" && (
+          <CancellationDetails cancellation={a.cancellation} />
+        )}
       </div>
       <span
         className={
@@ -40,6 +48,28 @@ export function AppointmentCard({
       >
         {a.status}
       </span>
+      {user?.role === "ADMIN" &&
+        !["Cancelada", "Finalizada"].includes(a.status) && (
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => setCancelOpen(true)}
+          >
+            Cancelar visita
+          </button>
+        )}
+      {cancelOpen && (
+        <CancelVisitDialog
+          targets={[
+            {
+              kind: "appointment",
+              id: a.id,
+              label: "Cita " + a.date + " " + a.time + " · " + a.service,
+            },
+          ]}
+          onClose={() => setCancelOpen(false)}
+        />
+      )}
       {onEdit && (
         <button className="text-button" onClick={() => onEdit(a)}>
           Editar

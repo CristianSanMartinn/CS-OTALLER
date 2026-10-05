@@ -25,6 +25,11 @@ export function ServicesPage() {
       <PageHeading
         title="Servicios"
         description="Trabajos registrados en las órdenes del taller. Agrega y edita servicios desde cada orden."
+        action={
+          <Link href="/ordenes/nueva" className="button primary">
+            Registrar servicio en una orden
+          </Link>
+        }
       />
       <Panel>
         <div className="toolbar">

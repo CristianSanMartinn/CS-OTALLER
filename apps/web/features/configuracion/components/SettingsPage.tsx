@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
+import { optimizeImage } from "@/utils/imageOptimization";
 import { Building2, Save } from "lucide-react";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import {
@@ -11,18 +12,21 @@ import {
   SelectField,
 } from "@/components/ui/primitives";
 export function SettingsPage() {
-  const { data, user, update, notify } = useStore();
+  const { data, user, saveWorkshop, notify } = useStore();
   const [logo, setLogo] = useState(data.workshop.logo);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   if (user?.role !== "ADMIN") return null;
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const get = (k: string) => String(f.get(k) ?? "").trim();
-    update((d) => ({
-      ...d,
-      workshop: {
-        ...d.workshop,
+    setBusy(true);
+    setError("");
+    try {
+      await saveWorkshop({
+        ...data.workshop,
         name: get("name"),
         rut: get("rut"),
         phone: get("phone"),
@@ -31,9 +35,13 @@ export function SettingsPage() {
         hours: get("hours"),
         preference: get("preference"),
         logo,
-      },
-    }));
-    notify("Configuración del taller guardada");
+      });
+      notify("Configuración del taller guardada");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <>
@@ -59,29 +67,39 @@ export function SettingsPage() {
               <Building2 size={35} />
             )}
             <label className="button">
-              Seleccionar logo
+              {preparing ? "Preparando imagen…" : "Seleccionar foto o logo"}
               <input
                 hidden
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const f = e.target.files?.[0];
                   if (!f) return;
                   if (
                     !["image/png", "image/jpeg", "image/webp"].includes(
                       f.type,
                     ) ||
-                    f.size > 2 * 1024 * 1024
+                    f.size > 30 * 1024 * 1024
                   ) {
                     setError(
-                      "Selecciona un logo JPG, PNG o WebP de hasta 2 MB.",
+                      "Selecciona una imagen JPG, PNG o WebP de hasta 30 MB.",
                     );
                     return;
                   }
                   setError("");
-                  const r = new FileReader();
-                  r.onload = () => setLogo(String(r.result));
-                  r.readAsDataURL(f);
+                  setPreparing(true);
+                  try {
+                    setLogo(
+                      await optimizeImage(f, {
+                        maxBytes: 400000,
+                        maxDimension: 1800,
+                      }),
+                    );
+                  } catch (error) {
+                    setError((error as Error).message);
+                  } finally {
+                    setPreparing(false);
+                  }
                 }}
               />
             </label>
@@ -94,7 +112,7 @@ export function SettingsPage() {
                 Quitar logo
               </button>
             )}
-            <small>Vista previa local · Hasta 2 MB</small>
+            <small>Foto o logo del taller · Se optimiza automáticamente</small>
           </div>
           {error && (
             <p className="error" role="alert">
@@ -138,9 +156,9 @@ export function SettingsPage() {
             </SelectField>
           </div>
           <div className="form-actions">
-            <button className="button primary">
+            <button className="button primary" disabled={busy || preparing}>
               <Save size={17} />
-              Guardar configuración
+              {busy ? "Guardando…" : "Guardar configuración"}
             </button>
           </div>
         </Panel>

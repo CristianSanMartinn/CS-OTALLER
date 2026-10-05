@@ -14,11 +14,12 @@ export function AppointmentForm({
   onSave: (a: Appointment) => void;
   onCancel: () => void;
 }) {
-  const { data, user } = useStore();
+  const { data, user, saveAppointment } = useStore();
   const [customer, setCustomer] = useState(appointment?.customerId ?? "");
   const [vehicle, setVehicle] = useState(appointment?.vehicleId ?? "");
   const [error, setError] = useState("");
-  function submit(e: FormEvent<HTMLFormElement>) {
+  const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const get = (k: string) => String(f.get(k) ?? "");
@@ -38,7 +39,7 @@ export function AppointmentForm({
       );
       return;
     }
-    onSave({
+    const value: Appointment = {
       id: appointment?.id ?? uid(),
       workshopId: user!.workshopId,
       customerId: customer,
@@ -49,7 +50,17 @@ export function AppointmentForm({
       time: get("time"),
       notes: get("notes"),
       status: get("status") as Appointment["status"],
-    });
+    };
+    setBusy(true);
+    setError("");
+    try {
+      const saved = await saveAppointment(value, Boolean(appointment));
+      onSave(saved);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <form onSubmit={submit}>
@@ -64,11 +75,13 @@ export function AppointmentForm({
           }}
         >
           <option value="">Seleccionar cliente</option>
-          {data.customers.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
+          {data.customers
+            .filter((c) => c.active !== false)
+            .map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
         </SelectField>
         <SelectField
           label="Vehículo / patente"
@@ -132,7 +145,14 @@ export function AppointmentForm({
             "Finalizada",
             "Cancelada",
           ].map((s) => (
-            <option key={s}>{s}</option>
+            <option
+              key={s}
+              disabled={
+                s === "Cancelada" && appointment?.status !== "Cancelada"
+              }
+            >
+              {s}
+            </option>
           ))}
         </SelectField>
         <TextField
@@ -150,7 +170,9 @@ export function AppointmentForm({
         <button type="button" className="button" onClick={onCancel}>
           Cancelar
         </button>
-        <button className="button primary">Guardar cita</button>
+        <button className="button primary" disabled={busy}>
+          {busy ? "Guardando…" : "Guardar cita"}
+        </button>
       </div>
     </form>
   );

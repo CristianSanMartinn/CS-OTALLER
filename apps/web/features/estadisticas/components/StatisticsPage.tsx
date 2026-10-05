@@ -9,7 +9,7 @@ export function StatisticsPage() {
     <>
       <PageHeading
         title="Estadísticas"
-        description="Resumen operativo de las órdenes registradas en esta demostración."
+        description="Resumen operativo de las órdenes registradas en tu taller."
       />
       <Panel
         title="Distribución por estado"
