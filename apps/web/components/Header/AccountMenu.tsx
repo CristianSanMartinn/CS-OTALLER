@@ -2,10 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, UserRound, LogOut } from "lucide-react";
+import { usePresence } from "@/features/trabajadores/hooks/usePresence";
+import { WorkerStatusBadge } from "@/features/trabajadores/components/WorkerStatusBadge";
 import { Avatar } from "@/components/ui/primitives";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 export function AccountMenu({ onOpen }: { onOpen: () => void }) {
   const { user, logout } = useAuth();
+  const { forWorker } = usePresence();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -45,6 +48,9 @@ export function AccountMenu({ onOpen }: { onOpen: () => void }) {
         <span className="user-label">
           <strong>{user?.name}</strong>
           <small>{user?.role === "ADMIN" ? "Administrador" : "Mecánico"}</small>
+          {user && (
+            <WorkerStatusBadge compact status={forWorker(user).status} />
+          )}
         </span>
         <ChevronDown size={14} />
       </button>

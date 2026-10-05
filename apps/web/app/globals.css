@@ -4731,3 +4731,57 @@ td .wrap-cell {
   overflow-wrap: anywhere;
 }
 
+/* Presencia del equipo: conexión independiente del acceso de la cuenta. */
+.worker-presence-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #526078;
+  background: #edf1f6;
+}
+.worker-presence-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #fff;
+  box-shadow: 0 0 0 1px #bac6d4;
+}
+.worker-presence-badge.online {
+  color: #078457;
+  background: #e3f8ed;
+}
+.worker-presence-badge.online .worker-presence-dot {
+  background: #14c784;
+  box-shadow: none;
+}
+.worker-presence-badge.disabled {
+  color: #bc3036;
+  background: #ffeded;
+}
+.worker-presence-badge.disabled .worker-presence-dot {
+  background: #ff4d4f;
+  box-shadow: none;
+}
+.worker-presence-badge.unknown .worker-presence-dot {
+  background: #9fb0c5;
+  box-shadow: none;
+}
+.worker-presence-badge.compact {
+  padding: 0;
+  background: transparent;
+  font-size: 10px;
+  margin-top: 3px;
+}
+.worker-last-seen {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 6px;
+}

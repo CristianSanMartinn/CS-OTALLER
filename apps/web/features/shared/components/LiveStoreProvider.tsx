@@ -18,6 +18,7 @@ import {
   saveLiveVehicle,
 } from "../services/liveData";
 import { ProfileInput } from "@/features/perfil/types/profile.types";
+import { disconnectCurrentPresence } from "@/features/trabajadores/services/workers.service";
 import { apiRequest } from "@/lib/http";
 import { Cancellation, CancellationInput, VisitKind } from "../types/domain";
 import { applyCancellation } from "../services/cancellation";
@@ -70,7 +71,8 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
     setError("");
   }
   function logout() {
-    void apiRequest("auth/logout", "POST", {})
+    void disconnectCurrentPresence()
+      .then(() => apiRequest("auth/logout", "POST", {}))
       .then(() => {
         setUser(null);
         setData(emptyData());

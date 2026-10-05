@@ -1,6 +1,8 @@
 import { User } from "@/features/shared/types/domain";
 import { Avatar, EmptyState } from "@/components/ui/primitives";
-import { WorkerStatus } from "./WorkerStatus";
+import { WorkerStatusBadge } from "./WorkerStatusBadge";
+import { WorkerLastSeen } from "./WorkerLastSeen";
+import { usePresence } from "../hooks/usePresence";
 export function WorkersTable({
   workers,
   onEdit,
@@ -14,6 +16,7 @@ export function WorkersTable({
   onView: (u: User) => void;
   currentId: string;
 }) {
+  const { forWorker } = usePresence();
   if (!workers.length) return <EmptyState />;
   return (
     <div className="table-scroll">
@@ -23,7 +26,7 @@ export function WorkersTable({
             <th>Trabajador</th>
             <th>Especialidad</th>
             <th>Rol</th>
-            <th>Estado</th>
+            <th>Conexión / acceso</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -45,7 +48,11 @@ export function WorkersTable({
               <td>{u.specialty}</td>
               <td>{u.role === "ADMIN" ? "Administrador" : "Mecánico"}</td>
               <td>
-                <WorkerStatus active={u.active} />
+                <WorkerStatusBadge status={forWorker(u).status} />
+                <WorkerLastSeen
+                  lastSeenAt={forWorker(u).lastSeenAt}
+                  connected={forWorker(u).status === "ONLINE"}
+                />
               </td>
               <td>
                 <div className="row-actions">

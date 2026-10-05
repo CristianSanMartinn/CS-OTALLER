@@ -8,6 +8,7 @@ import { Panel, PageHeading, SearchBox } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
 import { WorkersTable } from "./WorkersTable";
 import { WorkerForm } from "./WorkerForm";
+import { useWorkers } from "../hooks/useWorkers";
 import { WorkerDetails } from "./WorkerDetails";
 export function WorkersPage() {
   const { data, user, saveWorker, notify } = useStore();
@@ -17,6 +18,7 @@ export function WorkersPage() {
   const [toggle, setToggle] = useState<User>();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const { workers, online, available } = useWorkers(query);
   if (user?.role !== "ADMIN") return null;
   return (
     <>
@@ -43,15 +45,12 @@ export function WorkersPage() {
             placeholder="Buscar nombre, correo o especialidad..."
           />
           <span className="muted">
-            {data.users.filter((u) => u.active).length} activos
+            {data.users.filter((u) => u.active).length} activos ·{" "}
+            {available ? online + " conectados" : "Conexión sin confirmar"}
           </span>
         </div>
         <WorkersTable
-          workers={data.users.filter((u) =>
-            (u.name + u.email + u.specialty)
-              .toLowerCase()
-              .includes(query.toLowerCase()),
-          )}
+          workers={workers}
           currentId={user.id}
           onEdit={setEditing}
           onView={setDetail}

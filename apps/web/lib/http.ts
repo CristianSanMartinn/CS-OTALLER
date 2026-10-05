@@ -2,8 +2,10 @@ export async function apiRequest<T>(
   path: string,
   method = "GET",
   body?: unknown,
+  options?: Pick<RequestInit, "signal" | "keepalive">,
 ): Promise<T> {
   const response = await fetch("/api/backend/" + path, {
+    ...options,
     method,
     headers: { "Content-Type": "application/json" },
     credentials: "same-origin",

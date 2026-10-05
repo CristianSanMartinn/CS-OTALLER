@@ -1,3 +1,4 @@
+import { PresenceModule } from "./presence/presence.module.js";
 import { PortalModule } from './portal/portal.module.js';
 import { WorkshopsModule } from "./workshops/workshops.module.js";
 import { MaintenanceModule } from "./maintenance/maintenance.module.js";
@@ -30,6 +31,7 @@ import { VehiclesModule } from "./vehicles/vehicles.module.js";
     MaintenanceModule,
     WorkshopsModule,
     PortalModule,
+    PresenceModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
