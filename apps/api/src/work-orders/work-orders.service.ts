@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -45,7 +46,7 @@ export class WorkOrdersService {
  COALESCE((SELECT jsonb_agg(s ORDER BY s.created_at,s.id) FROM work_order_services s WHERE s.work_order_id=o.id AND s.workshop_id=o.workshop_id),'[]') AS services,
  COALESCE((SELECT jsonb_agg(s ORDER BY s.created_at,s.id) FROM work_order_parts s WHERE s.work_order_id=o.id AND s.workshop_id=o.workshop_id),'[]') AS parts,
  COALESCE((SELECT jsonb_agg(s ORDER BY s.created_at,s.id) FROM photos s WHERE s.work_order_id=o.id AND s.workshop_id=o.workshop_id),'[]') AS photos
- FROM work_orders o WHERE o.workshop_id=$1 AND ($2::uuid IS NULL OR o.mechanic_id=$2) ORDER BY o.entry_date DESC,o.created_at DESC`,
+ FROM work_orders o WHERE o.workshop_id=$1 AND ($2::uuid IS NULL OR o.mechanic_id=$2 OR o.assignment_type='TEAM') ORDER BY o.entry_date DESC,o.created_at DESC`,
       [user.workshopId, user.role === "ADMIN" ? null : user.id],
     );
     return r.rows.map((x) => mapOrder(x, user.role === "ADMIN"));
@@ -55,6 +56,8 @@ export class WorkOrdersService {
       "customerId",
       "vehicleId",
       "mechanicId",
+      "assignmentType",
+      "expectedUpdatedAt",
       "date",
       "time",
       "mileage",
@@ -97,10 +100,14 @@ export class WorkOrdersService {
         ).rows[0];
         if (
           !previous ||
-          (user.role === "WORKER" && previous.mechanic_id !== user.id)
+          (user.role === "WORKER" && previous.assignment_type !== "TEAM" && previous.mechanic_id !== user.id)
         )
           throw new NotFoundException("Orden no encontrada o sin acceso.");
       }
+      const assignmentType = choice(input.assignmentType ?? previous?.assignment_type ?? "INDIVIDUAL", ["INDIVIDUAL", "TEAM"], "Asignación");
+      const mechanicId = assignmentType === "TEAM" ? null : uuid(text(input, "mechanicId", 36, true));
+      if (assignmentType === "TEAM" && text(input, "mechanicId", 36)) throw new BadRequestException("Una orden compartida no lleva mecánico exclusivo.");
+      if (previous && (previous.assignment_type === "TEAM" || input.expectedUpdatedAt !== undefined) && (!input.expectedUpdatedAt || Date.parse(String(input.expectedUpdatedAt)) !== new Date(previous.updated_at).getTime())) throw new ConflictException("Otra persona actualizó esta orden. Recarga la ficha antes de guardar.");
       const vehicle = await reference(
         c,
         "vehicles",
@@ -108,7 +115,7 @@ export class WorkOrdersService {
         user.workshopId,
       );
       await reference(c, "customers", input.customerId, user.workshopId);
-      await reference(c, "users", input.mechanicId, user.workshopId);
+      if (mechanicId) await reference(c, "users", mechanicId, user.workshopId);
       if (vehicle.customer_id !== input.customerId)
         throw new BadRequestException("El vehículo no corresponde al cliente.");
       if (
@@ -119,7 +126,7 @@ export class WorkOrdersService {
           "El kilometraje no puede ser menor al último registrado.",
         );
       if (user.role === "WORKER") {
-        if (input.mechanicId !== user.id)
+        if (previous ? assignmentType !== previous.assignment_type || mechanicId !== previous.mechanic_id : assignmentType === "TEAM" || mechanicId !== user.id)
           throw new ForbiddenException(
             "Solo puedes trabajar tus vehículos asignados.",
           );
@@ -145,7 +152,7 @@ export class WorkOrdersService {
               "La ficha debe iniciar como recibida.",
             );
           const assigned = await c.query(
-            "SELECT id FROM work_orders WHERE workshop_id=$1 AND vehicle_id=$2 AND mechanic_id=$3",
+            "SELECT id FROM work_orders WHERE workshop_id=$1 AND vehicle_id=$2 AND (mechanic_id=$3 OR assignment_type='TEAM')",
             [user.workshopId, input.vehicleId, user.id],
           );
           if (!assigned.rows[0])
@@ -198,7 +205,9 @@ export class WorkOrdersService {
         text(s, "name", 150, true);
         text(s, "description", 20000);
         choice(s.status, Object.keys(serviceStates), "Estado del servicio");
-        await reference(c, "users", s.mechanicId, user.workshopId);
+        s.mechanicId = text(s, "mechanicId", 36);
+        if (s.mechanicId) await reference(c, "users", s.mechanicId, user.workshopId);
+        else if (assignmentType !== "TEAM") throw new BadRequestException("Selecciona el mecánico del servicio.");
         s.price =
           user.role === "ADMIN"
             ? amount(s.price, "precio")
@@ -265,7 +274,7 @@ export class WorkOrdersService {
       const fields = [
         input.customerId,
         input.vehicleId,
-        input.mechanicId,
+        mechanicId,
         day,
         hour,
         mileage,
@@ -279,12 +288,13 @@ export class WorkOrdersService {
         partsTotal,
         labor + partsTotal,
         user.workshopId,
+        assignmentType,
       ];
       let saved: any;
       if (previous) {
         saved = (
           await c.query(
-            `UPDATE work_orders SET customer_id=$1,vehicle_id=$2,mechanic_id=$3,entry_date=($4::date+$5::time) AT TIME ZONE 'America/Santiago',mileage=$6,reason=$7,symptoms=$8,diagnosis=$9,faults_found=$10,observations=$11,status=$12::varchar,labor_total=$13,parts_total=$14,total_amount=$15,completion_date=CASE WHEN $12::varchar='READY' THEN COALESCE(completion_date,now()) ELSE completion_date END,delivery_date=CASE WHEN $12::varchar='DELIVERED' THEN COALESCE(delivery_date,now()) ELSE delivery_date END,updated_at=now() WHERE workshop_id=$16 AND id=$17 RETURNING *`,
+            `UPDATE work_orders SET customer_id=$1,vehicle_id=$2,mechanic_id=$3,entry_date=($4::date+$5::time) AT TIME ZONE 'America/Santiago',mileage=$6,reason=$7,symptoms=$8,diagnosis=$9,faults_found=$10,observations=$11,status=$12::varchar,labor_total=$13,parts_total=$14,total_amount=$15,completion_date=CASE WHEN $12::varchar='READY' THEN COALESCE(completion_date,now()) ELSE completion_date END,delivery_date=CASE WHEN $12::varchar='DELIVERED' THEN COALESCE(delivery_date,now()) ELSE delivery_date END,updated_at=now(),assignment_type=$17 WHERE workshop_id=$16 AND id=$18 RETURNING *`,
             [...fields, id],
           )
         ).rows[0];
@@ -297,7 +307,7 @@ export class WorkOrdersService {
         ).rows[0].next;
         saved = (
           await c.query(
-            `INSERT INTO work_orders(customer_id,vehicle_id,mechanic_id,entry_date,mileage,reason,symptoms,diagnosis,faults_found,observations,status,labor_total,parts_total,total_amount,workshop_id,order_number) VALUES($1,$2,$3,($4::date+$5::time) AT TIME ZONE 'America/Santiago',$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
+            `INSERT INTO work_orders(customer_id,vehicle_id,mechanic_id,entry_date,mileage,reason,symptoms,diagnosis,faults_found,observations,status,labor_total,parts_total,total_amount,workshop_id,assignment_type,order_number) VALUES($1,$2,$3,($4::date+$5::time) AT TIME ZONE 'America/Santiago',$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING *`,
             [...fields, "OT-" + number],
           )
         ).rows[0];
@@ -333,7 +343,7 @@ export class WorkOrdersService {
             s.id,
             user.workshopId,
             orderId,
-            s.mechanicId,
+            s.mechanicId || null,
             s.name,
             s.description,
             s.price,
@@ -383,7 +393,7 @@ export class WorkOrdersService {
         orderId,
         saved.order_number + (previous ? " actualizada" : " creada"),
       );
-      return { id: orderId, number: saved.order_number };
+      return { id: orderId, number: saved.order_number, updatedAt: new Date(saved.updated_at).toISOString() };
     });
   }
 }

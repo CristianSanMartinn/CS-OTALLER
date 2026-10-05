@@ -5,7 +5,7 @@ export function scopedData(data: Store, user: User): Store {
   const own = <T extends { workshopId: string }>(rows: T[]) =>
     rows.filter((x) => x.workshopId === user.workshopId);
   const orders = own(data.orders).filter(
-    (o) => admin || o.mechanicId === user.id,
+    (o) => admin || o.assignmentType === "TEAM" || o.mechanicId === user.id,
   );
   const vehicleIds = new Set(orders.map((o) => o.vehicleId));
   const vehicles = own(data.vehicles).filter(
@@ -40,7 +40,8 @@ export function canChangeStatus(
   return (
     user.workshopId === previous.workshopId &&
     (user.role === "ADMIN" ||
-      (previous.mechanicId === user.id &&
+      ((previous.assignmentType === "TEAM" ||
+        previous.mechanicId === user.id) &&
         (previous.status === next ||
           workerTransitions[previous.status].includes(next))))
   );

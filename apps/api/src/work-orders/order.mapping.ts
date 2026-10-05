@@ -22,6 +22,8 @@ export function mapOrder(r: any, admin: boolean) {
     customerId: r.customer_id,
     vehicleId: r.vehicle_id,
     mechanicId: r.mechanic_id ?? "",
+    assignmentType: r.assignment_type ?? "INDIVIDUAL",
+    updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : undefined,
     mileage: r.mileage,
     reason: r.reason,
     symptoms: r.symptoms ?? "",

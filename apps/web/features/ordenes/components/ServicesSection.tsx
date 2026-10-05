@@ -27,7 +27,8 @@ export function ServicesSection({ order, onChange }: OrderSectionProps) {
                   id: uid(),
                   name: "",
                   description: "",
-                  mechanicId: order.mechanicId,
+                  mechanicId:
+                    user?.role === "WORKER" ? user.id : order.mechanicId,
                   price: 0,
                   status: "Pendiente",
                 },
@@ -61,11 +62,20 @@ export function ServicesSection({ order, onChange }: OrderSectionProps) {
             />
             <SelectField
               label="Mecánico"
-              required
+              required={order.assignmentType !== "TEAM"}
+              disabled={user?.role === "WORKER"}
               value={s.mechanicId}
               onChange={(e) => edit(s.id, { mechanicId: e.target.value })}
             >
-              <option value="">Seleccionar</option>
+              <option value="">
+                {order.assignmentType === "TEAM"
+                  ? "Todos los mecánicos"
+                  : "Seleccionar"}
+              </option>
+              {s.mechanicId &&
+                !data.users.some((worker) => worker.id === s.mechanicId) && (
+                  <option value={s.mechanicId}>Mecánico del taller</option>
+                )}
               {data.users
                 .filter((u) => u.active)
                 .map((u) => (

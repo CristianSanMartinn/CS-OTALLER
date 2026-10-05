@@ -178,12 +178,18 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
       findings,
       observations,
       status,
+      assignmentType,
+      updatedAt,
       codes,
       services,
       parts,
       photos,
     } = order;
-    const result = await apiRequest<{ id: string; number: string }>(
+    const result = await apiRequest<{
+      id: string;
+      number: string;
+      updatedAt: string;
+    }>(
       "work-orders" + (editing ? "/" + order.id : ""),
       editing ? "PATCH" : "POST",
       {
@@ -199,6 +205,8 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
         findings,
         observations,
         status,
+        assignmentType: assignmentType ?? "INDIVIDUAL",
+        expectedUpdatedAt: updatedAt,
         codes,
         services,
         parts,

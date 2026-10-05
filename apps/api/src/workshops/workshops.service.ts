@@ -40,7 +40,7 @@ export class WorkshopsService {
   }
   async activity(u: AuthUser) {
     const r = await this.db.query(
-      "SELECT id,workshop_id,user_id,description,created_at,entity_id,entity_type FROM activity_logs WHERE workshop_id=$1 AND ($2::uuid IS NULL OR user_id=$2 OR (entity_type='work_order' AND EXISTS(SELECT 1 FROM work_orders w WHERE w.id=entity_id AND w.workshop_id=$1 AND w.mechanic_id=$2))) ORDER BY created_at DESC LIMIT 100",
+      "SELECT id,workshop_id,user_id,description,created_at,entity_id,entity_type FROM activity_logs WHERE workshop_id=$1 AND ($2::uuid IS NULL OR user_id=$2 OR (entity_type='work_order' AND EXISTS(SELECT 1 FROM work_orders w WHERE w.id=entity_id AND w.workshop_id=$1 AND (w.mechanic_id=$2 OR w.assignment_type='TEAM')))) ORDER BY created_at DESC LIMIT 100",
       [u.workshopId, u.role === "ADMIN" ? null : u.id],
     );
     return r.rows.map((x) => ({
@@ -54,7 +54,7 @@ export class WorkshopsService {
   }
   async customers(u: AuthUser) {
     const r = await this.db.query(
-      "SELECT DISTINCT c.* FROM customers c JOIN vehicles v ON v.customer_id=c.id AND v.workshop_id=c.workshop_id JOIN work_orders o ON o.vehicle_id=v.id AND o.workshop_id=v.workshop_id WHERE c.workshop_id=$1 AND o.mechanic_id=$2 AND c.active",
+      "SELECT DISTINCT c.* FROM customers c JOIN vehicles v ON v.customer_id=c.id AND v.workshop_id=c.workshop_id JOIN work_orders o ON o.vehicle_id=v.id AND o.workshop_id=v.workshop_id WHERE c.workshop_id=$1 AND (o.mechanic_id=$2 OR o.assignment_type='TEAM') AND c.active",
       [u.workshopId, u.id],
     );
     return r.rows;

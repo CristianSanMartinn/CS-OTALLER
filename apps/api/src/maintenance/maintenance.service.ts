@@ -12,7 +12,7 @@ export class MaintenanceService {
   constructor(private readonly db: DatabaseService) {}
   async findAll(u: AuthUser) {
     const r = await this.db.query(
-      `SELECT m.*,m.maintenance_date::text AS day,m.next_date::text AS next_day,o.oil_type,o.viscosity,o.oil_brand,o.liters_used,o.filter_name,o.filter_brand FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM work_orders w WHERE w.workshop_id=m.workshop_id AND w.vehicle_id=m.vehicle_id AND w.mechanic_id=$2)) ORDER BY m.maintenance_date DESC,m.created_at DESC`,
+      `SELECT m.*,m.maintenance_date::text AS day,m.next_date::text AS next_day,o.oil_type,o.viscosity,o.oil_brand,o.liters_used,o.filter_name,o.filter_brand FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM work_orders w WHERE w.workshop_id=m.workshop_id AND w.vehicle_id=m.vehicle_id AND (w.mechanic_id=$2 OR w.assignment_type='TEAM'))) ORDER BY m.maintenance_date DESC,m.created_at DESC`,
       [u.workshopId, u.role === "ADMIN" ? null : u.id],
     );
     return r.rows.map((x) => ({
@@ -94,7 +94,7 @@ export class MaintenanceService {
           b.orderId,
           u.workshopId,
         );
-        if (u.role === "WORKER" && order.mechanic_id !== u.id)
+        if (u.role === "WORKER" && order.assignment_type !== "TEAM" && order.mechanic_id !== u.id)
           throw new ForbiddenException("Orden no asignada.");
         if (order.vehicle_id !== b.vehicleId)
           throw new BadRequestException(
@@ -105,7 +105,7 @@ export class MaintenanceService {
         if (b.mechanicId !== u.id)
           throw new ForbiddenException("Mecánico inválido.");
         const assigned = await c.query(
-          "SELECT id FROM work_orders WHERE workshop_id=$1 AND vehicle_id=$2 AND mechanic_id=$3",
+          "SELECT id FROM work_orders WHERE workshop_id=$1 AND vehicle_id=$2 AND (mechanic_id=$3 OR assignment_type='TEAM')",
           [u.workshopId, b.vehicleId, u.id],
         );
         if (!assigned.rows[0])

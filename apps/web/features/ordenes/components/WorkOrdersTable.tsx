@@ -47,8 +47,18 @@ export function WorkOrdersTable({ orders }: { orders: WorkOrder[] }) {
                 <td className="wrap-cell">{o.reason}</td>
                 <td>
                   <div className="person-inline">
-                    <Avatar name={u?.name ?? "Mecánico"} />
-                    <span>{u?.name?.split(" ")[0] ?? "Asignado"}</span>
+                    <Avatar
+                      name={
+                        o.assignmentType === "TEAM"
+                          ? "Equipo"
+                          : (u?.name ?? "Mecánico")
+                      }
+                    />
+                    <span>
+                      {o.assignmentType === "TEAM"
+                        ? "Todos los mecánicos"
+                        : (u?.name?.split(" ")[0] ?? "Asignado")}
+                    </span>
                   </div>
                 </td>
                 <td>

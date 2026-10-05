@@ -8,11 +8,11 @@ import { Customer, Vehicle, WorkOrder } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import {
   Field,
-  SelectField,
   Panel,
   EmptyState,
 } from "@/components/ui/primitives";
 import { today, uid } from "@/utils/format";
+import { WorkOrderAssignment } from "./WorkOrderAssignment";
 import { WorkOrderHeader } from "./WorkOrderHeader";
 import { OrderRegistrationModal } from "./OrderRegistrationModal";
 import { CustomerSection } from "./CustomerSection";
@@ -63,6 +63,7 @@ export function WorkOrderForm({
       time: new Date().toTimeString().slice(0, 5),
       customerId: v?.customerId ?? initialCustomerId,
       vehicleId: v?.id ?? "",
+      assignmentType: "INDIVIDUAL",
       mechanicId: user?.role === "WORKER" ? user.id : "",
       mileage: v?.mileage ?? 0,
       reason: "",
@@ -204,22 +205,7 @@ export function WorkOrderForm({
                   })
                 }
               />
-              <SelectField
-                label="Mecánico responsable"
-                required
-                value={order.mechanicId}
-                disabled={user?.role === "WORKER"}
-                onChange={(e) => change({ mechanicId: e.target.value })}
-              >
-                <option value="">Seleccionar mecánico</option>
-                {data.users
-                  .filter((u) => u.active)
-                  .map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name}
-                    </option>
-                  ))}
-              </SelectField>
+              <WorkOrderAssignment order={order} onChange={change} />
               <Field label="Número de orden" value={order.number} readOnly />
             </div>
             {canRegister && (

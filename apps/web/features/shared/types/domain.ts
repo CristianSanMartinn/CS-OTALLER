@@ -99,6 +99,8 @@ export interface Photo {
   userId: string;
 }
 export interface WorkOrder extends Entity {
+  assignmentType?: "INDIVIDUAL" | "TEAM";
+  updatedAt?: string;
   cancellation?: Cancellation;
   number: string;
   date: string;

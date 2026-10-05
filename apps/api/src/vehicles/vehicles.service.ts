@@ -14,7 +14,7 @@ export class VehiclesService {
   async findAll(user: AuthUser) {
     return (
       await this.db.query(
-        "SELECT v.*,COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'url',p.file_url,'category',p.category,'description',COALESCE(p.description,''),'date',COALESCE(p.taken_at,p.created_at),'userId',p.uploaded_by)) FROM photos p WHERE p.workshop_id=v.workshop_id AND p.vehicle_id=v.id AND p.work_order_id IS NULL),'[]') AS photos FROM vehicles v WHERE v.workshop_id=$1 AND v.active AND ($2::boolean OR EXISTS(SELECT 1 FROM work_orders o WHERE o.vehicle_id=v.id AND o.workshop_id=v.workshop_id AND o.mechanic_id=$3)) ORDER BY v.created_at DESC",
+        "SELECT v.*,COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'url',p.file_url,'category',p.category,'description',COALESCE(p.description,''),'date',COALESCE(p.taken_at,p.created_at),'userId',p.uploaded_by)) FROM photos p WHERE p.workshop_id=v.workshop_id AND p.vehicle_id=v.id AND p.work_order_id IS NULL),'[]') AS photos FROM vehicles v WHERE v.workshop_id=$1 AND v.active AND ($2::boolean OR EXISTS(SELECT 1 FROM work_orders o WHERE o.vehicle_id=v.id AND o.workshop_id=v.workshop_id AND (o.mechanic_id=$3 OR o.assignment_type='TEAM'))) ORDER BY v.created_at DESC",
         [user.workshopId, user.role === "ADMIN", user.id],
       )
     ).rows;

@@ -629,4 +629,100 @@ test("Una mantención nueva reemplaza la anterior del mismo tipo y conserva otro
   );
 });
 
+test("Órdenes de equipo visibles para ambos mecánicos sin mezclar talleres", () => {
+  const shared = { ...order, assignmentType: "TEAM", mechanicId: "" };
+  const store = {
+    ...data,
+    orders: [
+      ...data.orders.filter((item) => item.id !== order.id),
+      shared,
+      { ...shared, id: "other-team", workshopId: "other-workshop" },
+    ],
+  };
+  for (const mechanic of data.users.filter((item) => item.role === "WORKER")) {
+    const visible = scopedData(store, mechanic);
+    assert.ok(visible.orders.some((item) => item.id === shared.id));
+    assert.ok(visible.vehicles.some((item) => item.id === shared.vehicleId));
+    assert.ok(
+      visible.orders.every((item) => item.workshopId === mechanic.workshopId),
+    );
+    assert.ok(
+      visible.orders.every(
+        (item) =>
+          item.assignmentType === "TEAM" || item.mechanicId === mechanic.id,
+      ),
+    );
+  }
+});
+test("Trabajador registra avances en una orden compartida sin cambiar precios", () => {
+  const shared = {
+    ...order,
+    assignmentType: "TEAM",
+    mechanicId: "",
+    updatedAt: "2026-10-05T12:00:00.000Z",
+  };
+  const store = {
+    ...data,
+    orders: data.orders.map((item) => (item.id === shared.id ? shared : item)),
+  };
+  const saved = saveOrder(store, worker, {
+    ...shared,
+    diagnosis: "Revisión del equipo",
+    services: shared.services.map((item) => ({ ...item, price: 1 })),
+  }).orders.find((item) => item.id === shared.id);
+  assert.equal(saved.diagnosis, "Revisión del equipo");
+  assert.equal(saved.assignmentType, "TEAM");
+  assert.deepEqual(
+    saved.services.map((item) => item.price),
+    shared.services.map((item) => item.price),
+  );
+});
+test("Solo el administrador puede cambiar entre equipo y asignación individual", () => {
+  const shared = { ...order, assignmentType: "TEAM", mechanicId: "" };
+  const store = {
+    ...data,
+    orders: data.orders.map((item) => (item.id === shared.id ? shared : item)),
+  };
+  assert.throws(() =>
+    saveOrder(store, worker, {
+      ...shared,
+      assignmentType: "INDIVIDUAL",
+      mechanicId: worker.id,
+    }),
+  );
+  assert.throws(() =>
+    saveOrder(data, worker, {
+      ...order,
+      assignmentType: "TEAM",
+      mechanicId: "",
+    }),
+  );
+  assert.equal(canChangeStatus(worker, shared, "DELIVERED"), false);
+  const assigned = saveOrder(store, admin, {
+    ...shared,
+    assignmentType: "INDIVIDUAL",
+    mechanicId: worker.id,
+  }).orders.find((item) => item.id === shared.id);
+  assert.equal(assigned.mechanicId, worker.id);
+});
+test("Ficha compartida desactualizada no sobrescribe avances de otra persona", () => {
+  const shared = {
+    ...order,
+    assignmentType: "TEAM",
+    mechanicId: "",
+    updatedAt: "2026-10-05T12:00:00.000Z",
+  };
+  const store = {
+    ...data,
+    orders: data.orders.map((item) => (item.id === shared.id ? shared : item)),
+  };
+  assert.throws(
+    () =>
+      saveOrder(store, worker, {
+        ...shared,
+        updatedAt: "2026-10-05T11:00:00.000Z",
+      }),
+    /actualizó/,
+  );
+});
 console.log("\n" + count + " pruebas completadas.");

@@ -48,6 +48,15 @@ export function WorkOrderSummary({
             </dd>
           </div>
           <div>
+            <dt>Asignación</dt>
+            <dd>
+              {order.assignmentType === "TEAM"
+                ? "Todos los mecánicos"
+                : (data.users.find((worker) => worker.id === order.mechanicId)
+                    ?.name ?? "Mecánico asignado")}
+            </dd>
+          </div>
+          <div>
             <dt>Trabajos</dt>
             <dd>{order.services.length}</dd>
           </div>
