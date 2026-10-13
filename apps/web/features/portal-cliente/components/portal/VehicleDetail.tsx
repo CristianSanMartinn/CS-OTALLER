@@ -13,8 +13,8 @@ import { clientVehiclePath } from "../../services/clientAccessService";
 import type { PortalView, PortalTab } from "../../types/portal.types";
 import { PortalHeader } from "../layout/PortalHeader";
 import { PortalSection } from "../layout/PortalSection";
-import { VehicleSelector } from "../vehicles/VehicleSelector";
-import { NextMaintenanceCard } from "../maintenance/NextMaintenanceCard";
+import { VehicleServiceHeader } from "../vehicles/VehicleServiceHeader";
+import { VehicleServiceOverview } from "../maintenance/VehicleServiceOverview";
 import { LastMaintenanceCard } from "../maintenance/LastMaintenanceCard";
 import { MaintenanceSummaryCard } from "../maintenance/MaintenanceSummaryCard";
 import { CustomerWorkHistory } from "../history/CustomerWorkHistory";
@@ -79,7 +79,7 @@ export function VehicleDetail({
   return (
     <div
       className={
-        "vehicle-detail-portal portal-vehicle-transition" +
+        "vehicle-detail-portal service-visit-portal portal-vehicle-transition" +
         (switching ? " is-switching" : "")
       }
     >
@@ -112,8 +112,10 @@ export function VehicleDetail({
           </div>
         ) : (
           <>
-            <VehicleSelector
-              vehicle={view.vehicle}
+            <VehicleServiceHeader
+              view={view}
+              status={summary.status}
+              tone={summary.tone}
               vehicles={vehicles}
               onChange={switchVehicle}
             />
@@ -140,12 +142,13 @@ export function VehicleDetail({
             </nav>
             {tab === "summary" && (
               <div className="vehicle-summary-layout">
-                <NextMaintenanceCard
-                  record={nextRecord}
-                  mileage={view.vehicle.mileage}
-                  status={summary.status}
+                <VehicleServiceOverview
+                  view={view}
+                  records={records}
+                  next={nextRecord}
                   tone={summary.tone}
-                  phone={view.workshop.phone}
+                  onOpen={open}
+                  onHistory={() => showTab("history")}
                 />
                 <LastMaintenanceCard
                   record={last}
@@ -156,10 +159,7 @@ export function VehicleDetail({
                   onOpen={open}
                   onHistory={() => showTab("history")}
                 />
-                <CustomerReminders
-                  records={records}
-                  mileage={view.vehicle.mileage}
-                />
+
                 <aside className="portal-appointment-callout">
                   <CalendarDays size={36} />
                   <div>

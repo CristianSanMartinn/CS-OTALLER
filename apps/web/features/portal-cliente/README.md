@@ -32,3 +32,9 @@ El frontend y la API conservan el aislamiento por taller y cliente. Nunca se tom
 PortalEntrance muestra herramientas vectoriales, destello cian y logo durante un mínimo de 1 segundo, seguido de 250 ms de salida. Espera a que los datos o el error de la consulta estén disponibles. Se omite al navegar dentro del mismo QR durante la sesión de la página; una recarga vuelve a mostrarlo. Las tarjetas entran en 350 ms, el progreso en 800 ms y el cambio de vehículo sale en 150 ms. prefers-reduced-motion elimina desplazamientos, rotaciones y destellos.
 
 La galería presenta hasta cuatro fotos en horizontal y permite consultar todas con filtros de categoría. Los productos y trabajos no se inventan; Completado se muestra cuando la orden está lista o entregada.
+
+## Ficha de vehículo — actualización 13 octubre 2026
+
+La vista seleccionada usa VehicleServiceHeader y VehicleServiceOverview. La cabecera muestra una fotografía registrada directamente en el vehículo cuando existe; no toma como portada fotografías de una orden ni inventa imágenes de modelos. Sin foto usa una ilustración vectorial. Incluye patente, marca/modelo/año, kilometraje registrado, cantidad de mantenciones, estado y selector de otros vehículos del mismo QR.
+
+El resumen presenta aceite y filtros del último cambio de aceite, próximo servicio, acceso al historial y aviso contextual por vencimiento. Los botones abren los datos existentes, sin generar información de productos o intervalos ficticios. Los estilos oscuros están aislados en service-visit-portal; no cambian las pantallas administrativas ni la lista inicial del QR. Los datos personales del propietario siguen excluidos de la ficha pública.
