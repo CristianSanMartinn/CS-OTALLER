@@ -271,8 +271,12 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
       nextMileage,
       nextDate,
       notes,
+      interventionType,
+      interventionReason,
+      workDetails,
     } = m;
     const result = await apiRequest<{ id: string }>("maintenance", "POST", {
+      interventionType, interventionReason, workDetails,
       vehicleId,
       orderId,
       mechanicId,

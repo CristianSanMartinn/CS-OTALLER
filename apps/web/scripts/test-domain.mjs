@@ -725,4 +725,66 @@ test("Ficha compartida desactualizada no sobrescribe avances de otra persona", (
     /actualizó/,
   );
 });
+const { workSuggestions, workOptions, interventionSummary, isEngineOil } = load(
+  "features/shared/services/interventions",
+);
+test("Buscador distingue embrague por mantenimiento y por falla", () => {
+  const options = workSuggestions("EMBRAGUE");
+  assert.ok(options.some((x) => x.interventionType === "MAINTENANCE"));
+  assert.ok(options.some((x) => x.interventionType === "REPAIR"));
+  assert.ok(
+    workOptions("Cambio de embrague").includes(
+      "Rectificación de volante de inercia",
+    ),
+  );
+});
+test("Búsqueda tolera tildes y sinónimos sin inventar trabajos", () => {
+  assert.ok(
+    workSuggestions("bateria").some((x) => x.name === "Cambio de batería"),
+  );
+  assert.ok(
+    workSuggestions("balatas").some(
+      (x) => x.name === "Cambio de pastillas de freno",
+    ),
+  );
+  assert.ok(
+    workSuggestions("sensor map").some(
+      (x) => x.name === "Cambio de sensor MAP",
+    ),
+  );
+  assert.equal(workSuggestions("trabajo inventado").length, 0);
+});
+test("Resumen conserva texto personalizado y clasificación elegida", () => {
+  const text = interventionSummary("Trabajo personalizado", {
+    interventionType: "REPAIR",
+    interventionReason: "FAULT",
+    workDetails: ["Detalle propio"],
+  });
+  assert.ok(text.includes("Reparación"));
+  assert.ok(text.includes("Detalle propio"));
+  assert.ok(text.includes("Trabajo personalizado"));
+  assert.ok(isEngineOil("Cambio de aceite"));
+  assert.ok(!isEngineOil("Cambio de aceite de caja"));
+});
+test("Reparación sin intervalo no oculta el próximo mantenimiento programado", () => {
+  const planned = {
+    id: "planned",
+    type: "Embrague",
+    date: "2026-01-01",
+    mileage: 10000,
+    nextMileage: 30000,
+    nextDate: "2027-01-01",
+    interventionType: "MAINTENANCE",
+  };
+  const repair = {
+    ...planned,
+    id: "repair",
+    date: "2026-02-01",
+    interventionType: "REPAIR",
+    nextMileage: 0,
+    nextDate: "",
+  };
+  const result = summarize([planned, repair], 20000, "2026-10-13");
+  assert.equal(result.next.record.id, "planned");
+});
 console.log("\n" + count + " pruebas completadas.");

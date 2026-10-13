@@ -85,7 +85,7 @@ export class PortalService {
     if (!vehicle) throw new NotFoundException("Vehículo no disponible.");
     const maintenance = (
       await this.db.query(
-        'SELECT m.id,m.work_order_id AS "orderId",m.maintenance_type AS type,m.mileage,m.maintenance_date::text AS date,m.next_mileage AS "nextMileage",m.next_date::text AS "nextDate",o.oil_type AS "oilType",o.viscosity,o.oil_brand AS brand,o.liters_used AS quantity,o.filter_name AS filter,o.filter_brand AS "filterBrand" FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND m.vehicle_id=$2 ORDER BY m.maintenance_date DESC,m.created_at DESC',
+        'SELECT m.id,m.work_order_id AS "orderId",m.maintenance_type AS type,m.intervention_type AS "interventionType",m.intervention_reason AS "interventionReason",m.work_details AS "workDetails",m.mileage,m.maintenance_date::text AS date,m.next_mileage AS "nextMileage",m.next_date::text AS "nextDate",o.oil_type AS "oilType",o.viscosity,o.oil_brand AS brand,o.liters_used AS quantity,o.filter_name AS filter,o.filter_brand AS "filterBrand" FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND m.vehicle_id=$2 ORDER BY m.maintenance_date DESC,m.created_at DESC',
         [a.workshop_id, id],
       )
     ).rows.map((x) => ({
@@ -107,7 +107,7 @@ export class PortalService {
     const rows = (
       await this.db.query(
         `SELECT o.id,o.order_number AS number,to_char(o.entry_date AT TIME ZONE 'America/Santiago','YYYY-MM-DD') AS date,o.mileage,o.status,o.reason,o.diagnosis,
-    COALESCE((SELECT jsonb_agg(jsonb_build_object('id',s.id,'name',s.name,'description',COALESCE(s.description,''),'status',s.status)) FROM work_order_services s WHERE s.work_order_id=o.id AND s.workshop_id=o.workshop_id),'[]') AS services,
+    COALESCE((SELECT jsonb_agg(jsonb_build_object('id',s.id,'name',s.name,'interventionType',s.intervention_type,'interventionReason',s.intervention_reason,'workDetails',s.work_details,'description',COALESCE(s.description,''),'status',s.status)) FROM work_order_services s WHERE s.work_order_id=o.id AND s.workshop_id=o.workshop_id),'[]') AS services,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'name',p.name,'brand',COALESCE(p.brand,''),'quantity',p.quantity)) FROM work_order_parts p WHERE p.work_order_id=o.id AND p.workshop_id=o.workshop_id),'[]') AS parts,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'url',p.file_url,'category',p.category,'description',COALESCE(p.description,''),'date',COALESCE(p.taken_at,p.created_at))) FROM photos p WHERE p.work_order_id=o.id AND p.workshop_id=o.workshop_id),'[]') AS photos
     FROM work_orders o WHERE o.workshop_id=$1 AND o.vehicle_id=$2 AND o.customer_id=$3 AND o.status<>'CANCELLED' ORDER BY o.entry_date DESC`,

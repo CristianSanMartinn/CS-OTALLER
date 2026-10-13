@@ -1,9 +1,11 @@
+import { isEngineOil } from "@/features/shared/services/interventions";
 import { Droplets, CalendarDays, Gauge, Package, Wrench } from "lucide-react";
 import type { PortalMaintenance } from "../../types/maintenance.types";
 import type { PortalOrder } from "../../types/portal.types";
 import { dateLabel, km } from "@/utils/format";
 import { PortalSection } from "../layout/PortalSection";
 import { WorkPerformedList } from "../history/WorkPerformedList";
+import { interventionLabel } from "@/features/shared/services/interventions";
 export function MaintenanceSummaryCard({
   record: m,
   order,
@@ -12,7 +14,7 @@ export function MaintenanceSummaryCard({
   order?: PortalOrder;
 }) {
   const completed = order && ["READY", "DELIVERED"].includes(order.status);
-  const oil = /aceite/i.test(m.type);
+  const oil = isEngineOil(m.type);
   return (
     <PortalSection
       title={oil && m.filter ? m.type + " y filtro" : m.type}
@@ -37,6 +39,14 @@ export function MaintenanceSummaryCard({
           Mantención registrada
         </span>
       </div>
+      <p className="portal-muted">{interventionLabel(m)}</p>
+      {!!m.workDetails?.length && (
+        <ul className="public-intervention-details">
+          {m.workDetails.map((detail) => (
+            <li key={detail}>{detail}</li>
+          ))}
+        </ul>
+      )}
       {oil && (
         <>
           <h3>Productos utilizados</h3>

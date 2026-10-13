@@ -34,6 +34,13 @@ export function MaintenanceTable({
               </td>
               <td>
                 <strong>{m.type}</strong>
+                {m.interventionType && (
+                  <small>
+                    {m.interventionType === "REPAIR"
+                      ? "Reparación"
+                      : "Mantenimiento"}
+                  </small>
+                )}
                 <small>
                   {m.viscosity} {m.brand}
                 </small>
@@ -41,8 +48,12 @@ export function MaintenanceTable({
               <td>{dateLabel(m.date)}</td>
               <td>{km(m.mileage)}</td>
               <td>
-                {km(m.nextMileage)}
-                <small>{dateLabel(m.nextDate)}</small>
+                {m.nextMileage
+                  ? km(m.nextMileage)
+                  : "Sin kilometraje programado"}
+                <small>
+                  {m.nextDate ? dateLabel(m.nextDate) : "Sin fecha programada"}
+                </small>
               </td>
               <td>
                 <button className="text-button" onClick={() => onOpen(m)}>

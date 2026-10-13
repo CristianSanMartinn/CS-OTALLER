@@ -18,6 +18,7 @@ import {
   activity,
 } from "../common/operations.js";
 import { codeStates, serviceStates, mapOrder } from "./order.mapping.js";
+import { readIntervention } from "../common/interventions.js";
 const states = [
   "RECEIVED",
   "DIAGNOSIS",
@@ -169,7 +170,7 @@ export class WorkOrdersService {
       const oldServices = previous
         ? (
             await c.query(
-              "SELECT id,price FROM work_order_services WHERE work_order_id=$1 AND workshop_id=$2",
+              "SELECT id,price,intervention_type,intervention_reason,work_details FROM work_order_services WHERE work_order_id=$1 AND workshop_id=$2",
               [id, user.workshopId],
             )
           ).rows
@@ -197,6 +198,7 @@ export class WorkOrdersService {
           "id",
           "name",
           "description",
+          "interventionType", "interventionReason", "workDetails",
           "mechanicId",
           "price",
           "status",
@@ -204,6 +206,8 @@ export class WorkOrdersService {
         uuid(text(s, "id", 36, true));
         text(s, "name", 150, true);
         text(s, "description", 20000);
+        const intervention=readIntervention(s,oldServices.find(old=>old.id===s.id));
+        s.interventionType=intervention.kind; s.interventionReason=intervention.reason; s.workDetails=intervention.details;
         choice(s.status, Object.keys(serviceStates), "Estado del servicio");
         s.mechanicId = text(s, "mechanicId", 36);
         if (s.mechanicId) await reference(c, "users", s.mechanicId, user.workshopId);
@@ -338,7 +342,7 @@ export class WorkOrdersService {
         );
       for (const s of services)
         await c.query(
-          "INSERT INTO work_order_services(id,workshop_id,work_order_id,mechanic_id,name,description,price,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+          "INSERT INTO work_order_services(id,workshop_id,work_order_id,mechanic_id,name,description,price,status,intervention_type,intervention_reason,work_details) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)",
           [
             s.id,
             user.workshopId,
@@ -348,6 +352,7 @@ export class WorkOrdersService {
             s.description,
             s.price,
             serviceStates[String(s.status)],
+            s.interventionType, s.interventionReason, JSON.stringify(s.workDetails),
           ],
         );
       for (const p of parts)

@@ -3,7 +3,8 @@ import { Maintenance } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { Field, SelectField, TextField } from "@/components/ui/primitives";
 import { OilChangeForm } from "./OilChangeForm";
-import { maintenanceTypes } from "../types/maintenance.constants";
+import { InterventionEditor } from "@/components/InterventionEditor/InterventionEditor";
+import { isEngineOil } from "@/features/shared/services/interventions";
 import { today, uid } from "@/utils/format";
 export function MaintenanceForm({
   orderId = "",
@@ -22,7 +23,10 @@ export function MaintenanceForm({
     vehicleId: order?.vehicleId ?? "",
     orderId: order?.id ?? "",
     mechanicId: user!.id,
-    type: "Cambio de aceite",
+    type: "",
+    interventionType: "MAINTENANCE",
+    interventionReason: "SCHEDULED",
+    workDetails: [],
     mileage: order?.mileage ?? 0,
     oilType: "Sintético",
     viscosity: "",
@@ -49,9 +53,9 @@ export function MaintenanceForm({
       return;
     }
     if (
-      value.nextMileage <= value.mileage ||
-      !value.nextDate ||
-      value.nextDate <= value.date
+      (value.nextMileage > 0 && value.nextMileage <= value.mileage) ||
+      (value.nextDate !== "" && value.nextDate <= value.date) ||
+      (isEngineOil(value.type) && (!value.nextMileage || !value.nextDate))
     ) {
       setError(
         "La próxima mantención debe ser posterior en fecha y kilometraje.",
@@ -71,7 +75,7 @@ export function MaintenanceForm({
   }
   return (
     <form onSubmit={submit}>
-      {value.type === "Cambio de aceite" && (
+      {isEngineOil(value.type) && (
         <div className="oil-form-banner">
           <strong>Cambio de aceite · ficha de mantenimiento</strong>
           <p>
@@ -118,15 +122,18 @@ export function MaintenanceForm({
               </option>
             ))}
         </SelectField>
-        <SelectField
-          label="Tipo de mantención"
-          value={value.type}
-          onChange={(e) => change({ type: e.target.value })}
-        >
-          {maintenanceTypes.map((t) => (
-            <option key={t}>{t}</option>
-          ))}
-        </SelectField>
+        <InterventionEditor
+          maxLength={100}
+          value={{
+            name: value.type,
+            interventionType: value.interventionType,
+            interventionReason: value.interventionReason,
+            workDetails: value.workDetails,
+          }}
+          onChange={({ name, ...patch }) =>
+            change({ ...patch, ...(name !== undefined ? { type: name } : {}) })
+          }
+        />
         <Field
           label="Fecha"
           type="date"
@@ -136,7 +143,7 @@ export function MaintenanceForm({
         />
         <Field
           label={
-            value.type === "Cambio de aceite"
+            isEngineOil(value.type)
               ? "Kilometraje del cambio de aceite"
               : "Kilometraje actual"
           }
@@ -146,22 +153,22 @@ export function MaintenanceForm({
           value={value.mileage}
           onChange={(e) => change({ mileage: Number(e.target.value) })}
         />
-        {value.type === "Cambio de aceite" && (
+        {isEngineOil(value.type) && (
           <OilChangeForm value={value} onChange={change} />
         )}
         <Field
-          label="Próximo cambio (km)"
+          label="Próximo servicio (km, opcional salvo aceite)"
           type="number"
-          min={value.mileage + 1}
-          required
-          value={value.nextMileage}
+          min={0}
+          required={isEngineOil(value.type)}
+          value={value.nextMileage || ""}
           onChange={(e) => change({ nextMileage: Number(e.target.value) })}
         />
         <Field
-          label="Próximo cambio (fecha)"
+          label="Próximo servicio (fecha, opcional salvo aceite)"
           type="date"
           min={value.date}
-          required
+          required={isEngineOil(value.type)}
           value={value.nextDate}
           onChange={(e) => change({ nextDate: e.target.value })}
         />
@@ -181,7 +188,7 @@ export function MaintenanceForm({
           Cancelar
         </button>
         <button className="button primary" disabled={busy}>
-          {busy ? "Guardando…" : "Guardar mantención"}
+          {busy ? "Guardando…" : "Guardar trabajo"}
         </button>
       </div>
     </form>

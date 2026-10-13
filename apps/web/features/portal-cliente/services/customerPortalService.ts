@@ -51,6 +51,9 @@ export function customerVehicle(data: Store, token: string) {
       services: o.services.map((s) => ({
         id: s.id,
         name: s.name,
+        interventionType: s.interventionType,
+        interventionReason: s.interventionReason,
+        workDetails: s.workDetails,
         description: s.description,
         status: s.status,
       })),

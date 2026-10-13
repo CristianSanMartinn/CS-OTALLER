@@ -7,6 +7,7 @@ import { DatabaseService } from "../database/database.service.js";
 import { AuthUser } from "../auth/auth.types.js";
 import { bodyObject, text } from "../common/validation.js";
 import { amount, date, reference, activity } from "../common/operations.js";
+import { readIntervention, isEngineOil } from "../common/interventions.js";
 @Injectable()
 export class MaintenanceService {
   constructor(private readonly db: DatabaseService) {}
@@ -22,6 +23,7 @@ export class MaintenanceService {
       orderId: x.work_order_id ?? "",
       mechanicId: x.mechanic_id ?? "",
       type: x.maintenance_type,
+      interventionType:x.intervention_type??undefined, interventionReason:x.intervention_reason??undefined,workDetails:x.work_details??[],
       mileage: x.mileage,
       oilType: x.oil_type ?? "",
       viscosity: x.viscosity ?? "",
@@ -40,7 +42,7 @@ export class MaintenanceService {
       "vehicleId",
       "orderId",
       "mechanicId",
-      "type",
+      "type", "interventionType", "interventionReason", "workDetails",
       "mileage",
       "oilType",
       "viscosity",
@@ -54,7 +56,7 @@ export class MaintenanceService {
       "notes",
     ]);
     const day = date(b.date, "fecha"),
-      next = date(b.nextDate, "próxima fecha"),
+      next = b.nextDate ? date(b.nextDate, "próxima fecha") : null,
       mileage = amount(b.mileage, "kilometraje", true, 0, 2147483647),
       nextMileage = amount(
         b.nextMileage,
@@ -63,7 +65,7 @@ export class MaintenanceService {
         0,
         2147483647,
       );
-    if (next <= day || nextMileage <= mileage)
+    if ((next && next <= day) || (nextMileage > 0 && nextMileage <= mileage))
       throw new BadRequestException(
         "La próxima mantención debe ser posterior en fecha y kilometraje.",
       );
@@ -75,6 +77,8 @@ export class MaintenanceService {
       filter = text(b, "filter", 150),
       filterBrand = text(b, "filterBrand", 100),
       quantity = amount(b.quantity, "cantidad de aceite", false, 0, 100);
+    const intervention=readIntervention(b);
+    if(isEngineOil(type)&&(!next||!nextMileage))throw new BadRequestException("Indica próxima fecha y kilometraje del cambio de aceite.");
     return this.db.transaction(async (c) => {
       const v = await reference(c, "vehicles", b.vehicleId, u.workshopId);
       await c.query(
@@ -112,7 +116,7 @@ export class MaintenanceService {
           throw new ForbiddenException("Vehículo no asignado.");
       }
       const r = await c.query(
-        "INSERT INTO maintenance_records(workshop_id,vehicle_id,work_order_id,mechanic_id,maintenance_type,maintenance_date,mileage,next_mileage,next_date,observations) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id",
+        "INSERT INTO maintenance_records(workshop_id,vehicle_id,work_order_id,mechanic_id,maintenance_type,maintenance_date,mileage,next_mileage,next_date,observations,intervention_type,intervention_reason,work_details) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id",
         [
           u.workshopId,
           b.vehicleId,
@@ -121,13 +125,14 @@ export class MaintenanceService {
           type,
           day,
           mileage,
-          nextMileage,
+          nextMileage || null,
           next,
           notes,
+          intervention.kind,intervention.reason,JSON.stringify(intervention.details),
         ],
       );
       const id = r.rows[0].id;
-      if (type === "Cambio de aceite")
+      if (isEngineOil(type))
         await c.query(
           "INSERT INTO oil_change_details(workshop_id,maintenance_id,oil_type,viscosity,oil_brand,liters_used,filter_installed,filter_name,filter_brand) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
           [

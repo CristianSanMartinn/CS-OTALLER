@@ -1,3 +1,4 @@
+import { isEngineOil } from "@/features/shared/services/interventions";
 import {
   Droplets,
   Filter,
@@ -25,7 +26,7 @@ export function VehicleServiceOverview({
   onOpen: (id: string) => void;
   onHistory: () => void;
 }) {
-  const oil = records.find((record) => /aceite/i.test(record.type));
+  const oil = records.find((record) => isEngineOil(record.type));
   const oilOrder = view.orders.find((order) => order.id === oil?.orderId);
   const filters = Array.from(
     new Set(

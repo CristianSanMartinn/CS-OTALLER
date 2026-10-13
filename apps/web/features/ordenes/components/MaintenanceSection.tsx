@@ -14,11 +14,11 @@ export function MaintenanceSection({
   const { data } = useStore();
   return (
     <Panel
-      title="07 · Mantenciones"
+      title="07 · Mantenimientos y reparaciones"
       action={
         !isNew && (
           <Link className="text-link" href={"/mantenciones?orden=" + orderId}>
-            Registrar mantención →
+            Registrar trabajo →
           </Link>
         )
       }

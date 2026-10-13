@@ -1,4 +1,5 @@
 export interface PublicMaintenance {
+  interventionType?: "MAINTENANCE" | "REPAIR";
   id: string;
   type: string;
   date: string;
@@ -21,7 +22,14 @@ export function vehicleMaintenanceSummary(
     (a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage,
   );
   for (const record of sorted)
-    if (!latestByType.has(record.type.trim().toLowerCase()))
+    if (
+      !(
+        record.interventionType === "REPAIR" &&
+        !record.nextMileage &&
+        !record.nextDate
+      ) &&
+      !latestByType.has(record.type.trim().toLowerCase())
+    )
       latestByType.set(record.type.trim().toLowerCase(), record);
   const upcoming = [...latestByType.values()].filter(
     (r) => (r.nextMileage ?? 0) > 0 || r.nextDate,

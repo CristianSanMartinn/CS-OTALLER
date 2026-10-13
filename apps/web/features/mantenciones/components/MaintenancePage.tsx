@@ -26,11 +26,11 @@ export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
     <>
       <PageHeading
         title="Mantenciones"
-        description="Historial preventivo y próximos cuidados de cada vehículo."
+        description="Mantenimientos, reparaciones y próximos cuidados de cada vehículo."
         action={
           <button className="button primary" onClick={() => setOpen(true)}>
             <Plus size={18} />
-            Registrar mantención
+            Registrar trabajo
           </button>
         }
       />
@@ -47,7 +47,12 @@ export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
             onChange={(e) => setType(e.target.value)}
           >
             <option value="">Todos los tipos</option>
-            {maintenanceTypes.map((t) => (
+            {Array.from(
+              new Set([
+                ...maintenanceTypes,
+                ...data.maintenance.map((record) => record.type),
+              ]),
+            ).map((t) => (
               <option key={t}>{t}</option>
             ))}
           </select>
@@ -63,13 +68,13 @@ export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
         </Modal>
       )}
       {open && (
-        <Modal title="Registrar mantención" onClose={() => setOpen(false)}>
+        <Modal title="Registrar trabajo" onClose={() => setOpen(false)}>
           <MaintenanceForm
             orderId={orderId}
             onCancel={() => setOpen(false)}
             onSave={() => {
               setOpen(false);
-              notify("Mantención registrada");
+              notify("Trabajo registrado");
             }}
           />
         </Modal>

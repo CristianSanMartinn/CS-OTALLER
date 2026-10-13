@@ -4,8 +4,14 @@ import { OrderSectionProps } from "../types/editor.types";
 import { ServiceItem } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { uid } from "@/utils/format";
+import { InterventionEditor } from "@/components/InterventionEditor/InterventionEditor";
 export function ServicesSection({ order, onChange }: OrderSectionProps) {
   const { data, user } = useStore();
+  const existingServices = new Set(
+    data.orders
+      .find((saved) => saved.id === order.id)
+      ?.services.map((service) => service.id) ?? [],
+  );
   const edit = (id: string, patch: Partial<ServiceItem>) =>
     onChange({
       services: order.services.map((s) =>
@@ -49,11 +55,14 @@ export function ServicesSection({ order, onChange }: OrderSectionProps) {
       {order.services.map((s) => (
         <div className="repeat-row" key={s.id}>
           <div className="form-grid">
-            <Field
-              label="Nombre del trabajo"
-              required
-              value={s.name}
-              onChange={(e) => edit(s.id, { name: e.target.value })}
+            <InterventionEditor
+              value={s}
+              classificationRequired={
+                !existingServices.has(s.id) ||
+                !!s.interventionType ||
+                !!s.interventionReason
+              }
+              onChange={(patch) => edit(s.id, patch)}
             />
             <Field
               label="Descripción"

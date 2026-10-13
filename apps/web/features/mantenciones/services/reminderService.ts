@@ -2,6 +2,7 @@ import { Maintenance } from "@/features/shared/types/domain";
 export function latestMaintenance(records: Maintenance[]) {
   const latest = new Map<string, Maintenance>();
   for (const record of records) {
+    if (!record.nextMileage && !record.nextDate) continue;
     const key = record.workshopId + ":" + record.vehicleId + ":" + record.type;
     const previous = latest.get(key);
     if (

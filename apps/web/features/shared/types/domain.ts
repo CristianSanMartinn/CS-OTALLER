@@ -74,7 +74,14 @@ export interface ScannerCode {
   status: string;
   notes: string;
 }
-export interface ServiceItem {
+export type InterventionType = "MAINTENANCE" | "REPAIR";
+export type InterventionReason = "SCHEDULED" | "WEAR" | "FAULT" | "OTHER";
+export interface Intervention {
+  interventionType?: InterventionType;
+  interventionReason?: InterventionReason;
+  workDetails?: string[];
+}
+export interface ServiceItem extends Intervention {
   id: string;
   name: string;
   description: string;
@@ -121,7 +128,7 @@ export interface WorkOrder extends Entity {
   parts: PartItem[];
   photos: Photo[];
 }
-export interface Maintenance extends Entity {
+export interface Maintenance extends Entity, Intervention {
   vehicleId: string;
   orderId: string;
   mechanicId: string;
