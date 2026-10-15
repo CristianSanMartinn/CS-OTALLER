@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
+import { BadRequestException,ConflictException, Injectable, } from "@nestjs/common";
 import { hash } from "bcryptjs";
 import { DatabaseService } from "../database/database.service.js";
 import { bodyObject, text, email } from "../common/validation.js";

@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException,} from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
 import { AuthUser } from "../auth/auth.types.js";
 import { bodyObject, text, uuid } from "./validation.js";
