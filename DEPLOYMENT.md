@@ -58,3 +58,8 @@ Con WhatsApp del teléfono se puede preparar el mensaje desde la ficha del clien
 ## Registro de talleres independientes
 
 /registro crea un taller y su administrador mediante POST /api/auth/register, en una transacción. Rechaza RUT de taller duplicado, aplica límite de solicitudes y exige contraseña de 12 caracteres como mínimo. El nuevo administrador no hereda registros de otros talleres. Si el mismo correo existe en varios talleres, el acceso requiere el código de taller (UUID) entregado al registrar; /login?taller=CODIGO lo completa. No implica verificación de correo, suscripción ni cobros. Para ampliar un equipo existente, usar Trabajadores; no registrar otro taller.
+
+
+## Estabilización y recuperación
+
+Consultar [Fase 1: base segura](docs/FASE_1_BASE_SEGURA.md) para las referencias verificadas, los pendientes de backup y el procedimiento de rollback. No aplicar migraciones sin identificar el backup de producción y ensayar su restauración.

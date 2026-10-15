@@ -15,3 +15,10 @@ coverage/
 
 # Copias locales de recuperación
 *.before-fix.txt
+
+# Respaldos privados de base de datos
+.private-backups/
+backups/
+*.dump
+*.backup
+*.sql.gz
