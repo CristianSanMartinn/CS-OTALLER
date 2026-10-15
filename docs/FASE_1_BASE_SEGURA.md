@@ -8,6 +8,7 @@ Revisión: 15 de octubre de 2026, zona America/Santiago.
 - [x] Commit local de referencia: `a315f1934975f30640ad15d5a77dd5320e527aea`.
 - [ ] Backup identificado de producción, con restauración de prueba completada.
 - [x] Revisión de archivos sensibles y secretos configurados en Git local.
+- [x] README principal y frontend actualizados con capacidades y pendientes actuales.
 - [ ] Confirmar correspondencia de variables de producción y base de Neon.
 - [x] Compilación local de frontend y API.
 - [x] Despliegues existentes de producción en Vercel en estado Ready.
@@ -16,6 +17,9 @@ Revisión: 15 de octubre de 2026, zona America/Santiago.
 
 La fase sigue abierta. Un commit local, un despliegue Ready y un backup de
 datos son referencias diferentes. Ninguna sustituye a las otras dos.
+
+El [registro del plan maestro](REGISTRO_AVANCE_PLAN_MAESTRO.md) detalla cada
+entrega y contiene un texto breve para actualizar el registro del PDF.
 
 ## Referencia de código
 
