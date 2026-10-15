@@ -23,7 +23,9 @@ export class MaintenanceService {
       orderId: x.work_order_id ?? "",
       mechanicId: x.mechanic_id ?? "",
       type: x.maintenance_type,
-      interventionType:x.intervention_type??undefined, interventionReason:x.intervention_reason??undefined,workDetails:x.work_details??[],
+      interventionType: x.intervention_type ?? undefined,
+      interventionReason: x.intervention_reason ?? undefined,
+      workDetails: x.work_details ?? [],
       mileage: x.mileage,
       oilType: x.oil_type ?? "",
       viscosity: x.viscosity ?? "",
@@ -42,7 +44,10 @@ export class MaintenanceService {
       "vehicleId",
       "orderId",
       "mechanicId",
-      "type", "interventionType", "interventionReason", "workDetails",
+      "type",
+      "interventionType",
+      "interventionReason",
+      "workDetails",
       "mileage",
       "oilType",
       "viscosity",
@@ -77,8 +82,11 @@ export class MaintenanceService {
       filter = text(b, "filter", 150),
       filterBrand = text(b, "filterBrand", 100),
       quantity = amount(b.quantity, "cantidad de aceite", false, 0, 100);
-    const intervention=readIntervention(b);
-    if(isEngineOil(type)&&(!next||!nextMileage))throw new BadRequestException("Indica próxima fecha y kilometraje del cambio de aceite.");
+    const intervention = readIntervention(b);
+    if (isEngineOil(type) && (!next || !nextMileage))
+      throw new BadRequestException(
+        "Indica próxima fecha y kilometraje del cambio de aceite.",
+      );
     return this.db.transaction(async (c) => {
       const v = await reference(c, "vehicles", b.vehicleId, u.workshopId);
       await c.query(
@@ -98,7 +106,11 @@ export class MaintenanceService {
           b.orderId,
           u.workshopId,
         );
-        if (u.role === "WORKER" && order.assignment_type !== "TEAM" && order.mechanic_id !== u.id)
+        if (
+          u.role === "WORKER" &&
+          order.assignment_type !== "TEAM" &&
+          order.mechanic_id !== u.id
+        )
           throw new ForbiddenException("Orden no asignada.");
         if (order.vehicle_id !== b.vehicleId)
           throw new BadRequestException(
@@ -128,7 +140,9 @@ export class MaintenanceService {
           nextMileage || null,
           next,
           notes,
-          intervention.kind,intervention.reason,JSON.stringify(intervention.details),
+          intervention.kind,
+          intervention.reason,
+          JSON.stringify(intervention.details),
         ],
       );
       const id = r.rows[0].id;

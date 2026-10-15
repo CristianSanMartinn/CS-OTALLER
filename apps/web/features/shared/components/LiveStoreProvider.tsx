@@ -276,7 +276,9 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
       workDetails,
     } = m;
     const result = await apiRequest<{ id: string }>("maintenance", "POST", {
-      interventionType, interventionReason, workDetails,
+      interventionType,
+      interventionReason,
+      workDetails,
       vehicleId,
       orderId,
       mechanicId,

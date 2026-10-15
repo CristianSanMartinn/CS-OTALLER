@@ -101,14 +101,36 @@ export class WorkOrdersService {
         ).rows[0];
         if (
           !previous ||
-          (user.role === "WORKER" && previous.assignment_type !== "TEAM" && previous.mechanic_id !== user.id)
+          (user.role === "WORKER" &&
+            previous.assignment_type !== "TEAM" &&
+            previous.mechanic_id !== user.id)
         )
           throw new NotFoundException("Orden no encontrada o sin acceso.");
       }
-      const assignmentType = choice(input.assignmentType ?? previous?.assignment_type ?? "INDIVIDUAL", ["INDIVIDUAL", "TEAM"], "Asignación");
-      const mechanicId = assignmentType === "TEAM" ? null : uuid(text(input, "mechanicId", 36, true));
-      if (assignmentType === "TEAM" && text(input, "mechanicId", 36)) throw new BadRequestException("Una orden compartida no lleva mecánico exclusivo.");
-      if (previous && (previous.assignment_type === "TEAM" || input.expectedUpdatedAt !== undefined) && (!input.expectedUpdatedAt || Date.parse(String(input.expectedUpdatedAt)) !== new Date(previous.updated_at).getTime())) throw new ConflictException("Otra persona actualizó esta orden. Recarga la ficha antes de guardar.");
+      const assignmentType = choice(
+        input.assignmentType ?? previous?.assignment_type ?? "INDIVIDUAL",
+        ["INDIVIDUAL", "TEAM"],
+        "Asignación",
+      );
+      const mechanicId =
+        assignmentType === "TEAM"
+          ? null
+          : uuid(text(input, "mechanicId", 36, true));
+      if (assignmentType === "TEAM" && text(input, "mechanicId", 36))
+        throw new BadRequestException(
+          "Una orden compartida no lleva mecánico exclusivo.",
+        );
+      if (
+        previous &&
+        (previous.assignment_type === "TEAM" ||
+          input.expectedUpdatedAt !== undefined) &&
+        (!input.expectedUpdatedAt ||
+          Date.parse(String(input.expectedUpdatedAt)) !==
+            new Date(previous.updated_at).getTime())
+      )
+        throw new ConflictException(
+          "Otra persona actualizó esta orden. Recarga la ficha antes de guardar.",
+        );
       const vehicle = await reference(
         c,
         "vehicles",
@@ -127,7 +149,12 @@ export class WorkOrdersService {
           "El kilometraje no puede ser menor al último registrado.",
         );
       if (user.role === "WORKER") {
-        if (previous ? assignmentType !== previous.assignment_type || mechanicId !== previous.mechanic_id : assignmentType === "TEAM" || mechanicId !== user.id)
+        if (
+          previous
+            ? assignmentType !== previous.assignment_type ||
+              mechanicId !== previous.mechanic_id
+            : assignmentType === "TEAM" || mechanicId !== user.id
+        )
           throw new ForbiddenException(
             "Solo puedes trabajar tus vehículos asignados.",
           );
@@ -198,7 +225,9 @@ export class WorkOrdersService {
           "id",
           "name",
           "description",
-          "interventionType", "interventionReason", "workDetails",
+          "interventionType",
+          "interventionReason",
+          "workDetails",
           "mechanicId",
           "price",
           "status",
@@ -206,12 +235,19 @@ export class WorkOrdersService {
         uuid(text(s, "id", 36, true));
         text(s, "name", 150, true);
         text(s, "description", 20000);
-        const intervention=readIntervention(s,oldServices.find(old=>old.id===s.id));
-        s.interventionType=intervention.kind; s.interventionReason=intervention.reason; s.workDetails=intervention.details;
+        const intervention = readIntervention(
+          s,
+          oldServices.find((old) => old.id === s.id),
+        );
+        s.interventionType = intervention.kind;
+        s.interventionReason = intervention.reason;
+        s.workDetails = intervention.details;
         choice(s.status, Object.keys(serviceStates), "Estado del servicio");
         s.mechanicId = text(s, "mechanicId", 36);
-        if (s.mechanicId) await reference(c, "users", s.mechanicId, user.workshopId);
-        else if (assignmentType !== "TEAM") throw new BadRequestException("Selecciona el mecánico del servicio.");
+        if (s.mechanicId)
+          await reference(c, "users", s.mechanicId, user.workshopId);
+        else if (assignmentType !== "TEAM")
+          throw new BadRequestException("Selecciona el mecánico del servicio.");
         s.price =
           user.role === "ADMIN"
             ? amount(s.price, "precio")
@@ -352,7 +388,9 @@ export class WorkOrdersService {
             s.description,
             s.price,
             serviceStates[String(s.status)],
-            s.interventionType, s.interventionReason, JSON.stringify(s.workDetails),
+            s.interventionType,
+            s.interventionReason,
+            JSON.stringify(s.workDetails),
           ],
         );
       for (const p of parts)
@@ -398,7 +436,11 @@ export class WorkOrdersService {
         orderId,
         saved.order_number + (previous ? " actualizada" : " creada"),
       );
-      return { id: orderId, number: saved.order_number, updatedAt: new Date(saved.updated_at).toISOString() };
+      return {
+        id: orderId,
+        number: saved.order_number,
+        updatedAt: new Date(saved.updated_at).toISOString(),
+      };
     });
   }
 }
