@@ -68,7 +68,5 @@ WhatsApp funciona como preparación de un envío manual, sin programación
 automática. Recuperación automática de contraseña, sesiones revocables,
 pagos, suscripciones, SUPER_ADMIN, PDF y firma digital siguen pendientes.
 
-Consultar el [README principal](../../README.md),
-[despliegue](../../DEPLOYMENT.md),
-[fase 1 y rollback](../../docs/FASE_1_BASE_SEGURA.md) y
-[registro de avance](../../docs/REGISTRO_AVANCE_PLAN_MAESTRO.md).
+Consultar el [README principal](../../README.md) y la documentación de
+[despliegue](../../DEPLOYMENT.md).

@@ -93,8 +93,8 @@ ni sincronización del sistema real. No usar la demo para aceptar entregas.
   completo ni catálogo independiente.
 - No están implementados pagos, suscripciones, SUPER_ADMIN, facturación,
   firma digital ni generación de PDF.
-- Faltan completar la restauración de backups, la base reproducible y la
-  validación integral multiempresa antes de abrir la venta general.
+- Faltan completar la base reproducible y la validación integral
+  multiempresa antes de abrir la venta general.
 
 ## Producción y estabilización
 
@@ -102,8 +102,6 @@ Frontend: https://csotaller.vercel.app
 
 API: https://csotaller-api.vercel.app/api
 
-Consultar [Fase 1 y rollback](docs/FASE_1_BASE_SEGURA.md),
-[registro de avance](docs/REGISTRO_AVANCE_PLAN_MAESTRO.md) y
-[despliegue](DEPLOYMENT.md).
-La fase 1 continúa abierta. No realizar migraciones sin identificar producción,
-crear el backup y verificar su restauración en un entorno aislado.
+Consultar [despliegue](DEPLOYMENT.md). Antes de aplicar migraciones,
+identificar la base de destino, crear un respaldo reciente y comprobar su
+restauración en un entorno aislado.

@@ -1,4 +1,5 @@
 import { Store } from "@/features/shared/types/domain";
+
 export const customerPath = (vehicleId: string) =>
   "/mi-vehiculo/demo-" + encodeURIComponent(vehicleId);
 // Proyección explícita de datos de demostración. No sustituye autorización de backend.
