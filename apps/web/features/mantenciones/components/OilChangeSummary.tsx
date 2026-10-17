@@ -40,6 +40,7 @@ export function OilChangeSummary({
         </div>
       </div>
       <p className="oil-detail">
+        {record.oilProductName ? record.oilProductName + " · " : ""}
         {record.oilType} · {record.quantity} L · Filtro {record.filterBrand}{" "}
         {record.filter}
       </p>

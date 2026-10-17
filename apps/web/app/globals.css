@@ -5799,3 +5799,98 @@ button.service-summary-card:hover {
     max-height: 240px;
   }
 }
+
+.intervention-quick-classification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+  color: var(--muted);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.intervention-work-details {
+  margin: 12px 0;
+}
+.intervention-work-details > summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text);
+  padding: 10px 0;
+}
+.maintenance-reception-context {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  margin-bottom: 18px;
+  background: var(--surface);
+}
+.maintenance-reception-context p {
+  margin: 6px 0;
+}
+.maintenance-reception-context small {
+  color: var(--muted);
+}
+.oil-product-picker {
+  position: relative;
+  gap: 9px;
+}
+.oil-product-picker > label {
+  font-weight: 600;
+}
+.oil-product-picker .intervention-input-wrap input {
+  padding-left: 38px;
+  width: 100%;
+}
+.oil-product-picker > small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.oil-product-options {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.oil-product-options > button {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.oil-product-options > button:hover,
+.oil-product-options > .is-selected {
+  background: color-mix(in srgb, var(--blue) 10%, var(--surface));
+}
+.oil-product-options span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.oil-product-options > p {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.oil-selected-product {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: color-mix(in srgb, var(--blue) 6%, var(--surface));
+  color: var(--text);
+}
+.oil-selected-product span {
+  font-size: 12px;
+  color: var(--muted);
+}

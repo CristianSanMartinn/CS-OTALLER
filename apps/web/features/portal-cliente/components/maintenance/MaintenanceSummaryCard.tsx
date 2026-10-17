@@ -14,7 +14,7 @@ export function MaintenanceSummaryCard({
   order?: PortalOrder;
 }) {
   const completed = order && ["READY", "DELIVERED"].includes(order.status);
-  const oil = isEngineOil(m.type);
+  const oil = isEngineOil(m.type, m.maintenanceTypeCode);
   return (
     <PortalSection
       title={oil && m.filter ? m.type + " y filtro" : m.type}
@@ -61,7 +61,8 @@ export function MaintenanceSummaryCard({
                   "Sin marca registrada"}
               </strong>
               <p>
-                {m.oilType || "Tipo sin registrar"}
+                {[m.oilProductName, m.oilType].filter(Boolean).join(" · ") ||
+                  "Tipo sin registrar"}
                 {m.quantity ? " · " + m.quantity + " litros" : ""}
               </p>
             </article>

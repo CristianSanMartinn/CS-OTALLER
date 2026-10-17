@@ -26,7 +26,9 @@ export function VehicleServiceOverview({
   onOpen: (id: string) => void;
   onHistory: () => void;
 }) {
-  const oil = records.find((record) => isEngineOil(record.type));
+  const oil = records.find((record) =>
+    isEngineOil(record.type, record.maintenanceTypeCode),
+  );
   const oilOrder = view.orders.find((order) => order.id === oil?.orderId);
   const filters = Array.from(
     new Set(
@@ -51,7 +53,9 @@ export function VehicleServiceOverview({
         ? "En " + km(remaining)
         : "Kilometraje alcanzado";
   const oilDescription = oil
-    ? [oil.brand, oil.viscosity, oil.oilType].filter(Boolean).join(" · ")
+    ? [oil.brand, oil.oilProductName, oil.viscosity, oil.oilType]
+        .filter(Boolean)
+        .join(" · ")
     : "";
   const cards = [
     {

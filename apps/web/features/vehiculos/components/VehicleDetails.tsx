@@ -14,6 +14,7 @@ import {
 import { VehicleHistory } from "./VehicleHistory";
 import { VehicleMaintenanceHistory } from "./VehicleMaintenanceHistory";
 import { NextMaintenanceCard } from "@/features/mantenciones/components/NextMaintenanceCard";
+import { isEngineOil } from "@/features/shared/services/interventions";
 import { km } from "@/utils/format";
 export function VehicleDetails({ id }: { id: string }) {
   const { data, user } = useStore();
@@ -22,7 +23,7 @@ export function VehicleDetails({ id }: { id: string }) {
   const orders = data.orders.filter((o) => o.vehicleId === id);
   const maintenance = data.maintenance.filter((m) => m.vehicleId === id);
   const oil = [...maintenance]
-    .filter((m) => m.type === "Cambio de aceite")
+    .filter((m) => isEngineOil(m.type, m.maintenanceTypeCode))
     .sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage)[0];
   return (
     <>
@@ -61,7 +62,7 @@ export function VehicleDetails({ id }: { id: string }) {
         <CustomerAccessCard customerId={v.customerId} plate={v.plate} />
       )}
       {oil && <OilChangeSummary record={oil} />}
-      <NextMaintenanceCard records={maintenance} />
+      <NextMaintenanceCard records={maintenance} mileage={v.mileage} />
       <Panel title="Órdenes anteriores">
         <VehicleHistory orders={orders} />
       </Panel>

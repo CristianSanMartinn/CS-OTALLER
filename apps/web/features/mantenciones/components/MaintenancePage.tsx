@@ -8,7 +8,10 @@ import { Modal } from "@/components/Modal/Modal";
 import { MaintenanceForm } from "./MaintenanceForm";
 import { MaintenanceTable } from "./MaintenanceTable";
 import { MaintenanceHistory } from "./MaintenanceHistory";
-import { maintenanceTypes } from "../types/maintenance.constants";
+import {
+  maintenanceCategories,
+  maintenanceTypeCode,
+} from "@/features/shared/services/maintenanceRules";
 export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
   const { data, notify } = useStore();
   const [open, setOpen] = useState(!!orderId);
@@ -17,7 +20,7 @@ export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
   const [type, setType] = useState("");
   const rows = data.maintenance.filter(
     (m) =>
-      (!type || m.type === type) &&
+      (!type || maintenanceTypeCode(m) === type) &&
       (m.type + data.vehicles.find((v) => v.id === m.vehicleId)?.plate)
         .toLowerCase()
         .includes(q.toLowerCase()),
@@ -47,13 +50,10 @@ export function MaintenancePage({ orderId = "" }: { orderId?: string }) {
             onChange={(e) => setType(e.target.value)}
           >
             <option value="">Todos los tipos</option>
-            {Array.from(
-              new Set([
-                ...maintenanceTypes,
-                ...data.maintenance.map((record) => record.type),
-              ]),
-            ).map((t) => (
-              <option key={t}>{t}</option>
+            {maintenanceCategories.map((category) => (
+              <option key={category.code} value={category.code}>
+                {category.label}
+              </option>
             ))}
           </select>
         </div>

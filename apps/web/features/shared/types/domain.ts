@@ -1,3 +1,5 @@
+import type { MaintenanceClassification } from "../../../../../packages/types/src/maintenance.types";
+export type { MaintenanceTypeCode } from "../../../../../packages/types/src/maintenance.types";
 export type CancellationReason =
   "CLIENT_CANCELLED" | "NO_BUDGET" | "DIAGNOSIS_ONLY" | "OTHER";
 export interface Cancellation {
@@ -128,12 +130,14 @@ export interface WorkOrder extends Entity {
   parts: PartItem[];
   photos: Photo[];
 }
-export interface Maintenance extends Entity, Intervention {
+export interface Maintenance
+  extends Entity, Intervention, MaintenanceClassification {
   vehicleId: string;
   orderId: string;
   mechanicId: string;
   type: string;
   mileage: number;
+  oilProductName?: string;
   oilType: string;
   viscosity: string;
   brand: string;

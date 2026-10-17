@@ -11,7 +11,7 @@ export function MaintenanceHistory({ records }: { records: Maintenance[] }) {
     <div className="record-list">
       {records.map((m) => (
         <div key={m.id}>
-          {isEngineOil(m.type) && (
+          {isEngineOil(m.type, m.maintenanceTypeCode) && (
             <OilChangeSummary record={m} title="Cambio de aceite registrado" />
           )}
           <div className="record-title">
@@ -28,7 +28,7 @@ export function MaintenanceHistory({ records }: { records: Maintenance[] }) {
           )}
           <p>
             {km(m.mileage)}
-            {isEngineOil(m.type) &&
+            {isEngineOil(m.type, m.maintenanceTypeCode) &&
               " · " +
                 m.oilType +
                 " " +
@@ -39,7 +39,7 @@ export function MaintenanceHistory({ records }: { records: Maintenance[] }) {
                 m.quantity +
                 " L"}
           </p>
-          {isEngineOil(m.type) && (
+          {isEngineOil(m.type, m.maintenanceTypeCode) && (
             <small>
               Filtro: {m.filter} · {m.filterBrand}
             </small>

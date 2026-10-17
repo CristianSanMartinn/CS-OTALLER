@@ -8,7 +8,9 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "typecheck": "tsc --noEmit",
-    "test:integration": "pnpm build && node scripts/test-integration.cjs"
+    "test:integration": "pnpm build && node scripts/test-integration.cjs",
+    "test:maintenance-types": "pnpm build && node scripts/test-maintenance-types.cjs",
+    "test:oil-catalog": "pnpm build && node scripts/test-oil-catalog.cjs"
   },
   "dependencies": {
     "@nestjs/common": "11.2.7",

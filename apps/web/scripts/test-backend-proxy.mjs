@@ -180,3 +180,22 @@ test("Una redirección de la API no expone la clave en la respuesta del proxy", 
   assert.equal(response.status, 502);
   assert.equal((await response.text()).includes(fakeSecret), false);
 });
+
+test("El catálogo de aceite requiere sesión y se reenvía a la API correcta", async () => {
+  const proxy = createProxy({ API_URL: previewUrl });
+  assert.equal(
+    (await proxy.backendProxy(request(), ["maintenance", "oils"])).status,
+    401,
+  );
+  assert.equal(proxy.calls.length, 0);
+  assert.equal(
+    (
+      await proxy.backendProxy(request({ session: true }), [
+        "maintenance",
+        "oils",
+      ])
+    ).status,
+    200,
+  );
+  assert.equal(proxy.calls[0].url, previewUrl + "/maintenance/oils");
+});

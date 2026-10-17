@@ -67,7 +67,7 @@ export class PortalService {
       workshop: this.workshop(a),
       vehicles: (
         await this.db.query(
-          `SELECT v.id,v.license_plate AS plate,v.brand,v.model,v.year,v.mileage,COALESCE((SELECT jsonb_agg(jsonb_build_object('id',m.id,'type',m.maintenance_type,'date',m.maintenance_date::text,'mileage',m.mileage,'nextMileage',m.next_mileage,'nextDate',m.next_date::text) ORDER BY m.maintenance_date DESC,m.created_at DESC) FROM maintenance_records m WHERE m.workshop_id=v.workshop_id AND m.vehicle_id=v.id),'[]') AS maintenance FROM vehicles v WHERE v.workshop_id=$1 AND v.customer_id=$2 AND v.active ORDER BY v.license_plate`,
+          `SELECT v.id,v.license_plate AS plate,v.brand,v.model,v.year,v.mileage,COALESCE((SELECT jsonb_agg(jsonb_build_object('id',m.id,'type',m.maintenance_type,'maintenanceTypeCode',m.maintenance_type_code,'interventionType',m.intervention_type,'date',m.maintenance_date::text,'mileage',m.mileage,'nextMileage',m.next_mileage,'nextDate',m.next_date::text) ORDER BY m.maintenance_date DESC,m.created_at DESC) FROM maintenance_records m WHERE m.workshop_id=v.workshop_id AND m.vehicle_id=v.id),'[]') AS maintenance FROM vehicles v WHERE v.workshop_id=$1 AND v.customer_id=$2 AND v.active ORDER BY v.license_plate`,
           [a.workshop_id, a.customer_id],
         )
       ).rows,
@@ -85,7 +85,7 @@ export class PortalService {
     if (!vehicle) throw new NotFoundException("Vehículo no disponible.");
     const maintenance = (
       await this.db.query(
-        'SELECT m.id,m.work_order_id AS "orderId",m.maintenance_type AS type,m.intervention_type AS "interventionType",m.intervention_reason AS "interventionReason",m.work_details AS "workDetails",m.mileage,m.maintenance_date::text AS date,m.next_mileage AS "nextMileage",m.next_date::text AS "nextDate",o.oil_type AS "oilType",o.viscosity,o.oil_brand AS brand,o.liters_used AS quantity,o.filter_name AS filter,o.filter_brand AS "filterBrand" FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND m.vehicle_id=$2 ORDER BY m.maintenance_date DESC,m.created_at DESC',
+        'SELECT m.id,m.work_order_id AS "orderId",m.maintenance_type AS type,m.maintenance_type_code AS "maintenanceTypeCode",m.intervention_type AS "interventionType",m.intervention_reason AS "interventionReason",m.work_details AS "workDetails",m.mileage,m.maintenance_date::text AS date,m.next_mileage AS "nextMileage",m.next_date::text AS "nextDate",o.product_name AS "oilProductName",o.oil_type AS "oilType",o.viscosity,o.oil_brand AS brand,o.liters_used AS quantity,o.filter_name AS filter,o.filter_brand AS "filterBrand" FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND m.vehicle_id=$2 ORDER BY m.maintenance_date DESC,m.created_at DESC',
         [a.workshop_id, id],
       )
     ).rows.map((x) => ({
@@ -95,6 +95,7 @@ export class PortalService {
       orderId: x.orderId ?? "",
       mechanicId: "",
       notes: "",
+      oilProductName: x.oilProductName ?? "",
       oilType: x.oilType ?? "",
       viscosity: x.viscosity ?? "",
       brand: x.brand ?? "",

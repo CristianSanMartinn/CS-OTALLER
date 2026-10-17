@@ -788,3 +788,253 @@ test("Reparación sin intervalo no oculta el próximo mantenimiento programado",
   assert.equal(result.next.record.id, "planned");
 });
 console.log("\n" + count + " pruebas completadas.");
+
+const {
+  maintenanceTypeCode,
+  maintenanceGroupKey,
+  maintenanceState,
+  latestMaintenanceByType,
+} = load("features/shared/services/maintenanceRules");
+
+test("El código de aceite conserva la ficha aunque el título sea personalizado", () => {
+  assert.ok(isEngineOil("Servicio premium del motor", "OIL_CHANGE"));
+  assert.ok(!isEngineOil("Cambio de aceite", "OTHER"));
+  assert.equal(
+    maintenanceTypeCode({ type: "  Cambio   de ACEITE y filtro  " }),
+    "OIL_CHANGE",
+  );
+  assert.equal(
+    maintenanceTypeCode({ type: "Cambio de aceite de caja" }),
+    "OTHER",
+  );
+  assert.equal(
+    maintenanceTypeCode({ type: "Cambio de filtro de aire" }),
+    "FILTERS",
+  );
+});
+
+test("Un aceite nuevo con otro nombre retira el aviso vencido sin borrar el historial", () => {
+  const old = {
+    ...maintenanceFixture,
+    id: "oil-old",
+    type: "Cambio de aceite",
+    date: "2025-01-01",
+    nextMileage: 60000,
+  };
+  const current = {
+    ...maintenanceFixture,
+    id: "oil-new",
+    type: "Servicio premium y filtro",
+    maintenanceTypeCode: "OIL_CHANGE",
+  };
+  const records = [old, current];
+  assert.equal(summarize(records, 85000, "2026-10-04").status, "Al día");
+  assert.deepEqual(
+    Array.from(latestMaintenance(records), (r) => r.id),
+    ["oil-new"],
+  );
+  assert.equal(records.length, 2);
+});
+
+test("Clasificar aceite no cancela frenos, embrague ni servicios de otro taller", () => {
+  const first = {
+    ...maintenanceFixture,
+    workshopId: "one",
+    vehicleId: "one",
+    type: "Frenos",
+    maintenanceTypeCode: "OTHER",
+  };
+  const clutch = { ...first, id: "clutch", type: "Embrague" };
+  const otherWorkshop = { ...first, id: "foreign", workshopId: "two" };
+  assert.notEqual(maintenanceGroupKey(first), maintenanceGroupKey(clutch));
+  assert.equal(
+    latestMaintenanceByType([first, clutch, otherWorkshop]).length,
+    3,
+  );
+  const current = {
+    ...first,
+    id: "new-oil",
+    type: "Servicio motor",
+    maintenanceTypeCode: "OIL_CHANGE",
+  };
+  const overdueBrake = { ...first, id: "old-brake", nextMileage: 60000 };
+  assert.equal(
+    summarize([current, overdueBrake], 85000, "2026-10-04").status,
+    "Vencida",
+  );
+});
+
+test("Portal y recordatorios usan los mismos límites de fecha y kilometraje", () => {
+  const record = { ...maintenanceFixture, nextDate: "2027-03-01" };
+  for (const [mileage, day, status, portal, reminder] of [
+    [92499, "2026-10-04", "AL_DIA", "Al día", "scheduled"],
+    [92500, "2026-10-04", "PROXIMA", "Próxima", "soon"],
+    [95000, "2026-10-04", "VENCIDA", "Vencida", "due"],
+    [85000, "2027-01-30", "PROXIMA", "Próxima", "soon"],
+    [85000, "2027-03-01", "VENCIDA", "Vencida", "due"],
+  ]) {
+    assert.equal(maintenanceState(record, mileage, day).status, status);
+    assert.equal(summarize([record], mileage, day).status, portal);
+    assert.equal(maintenanceReminder(record, mileage, day).status, reminder);
+  }
+});
+
+test("Los umbrales parametrizados coinciden y los intervalos vacíos no se anuncian al día", () => {
+  const limits = { nearMileage: 1000, nearDays: 7 };
+  assert.equal(
+    summarize([maintenanceFixture], 93500, "2026-10-04", limits).status,
+    "Al día",
+  );
+  assert.equal(
+    maintenanceReminder(maintenanceFixture, 93500, "2026-10-04", limits).status,
+    "scheduled",
+  );
+  const unscheduled = { ...maintenanceFixture, nextMileage: 0, nextDate: "" };
+  assert.equal(
+    maintenanceState(unscheduled, 85000, "2026-10-04").status,
+    "UNSCHEDULED",
+  );
+  assert.equal(
+    maintenanceReminder(unscheduled, 85000, "2026-10-04").status,
+    "unscheduled",
+  );
+});
+
+test("Empates de fecha y kilometraje conservan el registro más reciente recibido de la API", () => {
+  const newest = {
+    ...maintenanceFixture,
+    id: "a-new",
+    maintenanceTypeCode: "OIL_CHANGE",
+  };
+  const older = { ...newest, id: "z-old", nextDate: "2025-01-01" };
+  assert.equal(latestMaintenanceByType([newest, older])[0].id, "a-new");
+  assert.equal(
+    summarize([newest, older], 85000, "2026-10-04").status,
+    "Al día",
+  );
+});
+console.log(count + " pruebas totales completadas.");
+
+const { workshopWorkHistory } = load("features/shared/services/workHistory");
+const { maintenanceOrderContext } = load(
+  "features/mantenciones/services/maintenanceContext",
+);
+const { oilSuggestions, oilSelection, validateOilSelection } = load(
+  "features/mantenciones/services/oilSuggestions",
+);
+const sampleOil = {
+  id: "lm",
+  brand: "LIQUI MOLY",
+  product: "Molygen New Generation",
+  viscosity: "5W-30",
+  oilType: "Sintético",
+};
+
+test("Homocinética ofrece mantenimiento, desgaste y falla incluso con error habitual de escritura", () => {
+  const suggestions = workSuggestions("homicinetica");
+  assert.ok(suggestions.some((s) => s.interventionReason === "SCHEDULED"));
+  assert.ok(suggestions.some((s) => s.interventionReason === "WEAR"));
+  assert.ok(suggestions.some((s) => s.interventionReason === "FAULT"));
+});
+
+test("Las sugerencias priorizan trabajos guardados del taller y conservan sus detalles", () => {
+  const history = [
+    {
+      name: "Ajuste especial del taller",
+      interventionType: "REPAIR",
+      interventionReason: "WEAR",
+      workDetails: ["Verificar fuelle"],
+    },
+  ];
+  const suggestions = workSuggestions("", [...history, ...history]);
+  assert.equal(suggestions[0].name, "Ajuste especial del taller");
+  assert.equal(suggestions[0].uses, 2);
+  assert.equal(suggestions[0].workDetails[0], "Verificar fuelle");
+  const scoped = workshopWorkHistory(
+    {
+      ...data,
+      orders: [
+        {
+          ...order,
+          services: [{ ...order.services[0], name: "Privado de otro taller" }],
+          workshopId: "foreign",
+        },
+      ],
+      maintenance: [],
+    },
+    admin.workshopId,
+  );
+  assert.equal(scoped.length, 0);
+});
+
+test("La orden recupera el trabajo clasificado; una orden con varios trabajos no elige por el mecánico", () => {
+  const service = {
+    ...order.services[0],
+    name: "Cambio de embrague",
+    interventionType: "REPAIR",
+    interventionReason: "FAULT",
+    workDetails: ["Kit completo"],
+  };
+  const context = maintenanceOrderContext({ ...order, services: [service] });
+  assert.equal(context.type, service.name);
+  assert.equal(context.interventionReason, "FAULT");
+  assert.equal(context.orderId, order.id);
+  assert.equal(
+    maintenanceOrderContext({ ...order, services: [service, service] }).type,
+    undefined,
+  );
+  assert.equal(
+    maintenanceOrderContext({
+      ...order,
+      services: [],
+      reason: "Ruido al acelerar",
+    }).interventionReason,
+    undefined,
+  );
+});
+
+test("El buscador de aceite reconoce marca y viscosidad y prioriza productos usados sin copiar litros", () => {
+  assert.equal(oilSuggestions([sampleOil], "liquy moly 5w30", []).length, 1);
+  assert.equal(oilSuggestions([sampleOil], "Mobil", []).length, 0);
+  const selection = oilSelection(sampleOil);
+  assert.equal(selection.oilProductName, "Molygen New Generation");
+  assert.equal("quantity" in selection, false);
+  assert.equal("filter" in selection, false);
+  const records = [
+    {
+      ...data.maintenance[0],
+      brand: sampleOil.brand,
+      oilProductName: sampleOil.product,
+      viscosity: sampleOil.viscosity,
+    },
+  ];
+  assert.equal(oilSuggestions([sampleOil], "", records)[0].uses, 1);
+});
+
+test("El formulario rechaza aceite incompatible con su producto y permite productos manuales completos", () => {
+  const value = {
+    ...data.maintenance[0],
+    ...oilSelection(sampleOil),
+    quantity: 5,
+    filter: "Referencia",
+    filterBrand: "Marca",
+  };
+  assert.equal(validateOilSelection(value, [sampleOil]), "");
+  assert.ok(
+    validateOilSelection({ ...value, viscosity: "10W-40" }, [sampleOil]),
+  );
+  assert.ok(validateOilSelection({ ...value, brand: "Mobil" }, [sampleOil]));
+  assert.ok(validateOilSelection({ ...value, quantity: 0 }, [sampleOil]));
+  assert.equal(
+    validateOilSelection(
+      {
+        ...value,
+        brand: "Marca local",
+        oilProductName: "Producto no incluido",
+      },
+      [sampleOil],
+    ),
+    "",
+  );
+});
+console.log(count + " pruebas totales del registro asistido completadas.");

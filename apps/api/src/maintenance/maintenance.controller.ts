@@ -1,3 +1,4 @@
+import { engineOils } from "./engine-oils.js";
 import {
   Body,
   Controller,
@@ -18,6 +19,9 @@ export class MaintenanceController {
   constructor(private readonly service: MaintenanceService) {}
   @Get() list(@Req() r: AuthRequest) {
     return this.service.findAll(r.user);
+  }
+  @Get("oils") oils() {
+    return engineOils;
   }
   @Post() create(@Req() r: AuthRequest, @Body() b: unknown) {
     return this.service.create(r.user, b);

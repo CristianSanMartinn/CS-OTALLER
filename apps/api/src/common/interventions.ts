@@ -1,3 +1,4 @@
+import { inferMaintenanceType } from "./maintenance-type.js";
 import { BadRequestException } from "@nestjs/common";
 export function readIntervention(
   input: Record<string, unknown>,
@@ -49,10 +50,4 @@ export function readIntervention(
   return { kind, reason, details: clean };
 }
 export const isEngineOil = (name: string) =>
-  ["cambio de aceite", "cambio de aceite de motor"].includes(
-    name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim(),
-  );
+  inferMaintenanceType(name) === "OIL_CHANGE";

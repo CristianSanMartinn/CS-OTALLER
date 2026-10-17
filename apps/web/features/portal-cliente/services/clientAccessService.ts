@@ -47,6 +47,8 @@ export function clientAccess(data: Store, token: string) {
           .map((m) => ({
             id: m.id,
             type: m.type,
+            maintenanceTypeCode: m.maintenanceTypeCode,
+            interventionType: m.interventionType,
             date: m.date,
             mileage: m.mileage,
             nextMileage: m.nextMileage,

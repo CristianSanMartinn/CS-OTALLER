@@ -1,3 +1,4 @@
+import { validateOil } from "./engine-oils.js";
 import {
   BadRequestException,
   ForbiddenException,
@@ -7,13 +8,14 @@ import { DatabaseService } from "../database/database.service.js";
 import { AuthUser } from "../auth/auth.types.js";
 import { bodyObject, text } from "../common/validation.js";
 import { amount, date, reference, activity } from "../common/operations.js";
-import { readIntervention, isEngineOil } from "../common/interventions.js";
+import { readMaintenanceTypeCode } from "../common/maintenance-type.js";
+import { readIntervention } from "../common/interventions.js";
 @Injectable()
 export class MaintenanceService {
   constructor(private readonly db: DatabaseService) {}
   async findAll(u: AuthUser) {
     const r = await this.db.query(
-      `SELECT m.*,m.maintenance_date::text AS day,m.next_date::text AS next_day,o.oil_type,o.viscosity,o.oil_brand,o.liters_used,o.filter_name,o.filter_brand FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM work_orders w WHERE w.workshop_id=m.workshop_id AND w.vehicle_id=m.vehicle_id AND (w.mechanic_id=$2 OR w.assignment_type='TEAM'))) ORDER BY m.maintenance_date DESC,m.created_at DESC`,
+      `SELECT m.*,m.maintenance_date::text AS day,m.next_date::text AS next_day,o.product_name,o.oil_type,o.viscosity,o.oil_brand,o.liters_used,o.filter_name,o.filter_brand FROM maintenance_records m LEFT JOIN oil_change_details o ON o.maintenance_id=m.id AND o.workshop_id=m.workshop_id WHERE m.workshop_id=$1 AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM work_orders w WHERE w.workshop_id=m.workshop_id AND w.vehicle_id=m.vehicle_id AND (w.mechanic_id=$2 OR w.assignment_type='TEAM'))) ORDER BY m.maintenance_date DESC,m.created_at DESC`,
       [u.workshopId, u.role === "ADMIN" ? null : u.id],
     );
     return r.rows.map((x) => ({
@@ -23,10 +25,12 @@ export class MaintenanceService {
       orderId: x.work_order_id ?? "",
       mechanicId: x.mechanic_id ?? "",
       type: x.maintenance_type,
+      maintenanceTypeCode: x.maintenance_type_code,
       interventionType: x.intervention_type ?? undefined,
       interventionReason: x.intervention_reason ?? undefined,
       workDetails: x.work_details ?? [],
       mileage: x.mileage,
+      oilProductName: x.product_name ?? "",
       oilType: x.oil_type ?? "",
       viscosity: x.viscosity ?? "",
       brand: x.oil_brand ?? "",
@@ -45,10 +49,12 @@ export class MaintenanceService {
       "orderId",
       "mechanicId",
       "type",
+      "maintenanceTypeCode",
       "interventionType",
       "interventionReason",
       "workDetails",
       "mileage",
+      "oilProductName",
       "oilType",
       "viscosity",
       "brand",
@@ -82,11 +88,34 @@ export class MaintenanceService {
       filter = text(b, "filter", 150),
       filterBrand = text(b, "filterBrand", 100),
       quantity = amount(b.quantity, "cantidad de aceite", false, 0, 100);
+    const oilProductName = text(b, "oilProductName", 150);
     const intervention = readIntervention(b);
-    if (isEngineOil(type) && (!next || !nextMileage))
+    const maintenanceTypeCode = readMaintenanceTypeCode(
+      b.maintenanceTypeCode,
+      type,
+    );
+    if (maintenanceTypeCode === "OIL_CHANGE" && (!next || !nextMileage))
       throw new BadRequestException(
         "Indica próxima fecha y kilometraje del cambio de aceite.",
       );
+    if (
+      maintenanceTypeCode === "OIL_CHANGE" &&
+      b.oilProductName !== undefined &&
+      !oilProductName
+    )
+      throw new BadRequestException("Indica el nombre del producto de aceite.");
+    const validatedOil =
+      maintenanceTypeCode === "OIL_CHANGE"
+        ? validateOil({
+            brand,
+            product: oilProductName,
+            viscosity,
+            oilType: oil,
+            quantity,
+            filter,
+            filterBrand,
+          })
+        : null;
     return this.db.transaction(async (c) => {
       const v = await reference(c, "vehicles", b.vehicleId, u.workshopId);
       await c.query(
@@ -128,7 +157,7 @@ export class MaintenanceService {
           throw new ForbiddenException("Vehículo no asignado.");
       }
       const r = await c.query(
-        "INSERT INTO maintenance_records(workshop_id,vehicle_id,work_order_id,mechanic_id,maintenance_type,maintenance_date,mileage,next_mileage,next_date,observations,intervention_type,intervention_reason,work_details) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id",
+        "INSERT INTO maintenance_records(workshop_id,vehicle_id,work_order_id,mechanic_id,maintenance_type,maintenance_date,mileage,next_mileage,next_date,observations,intervention_type,intervention_reason,work_details,maintenance_type_code) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id",
         [
           u.workshopId,
           b.vehicleId,
@@ -143,22 +172,24 @@ export class MaintenanceService {
           intervention.kind,
           intervention.reason,
           JSON.stringify(intervention.details),
+          maintenanceTypeCode,
         ],
       );
       const id = r.rows[0].id;
-      if (isEngineOil(type))
+      if (maintenanceTypeCode === "OIL_CHANGE")
         await c.query(
-          "INSERT INTO oil_change_details(workshop_id,maintenance_id,oil_type,viscosity,oil_brand,liters_used,filter_installed,filter_name,filter_brand) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+          "INSERT INTO oil_change_details(workshop_id,maintenance_id,oil_type,viscosity,oil_brand,liters_used,filter_installed,filter_name,filter_brand,product_name) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
           [
             u.workshopId,
             id,
             oil,
-            viscosity,
-            brand,
+            validatedOil!.viscosity,
+            validatedOil!.brand,
             quantity,
             Boolean(filter),
             filter,
             filterBrand,
+            validatedOil!.product,
           ],
         );
       await c.query(

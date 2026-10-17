@@ -1,3 +1,6 @@
+import type { WorkHistoryEntry } from "./workHistory";
+import { maintenanceTypeCode } from "./maintenanceRules";
+import type { MaintenanceTypeCode } from "../types/domain";
 import type { Intervention, InterventionType } from "../types/domain";
 export const interventionLabels = {
   MAINTENANCE: "Mantenimiento",
@@ -14,6 +17,7 @@ const normalize = (value: string) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
+    .replace(/homicinetica/g, "homocinetica")
     .trim();
 const catalog = [
   {
@@ -159,27 +163,89 @@ const catalog = [
 export interface WorkSuggestion {
   name: string;
   interventionType: InterventionType;
-  interventionReason: "SCHEDULED" | "FAULT";
+  interventionReason: "SCHEDULED" | "WEAR" | "FAULT" | "OTHER";
   label: string;
+  maintenanceTypeCode?: MaintenanceTypeCode;
+  workDetails?: string[];
+  uses?: number;
 }
-export function workSuggestions(query: string): WorkSuggestion[] {
+export function workSuggestions(
+  query: string,
+  history: WorkHistoryEntry[] = [],
+): WorkSuggestion[] {
   const tokens = normalize(query).split(/\s+/).filter(Boolean);
-  return catalog
-    .filter((item) =>
-      tokens.every((token) =>
+  const suggestions = new Map<string, WorkSuggestion>();
+  const key = (item: WorkSuggestion) =>
+    normalize(item.name) +
+    ":" +
+    item.interventionType +
+    ":" +
+    item.interventionReason;
+  for (const item of catalog) {
+    if (
+      !tokens.every((token) =>
         normalize(item.name + " " + item.terms).includes(token),
-      ),
+      )
     )
-    .flatMap((item) =>
-      (item.repair ? ["REPAIR"] : ["MAINTENANCE", "REPAIR"]).map((kind) => ({
-        name: item.name,
-        interventionType: kind as InterventionType,
-        interventionReason:
-          kind === "REPAIR" ? ("FAULT" as const) : ("SCHEDULED" as const),
-        label:
-          item.name + (kind === "REPAIR" ? " por falla" : " por mantenimiento"),
-      })),
+      continue;
+    const variants: WorkSuggestion[] = item.repair
+      ? [
+          {
+            name: item.name,
+            interventionType: "REPAIR",
+            interventionReason: "FAULT",
+            label: item.name + " por falla",
+          },
+        ]
+      : [
+          {
+            name: item.name,
+            interventionType: "MAINTENANCE",
+            interventionReason: "SCHEDULED",
+            label: item.name + " por mantenimiento",
+          },
+          {
+            name: item.name,
+            interventionType: "REPAIR",
+            interventionReason: "WEAR",
+            label: item.name + " por mal estado / desgaste",
+          },
+          {
+            name: item.name,
+            interventionType: "REPAIR",
+            interventionReason: "FAULT",
+            label: item.name + " por falla",
+          },
+        ];
+    for (const suggestion of variants)
+      suggestions.set(key(suggestion), suggestion);
+  }
+  for (const entry of [...history].sort((a, b) =>
+    (b.date ?? "").localeCompare(a.date ?? ""),
+  )) {
+    if (
+      !entry.interventionType ||
+      !entry.interventionReason ||
+      !tokens.every((token) => normalize(entry.name).includes(token))
     )
+      continue;
+    const suggestion: WorkSuggestion = {
+      name: entry.name,
+      interventionType: entry.interventionType,
+      interventionReason: entry.interventionReason,
+      label: entry.name + " · " + interventionReasons[entry.interventionReason],
+      maintenanceTypeCode: entry.maintenanceTypeCode,
+      workDetails: entry.workDetails ?? [],
+      uses: 1,
+    };
+    const previous = suggestions.get(key(suggestion));
+    suggestions.set(
+      key(suggestion),
+      previous?.uses ? { ...previous, uses: previous.uses + 1 } : suggestion,
+    );
+  }
+  return [...suggestions.values()]
+    .sort((a, b) => (b.uses ?? 0) - (a.uses ?? 0))
     .slice(0, 8);
 }
 export function workOptions(name: string): string[] {
@@ -211,5 +277,6 @@ export function interventionSummary(name: string, value: Intervention) {
     .filter(Boolean)
     .join(" · ");
 }
-export const isEngineOil = (name: string) =>
-  ["cambio de aceite", "cambio de aceite de motor"].includes(normalize(name));
+export const isEngineOil = (name: string, code?: MaintenanceTypeCode) =>
+  maintenanceTypeCode({ type: name, maintenanceTypeCode: code }) ===
+  "OIL_CHANGE";

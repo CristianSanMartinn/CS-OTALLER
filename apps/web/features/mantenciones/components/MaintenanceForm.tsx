@@ -1,5 +1,16 @@
+import { workshopWorkHistory } from "@/features/shared/services/workHistory";
+import { maintenanceOrderContext } from "../services/maintenanceContext";
+import { useOilCatalog } from "../hooks/useOilCatalog";
+import { validateOilSelection } from "../services/oilSuggestions";
 import { FormEvent, useState } from "react";
-import { Maintenance } from "@/features/shared/types/domain";
+import {
+  maintenanceCategories,
+  maintenanceTypeCode,
+} from "@/features/shared/services/maintenanceRules";
+import {
+  Maintenance,
+  MaintenanceTypeCode,
+} from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/StoreProvider";
 import { Field, SelectField, TextField } from "@/components/ui/primitives";
 import { OilChangeForm } from "./OilChangeForm";
@@ -24,21 +35,27 @@ export function MaintenanceForm({
     orderId: order?.id ?? "",
     mechanicId: user!.id,
     type: "",
+    maintenanceTypeCode: "OTHER",
     interventionType: "MAINTENANCE",
     interventionReason: "SCHEDULED",
     workDetails: [],
     mileage: order?.mileage ?? 0,
-    oilType: "Sintético",
+    oilProductName: "",
+    oilType: "",
     viscosity: "",
     brand: "",
-    quantity: 4.5,
+    quantity: 0,
     filter: "",
     filterBrand: "",
     date: today(),
     nextMileage: 0,
     nextDate: "",
     notes: "",
+    ...maintenanceOrderContext(order),
   });
+  const [automaticCategory, setAutomaticCategory] = useState(true);
+  const linkedOrder = data.orders.find((saved) => saved.id === value.orderId);
+  const catalog = useOilCatalog();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const change = (patch: Partial<Maintenance>) =>
@@ -55,12 +72,20 @@ export function MaintenanceForm({
     if (
       (value.nextMileage > 0 && value.nextMileage <= value.mileage) ||
       (value.nextDate !== "" && value.nextDate <= value.date) ||
-      (isEngineOil(value.type) && (!value.nextMileage || !value.nextDate))
+      (isEngineOil(value.type, value.maintenanceTypeCode) &&
+        (!value.nextMileage || !value.nextDate))
     ) {
       setError(
         "La próxima mantención debe ser posterior en fecha y kilometraje.",
       );
       return;
+    }
+    if (isEngineOil(value.type, value.maintenanceTypeCode)) {
+      const oilError = validateOilSelection(value, catalog.products);
+      if (oilError) {
+        setError(oilError);
+        return;
+      }
     }
     setBusy(true);
     setError("");
@@ -75,7 +100,7 @@ export function MaintenanceForm({
   }
   return (
     <form onSubmit={submit}>
-      {isEngineOil(value.type) && (
+      {isEngineOil(value.type, value.maintenanceTypeCode) && (
         <div className="oil-form-banner">
           <strong>Cambio de aceite · ficha de mantenimiento</strong>
           <p>
@@ -84,21 +109,37 @@ export function MaintenanceForm({
           </p>
         </div>
       )}
+      {linkedOrder && (
+        <div className="maintenance-reception-context">
+          <strong>{linkedOrder.number} · Motivo de ingreso</strong>
+          <p>{linkedOrder.reason || "Sin motivo registrado"}</p>
+          <small>Información recuperada de la recepción.</small>
+        </div>
+      )}
       <div className="form-grid">
         <SelectField
           label="Vehículo"
           required
           value={value.vehicleId}
           disabled={!!order}
-          onChange={(e) =>
+          onChange={(e) => {
+            const vehicle = data.vehicles.find(
+              (item) => item.id === e.target.value,
+            );
+            const currentOrders = data.orders.filter(
+              (item) =>
+                item.vehicleId === e.target.value &&
+                !["DELIVERED", "CANCELLED"].includes(item.status),
+            );
+            const context = maintenanceOrderContext(
+              currentOrders.length === 1 ? currentOrders[0] : undefined,
+            );
             change({
+              ...context,
               vehicleId: e.target.value,
-              mileage:
-                data.vehicles.find((v) => v.id === e.target.value)?.mileage ??
-                0,
-              orderId: "",
-            })
-          }
+              mileage: Math.max(vehicle?.mileage ?? 0, context.mileage ?? 0),
+            });
+          }}
         >
           <option value="">Seleccionar vehículo</option>
           {data.vehicles.map((v) => (
@@ -111,7 +152,12 @@ export function MaintenanceForm({
           label="Orden vinculada"
           value={value.orderId}
           disabled={!!order}
-          onChange={(e) => change({ orderId: e.target.value })}
+          onChange={(e) => {
+            const selected = data.orders.find(
+              (saved) => saved.id === e.target.value,
+            );
+            change(maintenanceOrderContext(selected));
+          }}
         >
           <option value="">Sin orden vinculada</option>
           {data.orders
@@ -123,6 +169,42 @@ export function MaintenanceForm({
             ))}
         </SelectField>
         <InterventionEditor
+          history={workshopWorkHistory(data, user!.workshopId)}
+          classificationHint={
+            maintenanceCategories.find(
+              (category) => category.code === value.maintenanceTypeCode,
+            )?.label
+          }
+          extraClassification={
+            <SelectField
+              label="Categoría del servicio"
+              value={value.maintenanceTypeCode}
+              onChange={(e) => {
+                setAutomaticCategory(false);
+                change({
+                  maintenanceTypeCode: e.target.value as MaintenanceTypeCode,
+                });
+              }}
+            >
+              {maintenanceCategories.map((category) => (
+                <option key={category.code} value={category.code}>
+                  {category.label}
+                </option>
+              ))}
+            </SelectField>
+          }
+          onChoose={(suggestion) => {
+            setAutomaticCategory(true);
+            change({
+              type: suggestion.name,
+              interventionType: suggestion.interventionType,
+              interventionReason: suggestion.interventionReason,
+              workDetails: [...(suggestion.workDetails ?? [])],
+              maintenanceTypeCode:
+                suggestion.maintenanceTypeCode ??
+                maintenanceTypeCode({ type: suggestion.name }),
+            });
+          }}
           maxLength={100}
           value={{
             name: value.type,
@@ -131,7 +213,21 @@ export function MaintenanceForm({
             workDetails: value.workDetails,
           }}
           onChange={({ name, ...patch }) =>
-            change({ ...patch, ...(name !== undefined ? { type: name } : {}) })
+            change({
+              ...patch,
+              ...(name !== undefined
+                ? {
+                    type: name,
+                    ...(automaticCategory
+                      ? {
+                          maintenanceTypeCode: maintenanceTypeCode({
+                            type: name,
+                          }),
+                        }
+                      : {}),
+                  }
+                : {}),
+            })
           }
         />
         <Field
@@ -143,7 +239,7 @@ export function MaintenanceForm({
         />
         <Field
           label={
-            isEngineOil(value.type)
+            isEngineOil(value.type, value.maintenanceTypeCode)
               ? "Kilometraje del cambio de aceite"
               : "Kilometraje actual"
           }
@@ -153,14 +249,23 @@ export function MaintenanceForm({
           value={value.mileage}
           onChange={(e) => change({ mileage: Number(e.target.value) })}
         />
-        {isEngineOil(value.type) && (
-          <OilChangeForm value={value} onChange={change} />
+        {isEngineOil(value.type, value.maintenanceTypeCode) && (
+          <OilChangeForm
+            value={value}
+            onChange={change}
+            products={catalog.products}
+            records={data.maintenance.filter(
+              (record) => record.workshopId === user!.workshopId,
+            )}
+            loading={catalog.loading}
+            error={catalog.error}
+          />
         )}
         <Field
           label="Próximo servicio (km, opcional salvo aceite)"
           type="number"
           min={0}
-          required={isEngineOil(value.type)}
+          required={isEngineOil(value.type, value.maintenanceTypeCode)}
           value={value.nextMileage || ""}
           onChange={(e) => change({ nextMileage: Number(e.target.value) })}
         />
@@ -168,7 +273,7 @@ export function MaintenanceForm({
           label="Próximo servicio (fecha, opcional salvo aceite)"
           type="date"
           min={value.date}
-          required={isEngineOil(value.type)}
+          required={isEngineOil(value.type, value.maintenanceTypeCode)}
           value={value.nextDate}
           onChange={(e) => change({ nextDate: e.target.value })}
         />

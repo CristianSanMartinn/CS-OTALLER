@@ -1,3 +1,4 @@
+import { workshopWorkHistory } from "@/features/shared/services/workHistory";
 import { Plus, Trash2 } from "lucide-react";
 import { Panel, Field, SelectField } from "@/components/ui/primitives";
 import { OrderSectionProps } from "../types/editor.types";
@@ -57,6 +58,7 @@ export function ServicesSection({ order, onChange }: OrderSectionProps) {
           <div className="form-grid">
             <InterventionEditor
               value={s}
+              history={workshopWorkHistory(data, user!.workshopId)}
               classificationRequired={
                 !existingServices.has(s.id) ||
                 !!s.interventionType ||

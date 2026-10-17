@@ -1,47 +1,41 @@
 import { Maintenance } from "@/features/shared/types/domain";
+import type { MaintenanceThresholds } from "../../../../../packages/types/src/maintenance.types";
+import {
+  latestMaintenanceByType,
+  maintenanceState,
+} from "@/features/shared/services/maintenanceRules";
+
 export function latestMaintenance(records: Maintenance[]) {
-  const latest = new Map<string, Maintenance>();
-  for (const record of records) {
-    if (!record.nextMileage && !record.nextDate) continue;
-    const key = record.workshopId + ":" + record.vehicleId + ":" + record.type;
-    const previous = latest.get(key);
-    if (
-      !previous ||
-      record.date > previous.date ||
-      (record.date === previous.date && record.mileage > previous.mileage)
-    )
-      latest.set(key, record);
-  }
-  return Array.from(latest.values());
+  return latestMaintenanceByType(records).filter(
+    (record) => record.nextMileage || record.nextDate,
+  );
 }
+
 export function maintenanceReminder(
   record: Maintenance,
   mileage: number,
   date: string,
+  thresholds?: MaintenanceThresholds,
 ) {
-  const days = record.nextDate
-    ? Math.round(
-        (Date.parse(record.nextDate + "T12:00:00Z") -
-          Date.parse(date + "T12:00:00Z")) /
-          86400000,
-      )
-    : null;
-  const remaining =
-    record.nextMileage > 0 ? record.nextMileage - mileage : null;
-  const due =
-    (days !== null && days <= 0) || (remaining !== null && remaining <= 0);
-  const soon =
-    !due &&
-    ((days !== null && days <= 30) ||
-      (remaining !== null && remaining <= 1000));
+  const result = maintenanceState(record, mileage, date, thresholds);
   return {
-    days,
-    remaining,
-    status: due ? "due" : soon ? "soon" : "scheduled",
-    label: due
-      ? "Mantención pendiente"
-      : soon
-        ? "Próxima mantención cercana"
-        : "Mantención programada",
+    days: result.days,
+    remaining: result.remaining,
+    status:
+      result.status === "VENCIDA"
+        ? "due"
+        : result.status === "PROXIMA"
+          ? "soon"
+          : result.status === "AL_DIA"
+            ? "scheduled"
+            : "unscheduled",
+    label:
+      result.status === "VENCIDA"
+        ? "Mantención pendiente"
+        : result.status === "PROXIMA"
+          ? "Próxima mantención cercana"
+          : result.status === "AL_DIA"
+            ? "Mantención programada"
+            : "Sin programación",
   };
 }
