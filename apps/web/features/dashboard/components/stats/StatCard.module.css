@@ -1,0 +1,79 @@
+.statCard {
+  background: var(--neutral-surface, white);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 19px;
+  box-shadow: 0 2px 4px #17243b02;
+}
+
+.statTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--neutral-text, #77849a);
+  font-size: 11px;
+}
+
+.statValue {
+  display: block;
+  font-size: 32px;
+  letter-spacing: -1px;
+  margin: 8px 0 5px;
+  line-height: 1.1;
+}
+
+.statCard > small {
+  color: var(--neutral-text, #98a4b5);
+  font-size: 10px;
+}
+
+@media (min-width: 1500px) {
+  .statCard {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 1250px) {
+  .statCard {
+    padding: 16px;
+  }
+  .statTop {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  .statCard {
+    padding: 16px;
+  }
+  .statValue {
+    font-size: 31px;
+  }
+  .statTop {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 430px) {
+  .statCard {
+    padding: 13px;
+  }
+  .statTop {
+    font-size: 9px;
+    gap: 4px;
+  }
+  .statCard > small {
+    font-size: 9px;
+  }
+}
+
+:global(.app-shell[data-theme="dark"]) .statCard {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+:global(.app-shell[data-theme="dark"]) .statTop {
+  color: var(--muted);
+}

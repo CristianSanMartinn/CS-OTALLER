@@ -1,3 +1,4 @@
+import styles from "./RecentActivity.module.css";
 import { Panel, EmptyState } from "@/components/ui/primitives";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Check } from "lucide-react";
@@ -5,11 +6,11 @@ export function RecentActivity() {
   const { data } = useStore();
   return (
     <Panel title="Actividad reciente" subtitle="Últimos movimientos del taller">
-      <div className="activity-list">
+      <div className={styles.activityList}>
         {data.activity.length ? (
           data.activity.slice(0, 4).map((a) => (
             <div key={a.id}>
-              <span className="activity-icon">
+              <span className={styles.activityIcon}>
                 <Check size={15} />
               </span>
               <div>

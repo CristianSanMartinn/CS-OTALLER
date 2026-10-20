@@ -1,3 +1,4 @@
+import dashboardStyles from "../Dashboard.module.css";
 import Link from "next/link";
 import { Panel } from "@/components/ui/primitives";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
@@ -15,7 +16,7 @@ export function ActiveWorkOrders() {
       }
     >
       <WorkOrdersTable orders={data.orders.slice(0, 5)} />
-      <div className="panel-foot">
+      <div className={dashboardStyles.panelFoot}>
         <span className="online-dot" />{" "}
         {
           data.orders.filter(

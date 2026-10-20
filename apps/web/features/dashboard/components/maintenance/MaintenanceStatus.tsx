@@ -1,3 +1,4 @@
+import dashboardStyles from "../Dashboard.module.css";
 import Link from "next/link";
 import {  CalendarClock, CircleCheck, CircleHelp, TriangleAlert } from "lucide-react";
 import { Panel } from "@/components/ui/primitives";
@@ -30,7 +31,7 @@ export function MaintenanceStatus() {
         </Link>
       }
     >
-      <div className="stats-grid">
+      <div className={dashboardStyles.statsGrid}>
         <StatCard
           label="Vencidas"
           value={counts.overdue}
@@ -59,7 +60,7 @@ export function MaintenanceStatus() {
           icon={CircleHelp}
         />
       </div>
-      <p className="panel-foot">
+      <p className={dashboardStyles.panelFoot}>
         Cada vehículo se cuenta una sola vez.{" "}
         {user.role === "WORKER"
           ? "Se muestran solo los vehículos de tus órdenes asignadas o compartidas."

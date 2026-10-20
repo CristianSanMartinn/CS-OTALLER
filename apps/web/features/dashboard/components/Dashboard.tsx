@@ -1,4 +1,5 @@
 "use client";
+import styles from "./Dashboard.module.css";
 import { DashboardHeader } from "./header/DashboardHeader";
 import { MaintenanceStatus } from "./maintenance/MaintenanceStatus";
 import { DashboardStats } from "./stats/DashboardStats";
@@ -12,7 +13,7 @@ export function Dashboard() {
       <DashboardHeader />
       <DashboardStats />
       <MaintenanceStatus />
-      <div className="dashboard-columns">
+      <div className={styles.dashboardColumns}>
         <div>
           <ActiveWorkOrders />
           <PendingVehicles />

@@ -1,3 +1,4 @@
+import styles from "./DashboardHeader.module.css";
 import Link from "next/link";
 import { Plus, CalendarDays } from "lucide-react";
 import { PageHeading } from "@/components/ui/primitives";
@@ -14,8 +15,8 @@ export function DashboardHeader() {
         ". Esto es lo que está pasando en tu taller."
       }
       action={
-        <div className="heading-actions">
-          <span className="date-chip">
+        <div className={styles.headingActions}>
+          <span className={styles.dateChip}>
             <CalendarDays size={16} />
             {new Date().toLocaleDateString("es-CL", {
               day: "numeric",

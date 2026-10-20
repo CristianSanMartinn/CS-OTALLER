@@ -1,3 +1,5 @@
+import dashboardStyles from "../Dashboard.module.css";
+import styles from "./DashboardStats.module.css";
 import {
   CarFront,
   ClipboardList,
@@ -19,7 +21,7 @@ export function DashboardStats() {
   );
   return (
     <>
-      <div className="stats-grid">
+      <div className={dashboardStyles.statsGrid}>
         <StatCard
           label={
             admin ? "Vehículos en reparación" : "Mis vehículos en reparación"
@@ -54,7 +56,7 @@ export function DashboardStats() {
           tone="orange"
         />
       </div>
-      <div className="quick-stats">
+      <div className={styles.quickStats}>
         <div>
           <Package size={18} />
           <span>Esperando repuestos</span>

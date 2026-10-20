@@ -446,23 +446,6 @@ select:disabled {
   color: var(--neutral-text, #8390a3);
   margin-top: 8px;
 }
-.heading-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.date-chip {
-  border: 1px solid #e1e6ee;
-  padding: 10px 12px;
-  background: var(--neutral-surface, white);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-radius: 7px;
-  font-size: 10px;
-  color: var(--neutral-text, #657187);
-  white-space: nowrap;
-}
 .page-footer {
   margin-top: 34px;
   padding-top: 16px;
@@ -481,27 +464,6 @@ select:disabled {
 .mobile-close,
 .drawer-backdrop {
   display: none;
-}
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 17px;
-  margin-bottom: 18px;
-}
-.stat-card {
-  background: var(--neutral-surface, white);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 18px 19px;
-  box-shadow: 0 2px 4px #17243b02;
-}
-.stat-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--neutral-text, #77849a);
-  font-size: 11px;
 }
 .stat-icon {
   height: 35px;
@@ -524,56 +486,6 @@ select:disabled {
 .stat-icon.orange {
   background: var(--neutral-surface, #fff4e8);
   color: #dd9743;
-}
-.stat-value {
-  display: block;
-  font-size: 32px;
-  letter-spacing: -1px;
-  margin: 8px 0 5px;
-  line-height: 1.1;
-}
-.stat-card > small {
-  color: var(--neutral-text, #98a4b5);
-  font-size: 10px;
-}
-.quick-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  background: var(--neutral-surface, #fff);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 17px 2px;
-  margin-bottom: 25px;
-}
-.quick-stats > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 18px;
-  border-right: 1px solid var(--line);
-  font-size: 10px;
-  color: var(--neutral-text, #8390a4);
-}
-.quick-stats > div:last-child {
-  border: 0;
-}
-.quick-stats svg {
-  color: var(--neutral-text, #94a6c1);
-  flex-shrink: 0;
-}
-.quick-stats b {
-  margin-left: auto;
-  font-size: 15px;
-  color: var(--neutral-text, #334562);
-  font-weight: 600;
-}
-.dashboard-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr);
-  gap: 22px;
-}
-.dashboard-columns > div {
-  min-width: 0;
 }
 .panel {
   background: var(--neutral-surface, white);
@@ -599,12 +511,6 @@ select:disabled {
 .panel-heading .text-link {
   font-size: 10px;
   white-space: nowrap;
-}
-.panel-foot {
-  font-size: 9px;
-  padding: 14px 20px;
-  border-top: 1px solid var(--line);
-  color: var(--neutral-text, #91a0b5);
 }
 .panel-padding {
   padding: 22px;
@@ -764,71 +670,6 @@ td .wrap-cell {
 .blue-attention strong,
 .blue-attention p {
   color: #527bb8;
-}
-.appointment-mini {
-  padding: 8px 20px 16px;
-}
-.appointment-mini > div {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  margin-top: 18px;
-}
-.appointment-mini time {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--neutral-text, #63738c);
-  min-width: 33px;
-  margin-top: 2px;
-}
-.timeline-line {
-  width: 3px;
-  align-self: stretch;
-  min-height: 50px;
-  border-radius: 5px;
-  background: #e4ecff;
-}
-.appointment-mini strong {
-  font-size: 10px;
-}
-.appointment-mini p {
-  font-size: 9px;
-  color: var(--neutral-text, #8a97aa);
-  margin: 3px 0;
-}
-.appointment-mini small {
-  font-size: 8px;
-  color: var(--neutral-text, #a2adbd);
-}
-.activity-list {
-  padding: 1px 20px 17px;
-}
-.activity-list > div {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  align-items: flex-start;
-}
-.activity-icon {
-  height: 24px;
-  width: 24px;
-  background: var(--neutral-surface, #edf6f2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #5caa91;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.activity-list strong {
-  font-size: 10px;
-  font-weight: 500;
-}
-.activity-list small {
-  display: block;
-  font-size: 8px;
-  color: var(--neutral-text, #99a6b8);
-  margin-top: 4px;
 }
 .toolbar {
   padding: 18px 20px;
@@ -1610,14 +1451,8 @@ td .wrap-cell {
   font-size: 10px;
 }
 @media (min-width: 1500px) {
-  .dashboard-columns {
-    grid-template-columns: minmax(0, 3fr) minmax(290px, 1fr);
-  }
   .main-content {
     padding: 36px 40px;
-  }
-  .stat-card {
-    padding: 22px;
   }
   table {
     font-size: 12px;
@@ -1639,29 +1474,8 @@ td .wrap-cell {
   .header {
     padding: 0 24px;
   }
-  .dashboard-columns {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .dashboard-columns > div:last-child {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  .quick-stats > div {
-    padding: 0 12px;
-    font-size: 9px;
-  }
-  .heading-actions .date-chip {
-    display: none;
-  }
   .order-editor {
     grid-template-columns: minmax(0, 1fr) 250px;
-  }
-  .stat-card {
-    padding: 16px;
-  }
-  .stat-top {
-    font-size: 10px;
   }
   .stat-icon {
     height: 29px;
@@ -1675,16 +1489,6 @@ td .wrap-cell {
   }
 }
 @media (max-width: 1000px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .quick-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-  }
-  .quick-stats > div:nth-child(2) {
-    border: 0;
-  }
   .order-editor {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1790,24 +1594,6 @@ td .wrap-cell {
   }
   .page-heading .button {
     min-height: 37px;
-  }
-  .dashboard-columns > div:last-child {
-    display: block;
-  }
-  .quick-stats {
-    margin-bottom: 20px;
-  }
-  .stats-grid {
-    gap: 12px;
-  }
-  .stat-card {
-    padding: 16px;
-  }
-  .stat-value {
-    font-size: 31px;
-  }
-  .stat-top {
-    font-size: 10px;
   }
   .stat-icon {
     height: 31px;
@@ -1924,27 +1710,9 @@ td .wrap-cell {
   .main-content {
     padding: 22px 13px;
   }
-  .stat-card {
-    padding: 13px;
-  }
-  .stat-top {
-    font-size: 9px;
-    gap: 4px;
-  }
   .stat-icon {
     width: 27px;
     height: 27px;
-  }
-  .stat-card > small {
-    font-size: 9px;
-  }
-  .quick-stats > div {
-    font-size: 8px;
-    padding: 0 10px;
-    gap: 6px;
-  }
-  .quick-stats b {
-    font-size: 13px;
   }
   .form-grid {
     grid-template-columns: 1fr;
@@ -1991,9 +1759,6 @@ td .wrap-cell {
   .form-actions {
     padding: 16px;
     flex-wrap: wrap;
-  }
-  .date-chip {
-    display: none;
   }
   .modal {
     max-height: 94vh;
@@ -4816,9 +4581,6 @@ td .wrap-cell {
   :is(
     .header,
     .panel,
-    .stat-card,
-    .quick-stats,
-    .date-chip,
     .toolbar,
     .notification-popover,
     .account-popover,
@@ -4878,8 +4640,6 @@ td .wrap-cell {
 .app-shell[data-theme="dark"]
   :is(
     td,
-    .stat-top,
-    .quick-stats,
     .page-heading p,
     .field label,
     .field-label
@@ -4889,7 +4649,6 @@ td .wrap-cell {
 .app-shell[data-theme="dark"]
   :is(
     td strong,
-    .quick-stats b,
     .detail-item strong,
     .summary-total,
     .profile-photo strong

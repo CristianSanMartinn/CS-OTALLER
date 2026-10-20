@@ -1,3 +1,4 @@
+import styles from "./TodayAppointments.module.css";
 import Link from "next/link";
 import { Panel, EmptyState } from "@/components/ui/primitives";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
@@ -17,12 +18,12 @@ export function TodayAppointments() {
         </Link>
       }
     >
-      <div className="appointment-mini">
+      <div className={styles.appointmentMini}>
         {rows.length ? (
           rows.map((a) => (
             <div key={a.id}>
               <time>{a.time}</time>
-              <span className="timeline-line" />
+              <span className={styles.timelineLine} />
               <div>
                 <strong>
                   {data.customers.find((c) => c.id === a.customerId)?.name}

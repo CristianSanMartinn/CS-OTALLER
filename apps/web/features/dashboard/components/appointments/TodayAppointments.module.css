@@ -1,0 +1,35 @@
+.appointmentMini {
+  padding: 8px 20px 16px;
+}
+.appointmentMini > div {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 18px;
+}
+.appointmentMini time {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--neutral-text, #63738c);
+  min-width: 33px;
+  margin-top: 2px;
+}
+.timelineLine {
+  width: 3px;
+  align-self: stretch;
+  min-height: 50px;
+  border-radius: 5px;
+  background: #e4ecff;
+}
+.appointmentMini strong {
+  font-size: 10px;
+}
+.appointmentMini p {
+  font-size: 9px;
+  color: var(--neutral-text, #8a97aa);
+  margin: 3px 0;
+}
+.appointmentMini small {
+  font-size: 8px;
+  color: var(--neutral-text, #a2adbd);
+}

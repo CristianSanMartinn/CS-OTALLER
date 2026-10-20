@@ -1,0 +1,30 @@
+.activityList {
+  padding: 1px 20px 17px;
+}
+.activityList > div {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  align-items: flex-start;
+}
+.activityIcon {
+  height: 24px;
+  width: 24px;
+  background: var(--neutral-surface, #edf6f2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5caa91;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.activityList strong {
+  font-size: 10px;
+  font-weight: 500;
+}
+.activityList small {
+  display: block;
+  font-size: 8px;
+  color: var(--neutral-text, #99a6b8);
+  margin-top: 4px;
+}
