@@ -1,4 +1,5 @@
 "use client";
+import styles from "./WorkOrderForm.module.css";
 import { CancelVisitDialog } from "@/components/Modal/CancelVisitDialog";
 import { CancellationDetails } from "@/components/ui/CancellationDetails";
 import { FormEvent, useState } from "react";
@@ -167,7 +168,7 @@ export function WorkOrderForm({
           {error}
         </p>
       )}
-      <form id="work-order-editor" onSubmit={submit} className="order-editor">
+      <form id="work-order-editor" onSubmit={submit} className={styles.orderEditor}>
         <div>
           <Panel
             title="01 · Cliente y vehículo"
@@ -209,7 +210,7 @@ export function WorkOrderForm({
               <Field label="Número de orden" value={order.number} readOnly />
             </div>
             {canRegister && (
-              <div className="order-registration-actions">
+              <div className={styles.orderRegistrationActions}>
                 <p>
                   ¿Es su primera visita? Registra al cliente y su vehículo aquí.
                 </p>

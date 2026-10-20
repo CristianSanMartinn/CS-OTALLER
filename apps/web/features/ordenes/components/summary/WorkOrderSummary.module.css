@@ -1,0 +1,66 @@
+.orderSummary {
+  position: sticky;
+  top: 20px;
+}
+.summaryLines {
+  margin: 24px 0;
+}
+.summaryLines > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 15px 0;
+  font-size: 11px;
+}
+.summaryLines dt {
+  color: var(--neutral-text, #8c9bb1);
+}
+.summaryLines dd {
+  margin: 0;
+  font-weight: 600;
+}
+.summaryLines .summaryTotal {
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  font-size: 14px;
+}
+.summaryTotal dt {
+  color: var(--text);
+}
+@media (max-width: 1000px) {
+  .orderSummary {
+    position: static;
+  }
+  .orderSummary :global(.panel-padding) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .summaryLines {
+    margin: 0;
+    grid-row: span 3;
+  }
+  .summaryLines > div {
+    margin: 7px 0;
+  }
+}
+@media (max-width: 430px) {
+  .orderSummary :global(.panel-padding) {
+    display: block;
+  }
+  .summaryLines {
+    margin: 20px 0;
+  }
+  .summaryLines > div {
+    margin: 12px 0;
+  }
+}
+:global(.app-shell[data-theme="dark"]) .orderSummary {
+  background: #192739;
+  color: var(--text);
+  border-color: var(--line);
+}
+:global(.app-shell[data-theme="dark"]) div.summaryTotal {
+  color: var(--text);
+}

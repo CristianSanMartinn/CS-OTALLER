@@ -1,3 +1,4 @@
+import styles from "./WorkOrdersTable.module.css";
 import { CancellationDetails } from "@/components/ui/CancellationDetails";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -30,7 +31,7 @@ export function WorkOrdersTable({ orders }: { orders: WorkOrder[] }) {
             return (
               <tr key={o.id}>
                 <td>
-                  <Link className="order-link" href={"/ordenes/" + o.id}>
+                  <Link className={styles.orderLink} href={"/ordenes/" + o.id}>
                     {o.number}
                   </Link>
                   <small>{o.time} h</small>

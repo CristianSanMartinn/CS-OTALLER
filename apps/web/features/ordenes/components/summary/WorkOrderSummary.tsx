@@ -1,3 +1,4 @@
+import styles from "./WorkOrderSummary.module.css";
 import { WorkOrder } from "@/features/shared/types/domain";
 import { Panel, SelectField } from "@/components/ui/primitives";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
@@ -26,7 +27,7 @@ export function WorkOrderSummary({
       ? ["RECEIVED"]
       : [initialStatus, ...workerTransitions[initialStatus]];
   return (
-    <Panel title="Resumen de la orden" className="order-summary">
+    <Panel title="Resumen de la orden" className={styles.orderSummary}>
       <div className="panel-padding">
         <SelectField
           label="Estado de la orden"
@@ -39,7 +40,7 @@ export function WorkOrderSummary({
             </option>
           ))}
         </SelectField>
-        <dl className="summary-lines">
+        <dl className={styles.summaryLines}>
           <div>
             <dt>Vehículo</dt>
             <dd>
@@ -78,7 +79,7 @@ export function WorkOrderSummary({
                 <dt>Repuestos</dt>
                 <dd>{money(parts)}</dd>
               </div>
-              <div className="summary-total">
+              <div className={styles.summaryTotal}>
                 <dt>Total registrado</dt>
                 <dd>{money(services + parts)}</dd>
               </div>

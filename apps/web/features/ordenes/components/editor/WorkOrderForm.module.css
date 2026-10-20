@@ -1,0 +1,49 @@
+.orderRegistrationActions {
+  margin: 0 22px 22px;
+  padding: 16px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--surface, #f8fafc);
+}
+.orderRegistrationActions p {
+  margin: 0 0 12px;
+}
+.orderRegistrationActions :global(.actions) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.orderRegistrationActions small {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted, #64748b);
+}
+@media (max-width: 600px) {
+  .orderRegistrationActions :global(.button) {
+    width: 100%;
+  }
+}
+
+.orderEditor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 285px;
+  gap: 23px;
+  align-items: start;
+}
+.orderEditor > div,
+.orderEditor > aside {
+  min-width: 0;
+}
+@media (max-width: 1250px) {
+  .orderEditor {
+    grid-template-columns: minmax(0, 1fr) 250px;
+  }
+}
+@media (max-width: 1000px) {
+  .orderEditor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .orderEditor > aside {
+    grid-row: 1;
+  }
+}

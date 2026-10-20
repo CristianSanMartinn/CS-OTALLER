@@ -1,11 +1,12 @@
 "use client";
+import styles from "./OrdersPage.module.css";
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, ClipboardList } from "lucide-react";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel, SearchBox } from "@/components/ui/primitives";
-import { WorkOrdersTable } from "./list/WorkOrdersTable";
-import { statusLabels } from "../types/order.constants";
+import { WorkOrdersTable } from "./components/list/WorkOrdersTable";
+import { statusLabels } from "./types/order.constants";
 export function OrdersPage({
   initialStatus = "ALL",
 }: {
@@ -44,7 +45,7 @@ export function OrdersPage({
           </Link>
         }
       />
-      <div className="order-overview">
+      <div className={styles.orderOverview}>
         <ClipboardList size={24} />
         <div>
           <strong>{data.orders.length} órdenes registradas</strong>
