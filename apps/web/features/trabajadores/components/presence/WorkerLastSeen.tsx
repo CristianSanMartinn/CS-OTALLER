@@ -1,3 +1,4 @@
+import styles from "./WorkerLastSeen.module.css";
 export function WorkerLastSeen({
   lastSeenAt,
   connected = false,
@@ -6,10 +7,10 @@ export function WorkerLastSeen({
   connected?: boolean;
 }) {
   if (connected)
-    return <small className="worker-last-seen">En el sistema ahora</small>;
+    return <small className={styles.lastSeen}>En el sistema ahora</small>;
   if (!lastSeenAt)
     return (
-      <small className="worker-last-seen">Sin conexiones registradas</small>
+      <small className={styles.lastSeen}>Sin conexiones registradas</small>
     );
   const date = new Date(lastSeenAt);
   if (!Number.isFinite(date.getTime())) return null;
@@ -21,7 +22,7 @@ export function WorkerLastSeen({
     timeZone: "America/Santiago",
   }).format(date);
   return (
-    <small className="worker-last-seen">
+    <small className={styles.lastSeen}>
       Última conexión: <time dateTime={lastSeenAt}>{label}</time>
     </small>
   );

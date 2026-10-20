@@ -1,4 +1,5 @@
 "use client";
+import styles from "./StoreFeedback.module.css";
 import {
   createContext,
   useContext,
@@ -261,7 +262,7 @@ function MockStoreProvider({ children }: { children: ReactNode }) {
     >
       {children}
       {message && (
-        <div className="toast" role="status">
+        <div className={styles.toast} role="status">
           {message}
           <button aria-label="Cerrar aviso" onClick={() => setMessage("")}>
             ×

@@ -1,0 +1,38 @@
+.vehicleCard {
+  border: 1px solid #e6ecf4;
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--neutral-surface, #fcfdff);
+}
+
+.vehicleCard:hover {
+  border-color: #94b0ea;
+  box-shadow: 0 3px 10px #22446a0c;
+}
+
+.vehicleCardTop {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  color: var(--neutral-text, #7a92b4);
+}
+
+.vehicleCard h3 {
+  margin-top: 10px;
+}
+
+.vehicleCard p {
+  font-size: 11px;
+  color: var(--neutral-text, #8493a9);
+  margin: 4px 0 10px;
+}
+
+.vehicleCard small {
+  color: var(--neutral-text, #8f9eb2);
+}
+
+:global(.app-shell[data-theme="dark"]) .vehicleCard {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}

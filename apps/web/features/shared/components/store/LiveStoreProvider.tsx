@@ -1,4 +1,5 @@
 "use client";
+import styles from "./StoreFeedback.module.css";
 import { ReactNode, useEffect, useState } from "react";
 import { StoreContext } from "./StoreProvider";
 import {
@@ -373,7 +374,7 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
     >
       {children}
       {message && (
-        <div className="toast" role="status">
+        <div className={styles.toast} role="status">
           {message}
           <button aria-label="Cerrar aviso" onClick={() => setMessage("")}>
             ×

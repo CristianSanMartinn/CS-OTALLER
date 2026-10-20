@@ -1,3 +1,4 @@
+import styles from "./WorkerCard.module.css";
 import { User } from "@/features/shared/types/domain";
 import { Avatar } from "@/components/ui/primitives";
 import { WorkerStatusBadge } from "../presence/WorkerStatusBadge";
@@ -6,7 +7,7 @@ import { usePresence } from "../../hooks/usePresence";
 export function WorkerCard({ worker }: { worker: User }) {
   const presence = usePresence().forWorker(worker);
   return (
-    <div className="worker-card">
+    <div className={styles.workerCard}>
       <Avatar name={worker.name} src={worker.avatarUrl} />
       <h3>{worker.name}</h3>
       <p>{worker.specialty}</p>

@@ -1,0 +1,24 @@
+.workerCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px;
+  gap: 8px;
+}
+
+.workerCard :global(.avatar) {
+  width: 56px;
+  height: 56px;
+  font-size: 18px;
+}
+
+.workerCard p {
+  color: var(--neutral-text, #8598b1);
+  font-size: 12px;
+}
+
+:global(.app-shell[data-theme="dark"]) .workerCard {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}

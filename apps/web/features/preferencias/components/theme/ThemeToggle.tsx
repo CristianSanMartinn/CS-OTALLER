@@ -1,6 +1,7 @@
 "use client";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
+import styles from "./ThemeToggle.module.css";
 export function ThemeToggle() {
   const { theme, busy, change } = useTheme();
   const label =
@@ -8,7 +9,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="icon-button theme-toggle"
+      className={`icon-button ${styles.themeToggle}`}
       aria-label={label}
       title={label}
       disabled={busy}
@@ -21,7 +22,7 @@ export function ThemeToggle() {
 export function ThemePreference() {
   const { theme, busy, change } = useTheme();
   return (
-    <div className="theme-preference">
+    <div className={styles.themePreference}>
       <strong>Apariencia</strong>
       <p>Elige el color del sistema para tu cuenta.</p>
       <div role="group" aria-label="Tema de la aplicación">

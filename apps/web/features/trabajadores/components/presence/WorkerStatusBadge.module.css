@@ -1,0 +1,53 @@
+.presenceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--neutral-text, #526078);
+  background: var(--neutral-surface, #edf1f6);
+}
+
+.presenceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--neutral-surface, #fff);
+  box-shadow: 0 0 0 1px #bac6d4;
+}
+
+.presenceBadge:global(.online) {
+  color: #078457;
+  background: var(--neutral-surface, #e3f8ed);
+}
+
+.presenceBadge:global(.online) .presenceDot {
+  background: #14c784;
+  box-shadow: none;
+}
+
+.presenceBadge:global(.disabled) {
+  color: #bc3036;
+  background: var(--neutral-surface, #ffeded);
+}
+
+.presenceBadge:global(.disabled) .presenceDot {
+  background: #ff4d4f;
+  box-shadow: none;
+}
+
+.presenceBadge:global(.unknown) .presenceDot {
+  background: #9fb0c5;
+  box-shadow: none;
+}
+
+.presenceBadge:global(.compact) {
+  padding: 0;
+  background: transparent;
+  font-size: 10px;
+  margin-top: 3px;
+}

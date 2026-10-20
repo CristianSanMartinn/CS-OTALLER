@@ -1,3 +1,4 @@
+import styles from "./WorkerStatusBadge.module.css";
 import type { WorkerPresenceStatus } from "../../types/worker.types";
 const labels: Record<WorkerPresenceStatus, string> = {
   ONLINE: "Conectado",
@@ -15,12 +16,12 @@ export function WorkerStatusBadge({
   return (
     <span
       className={
-        "worker-presence-badge " +
+        styles.presenceBadge + " " +
         status.toLowerCase() +
         (compact ? " compact" : "")
       }
     >
-      <span className="worker-presence-dot" aria-hidden="true" />
+      <span className={styles.presenceDot} aria-hidden="true" />
       {labels[status]}
     </span>
   );
