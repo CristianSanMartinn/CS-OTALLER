@@ -3,8 +3,8 @@ import { Menu, LogOut } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AccountMenu } from "./AccountMenu";
-import { NotificationBell } from "@/features/notificaciones/components/NotificationBell";
-import { ThemeToggle } from "@/features/preferencias/components/ThemeToggle";
+import { NotificationBell } from "@/features/notificaciones/components/bell/NotificationBell";
+import { ThemeToggle } from "@/features/preferencias/components/theme/ThemeToggle";
 export function Header({ onMenu }: { onMenu: () => void }) {
   const { data, logout, live } = useAuth();
   const [show, setShow] = useState(false);

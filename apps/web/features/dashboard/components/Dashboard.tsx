@@ -1,15 +1,17 @@
 "use client";
-import { DashboardHeader } from "./DashboardHeader";
-import { DashboardStats } from "./DashboardStats";
-import { ActiveWorkOrders } from "./ActiveWorkOrders";
-import { TodayAppointments } from "./TodayAppointments";
-import { PendingVehicles } from "./PendingVehicles";
-import { RecentActivity } from "./RecentActivity";
+import { DashboardHeader } from "./header/DashboardHeader";
+import { MaintenanceStatus } from "./maintenance/MaintenanceStatus";
+import { DashboardStats } from "./stats/DashboardStats";
+import { ActiveWorkOrders } from "./work-orders/ActiveWorkOrders";
+import { TodayAppointments } from "./appointments/TodayAppointments";
+import { PendingVehicles } from "./work-orders/PendingVehicles";
+import { RecentActivity } from "./activity/RecentActivity";
 export function Dashboard() {
   return (
     <>
       <DashboardHeader />
       <DashboardStats />
+      <MaintenanceStatus />
       <div className="dashboard-columns">
         <div>
           <ActiveWorkOrders />

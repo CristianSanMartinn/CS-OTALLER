@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, UserRound, LogOut } from "lucide-react";
 import { usePresence } from "@/features/trabajadores/hooks/usePresence";
-import { WorkerStatusBadge } from "@/features/trabajadores/components/WorkerStatusBadge";
+import { WorkerStatusBadge } from "@/features/trabajadores/components/presence/WorkerStatusBadge";
 import { Avatar } from "@/components/ui/primitives";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 export function AccountMenu({ onOpen }: { onOpen: () => void }) {

@@ -3,13 +3,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { User } from "@/features/shared/types/domain";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Panel, PageHeading, SearchBox } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
-import { WorkersTable } from "./WorkersTable";
-import { WorkerForm } from "./WorkerForm";
+import { WorkersTable } from "./list/WorkersTable";
+import { WorkerForm } from "./forms/WorkerForm";
 import { useWorkers } from "../hooks/useWorkers";
-import { WorkerDetails } from "./WorkerDetails";
+import { WorkerDetails } from "./details/WorkerDetails";
 export function WorkersPage() {
   const { data, user, saveWorker, notify } = useStore();
   const [query, setQuery] = useState("");

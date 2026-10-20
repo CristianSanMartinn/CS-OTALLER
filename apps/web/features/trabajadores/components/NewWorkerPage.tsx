@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel, Breadcrumb } from "@/components/ui/primitives";
-import { WorkerForm } from "./WorkerForm";
+import { WorkerForm } from "./forms/WorkerForm";
 export function NewWorkerPage() {
   const { user, notify } = useStore();
   const router = useRouter();

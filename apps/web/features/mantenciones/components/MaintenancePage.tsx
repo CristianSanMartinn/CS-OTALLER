@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Maintenance } from "@/features/shared/types/domain";
 import { Panel, PageHeading, SearchBox } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
-import { MaintenanceForm } from "./MaintenanceForm";
-import { MaintenanceTable } from "./MaintenanceTable";
-import { MaintenanceHistory } from "./MaintenanceHistory";
+import { MaintenanceForm } from "./forms/MaintenanceForm";
+import { MaintenanceTable } from "./list/MaintenanceTable";
+import { MaintenanceHistory } from "./history/MaintenanceHistory";
 import {
   maintenanceCategories,
   maintenanceTypeCode,

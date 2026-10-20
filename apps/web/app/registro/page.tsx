@@ -1,4 +1,4 @@
-import { WorkshopRegistrationForm } from "@/features/auth/components/WorkshopRegistrationForm";
+import { WorkshopRegistrationForm } from "@/features/auth/components/registration/WorkshopRegistrationForm";
 export default function Page() {
   return <WorkshopRegistrationForm />;
 }

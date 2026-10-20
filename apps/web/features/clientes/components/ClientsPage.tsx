@@ -2,14 +2,14 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Customer } from "@/features/shared/types/domain";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
-import { DeleteClientDialog } from "./DeleteClientDialog";
-import { ClientSearch } from "./ClientSearch";
-import { ClientFilters } from "./ClientFilters";
-import { ClientsTable } from "./ClientsTable";
-import { ClientForm } from "./ClientForm";
+import { DeleteClientDialog } from "./details/DeleteClientDialog";
+import { ClientSearch } from "./filters/ClientSearch";
+import { ClientFilters } from "./filters/ClientFilters";
+import { ClientsTable } from "./list/ClientsTable";
+import { ClientForm } from "./forms/ClientForm";
 export function ClientsPage() {
   const { data, notify, user } = useStore();
   const [deleting, setDeleting] = useState<Customer | null>(null);

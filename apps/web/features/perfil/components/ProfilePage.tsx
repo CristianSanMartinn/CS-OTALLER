@@ -1,7 +1,7 @@
 "use client";
 import { PageHeading } from "@/components/ui/primitives";
-import { ProfileForm } from "./ProfileForm";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { ProfileForm } from "./forms/ProfileForm";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 export function ProfilePage() {
   const { user } = useStore();
   if (!user) return null;

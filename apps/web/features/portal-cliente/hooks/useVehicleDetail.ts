@@ -1,5 +1,5 @@
 "use client";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { usePublicPortal } from "./usePublicPortal";
 import { clientVehicle, clientAccess } from "../services/clientAccessService";
 import { customerVehicle } from "../services/customerPortalService";

@@ -4,7 +4,7 @@ import { useRef, useState, ChangeEvent } from "react";
 import { UploadCloud, Trash2, Camera } from "lucide-react";
 import { Photo } from "@/features/shared/types/domain";
 import { Field, SelectField } from "@/components/ui/primitives";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { optimizeImage } from "@/utils/imageOptimization";
 import { uid } from "@/utils/format";
 export function ImageUploader({

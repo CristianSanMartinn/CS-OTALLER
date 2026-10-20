@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import type { PortalOrder } from "../../types/portal.types";
-import { WorkOrderStatus } from "@/features/ordenes/components/WorkOrderStatus";
+import { WorkOrderStatus } from "@/features/ordenes/components/status/WorkOrderStatus";
 import { dateLabel, km } from "@/utils/format";
 import { WorkPerformedList } from "./WorkPerformedList";
 export function WorkHistoryItem({ order: o }: { order: PortalOrder }) {

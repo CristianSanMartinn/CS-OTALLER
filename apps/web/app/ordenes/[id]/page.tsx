@@ -1,4 +1,4 @@
-import { WorkOrderForm } from "@/features/ordenes/components/WorkOrderForm";
+import { WorkOrderForm } from "@/features/ordenes/components/editor/WorkOrderForm";
 export default async function Page({
   params,
 }: {

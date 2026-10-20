@@ -2,9 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, ClipboardList } from "lucide-react";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel, SearchBox } from "@/components/ui/primitives";
-import { WorkOrdersTable } from "./WorkOrdersTable";
+import { WorkOrdersTable } from "./list/WorkOrdersTable";
 import { statusLabels } from "../types/order.constants";
 export function OrdersPage({
   initialStatus = "ALL",

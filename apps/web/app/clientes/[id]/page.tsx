@@ -1,4 +1,4 @@
-import { ClientDetails } from "@/features/clientes/components/ClientDetails";
+import { ClientDetails } from "@/features/clientes/components/details/ClientDetails";
 export default async function Page({
   params,
 }: {

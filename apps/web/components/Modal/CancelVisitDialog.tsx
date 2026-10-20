@@ -2,7 +2,7 @@
 import { FormEvent, useState } from "react";
 import { Modal } from "./Modal";
 import { SelectField } from "@/components/ui/primitives";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import {
   Cancellation,
   CancellationReason,

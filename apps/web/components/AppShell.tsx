@@ -2,12 +2,12 @@
 import { ReactNode, useEffect, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ApplicationLoading } from "./ApplicationLoading/ApplicationLoading";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Sidebar } from "./Sidebar/Sidebar";
 import { Header } from "./Header/Header";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { adminRoutes } from "@/features/shared/services/permissions";
-import { useTheme } from "@/features/preferencias/components/ThemeProvider";
+import { useTheme } from "@/features/preferencias/components/theme/ThemeProvider";
 export function AppShell({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const { user, ready, live } = useAuth();

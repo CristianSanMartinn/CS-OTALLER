@@ -1,4 +1,4 @@
-import { VehicleDetails } from "@/features/vehiculos/components/VehicleDetails";
+import { VehicleDetails } from "@/features/vehiculos/components/details/VehicleDetails";
 export default async function Page({
   params,
 }: {

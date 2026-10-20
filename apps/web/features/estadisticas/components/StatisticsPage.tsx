@@ -1,5 +1,5 @@
 "use client";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel } from "@/components/ui/primitives";
 import { statusLabels } from "@/features/ordenes/types/order.constants";
 export function StatisticsPage() {

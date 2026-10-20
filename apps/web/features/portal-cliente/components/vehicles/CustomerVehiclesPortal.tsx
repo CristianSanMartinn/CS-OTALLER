@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { ScanLine, PlusCircle } from "lucide-react";
 import { usePublicPortal } from "../../hooks/usePublicPortal";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { clientAccess } from "../../services/clientAccessService";
 import { PortalEntrance } from "../layout/PortalLoadingScreen";
 import { PublicVehicleCard } from "./PublicVehicleCard";

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { StoreProvider } from "@/features/shared/components/StoreProvider";
+import { StoreProvider } from "@/features/shared/components/store/StoreProvider";
 import { AppShell } from "@/components/AppShell";
-import { PresenceProvider } from "@/features/trabajadores/components/PresenceProvider";
-import { ThemeProvider } from "@/features/preferencias/components/ThemeProvider";
+import { PresenceProvider } from "@/features/trabajadores/components/presence/PresenceProvider";
+import { ThemeProvider } from "@/features/preferencias/components/theme/ThemeProvider";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "C.S.OTALLER | Gestión de talleres",

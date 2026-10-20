@@ -5,7 +5,7 @@ import Link from "next/link";
 import { QrCode, ExternalLink, Copy, Printer } from "lucide-react";
 import { Modal } from "@/components/Modal/Modal";
 import { Field } from "@/components/ui/primitives";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { clientAccessPath } from "@/features/portal-cliente/services/clientAccessService";
 import { QrLabelContent, QrPrintLabel } from "./QrPrintLabel";
 export function CustomerAccessCard({

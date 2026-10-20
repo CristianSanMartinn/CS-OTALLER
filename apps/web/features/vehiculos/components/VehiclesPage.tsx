@@ -2,12 +2,12 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Vehicle } from "@/features/shared/types/domain";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
-import { VehicleSearch } from "./VehicleSearch";
-import { VehiclesTable } from "./VehiclesTable";
-import { VehicleForm } from "./VehicleForm";
+import { VehicleSearch } from "./filters/VehicleSearch";
+import { VehiclesTable } from "./list/VehiclesTable";
+import { VehicleForm } from "./forms/VehicleForm";
 export function VehiclesPage() {
   const { data, notify, user } = useStore();
   const [q, setQ] = useState("");

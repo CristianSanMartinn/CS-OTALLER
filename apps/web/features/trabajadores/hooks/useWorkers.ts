@@ -1,5 +1,5 @@
 "use client";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { usePresence } from "./usePresence";
 export function useWorkers(query: string) {
   const { data } = useStore();

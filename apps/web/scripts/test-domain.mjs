@@ -1038,3 +1038,127 @@ test("El formulario rechaza aceite incompatible con su producto y permite produc
   );
 });
 console.log(count + " pruebas totales del registro asistido completadas.");
+
+const { summarizeMaintenance } = load("features/shared/services/maintenanceRules");
+const { dashboardMaintenanceSummary } = load(
+  "features/dashboard/services/maintenanceSummary",
+);
+test("Dashboard y portal coinciden al sustituir aceite vencido con un cambio nuevo", () => {
+  const vehicle = {
+    ...data.vehicles[0],
+    id: "dash-car",
+    workshopId: "dash",
+    mileage: 10000,
+  };
+  const old = {
+    ...data.maintenance[0],
+    id: "old",
+    workshopId: "dash",
+    vehicleId: vehicle.id,
+    maintenanceTypeCode: "OIL_CHANGE",
+    type: "Aceite antiguo",
+    date: "2026-01-01",
+    mileage: 5000,
+    nextMileage: 9000,
+    nextDate: "2026-02-01",
+  };
+  const fresh = {
+    ...old,
+    id: "fresh",
+    type: "Aceite y filtro nuevo",
+    date: "2026-10-20",
+    mileage: 10000,
+    nextMileage: 20000,
+    nextDate: "2027-10-20",
+  };
+  const counts = dashboardMaintenanceSummary(
+    [vehicle],
+    [fresh, old],
+    "dash",
+    "2026-10-20",
+  );
+  assert.equal(counts.overdue, 0);
+  assert.equal(counts.current, 1);
+  assert.equal(
+    summarizeMaintenance([fresh, old], vehicle.mileage, "2026-10-20").tone,
+    "current",
+  );
+  const brakes = {
+    ...fresh,
+    id: "brakes",
+    maintenanceTypeCode: "BRAKE_FLUID",
+    nextMileage: 10000,
+  };
+  assert.equal(
+    dashboardMaintenanceSummary(
+      [vehicle],
+      [fresh, old, brakes],
+      "dash",
+      "2026-10-20",
+    ).overdue,
+    1,
+  );
+});
+test("Dashboard conserva los límites compartidos, separa falta de historial y no mezcla talleres", () => {
+  const vehicle = {
+    ...data.vehicles[0],
+    id: "dash-car",
+    workshopId: "dash",
+    mileage: 10000,
+  };
+  const record = {
+    ...data.maintenance[0],
+    workshopId: "dash",
+    vehicleId: vehicle.id,
+    maintenanceTypeCode: "OIL_CHANGE",
+    date: "2026-10-20",
+    nextMileage: 12500,
+    nextDate: "2027-10-20",
+  };
+  const counts = dashboardMaintenanceSummary(
+    [vehicle],
+    [record],
+    "dash",
+    "2026-10-20",
+  );
+  assert.equal(counts.soon, 1);
+  assert.equal(
+    dashboardMaintenanceSummary(
+      [vehicle],
+      [{ ...record, nextMileage: 12501 }],
+      "dash",
+      "2026-10-20",
+    ).current,
+    1,
+  );
+  assert.equal(
+    dashboardMaintenanceSummary([vehicle], [record], "dash", "2026-10-20", {
+      nearMileage: 100,
+      nearDays: 1,
+    }).current,
+    1,
+  );
+  const foreignVehicle = {
+    ...vehicle,
+    id: "foreign-car",
+    workshopId: "foreign",
+  };
+  const foreignRecord = { ...record, workshopId: "foreign", nextMileage: 1 };
+  const empty = dashboardMaintenanceSummary(
+    [vehicle, foreignVehicle],
+    [foreignRecord],
+    "dash",
+    "2026-10-20",
+  );
+  assert.equal(empty.withoutHistory, 1);
+  assert.equal(empty.overdue, 0);
+  const unscheduled = dashboardMaintenanceSummary(
+    [vehicle],
+    [{ ...record, nextMileage: 0, nextDate: "" }],
+    "dash",
+    "2026-10-20",
+  );
+  assert.equal(unscheduled.unscheduled, 1);
+  assert.equal(unscheduled.current, 0);
+});
+console.log(count + " pruebas totales con dashboard completadas.");

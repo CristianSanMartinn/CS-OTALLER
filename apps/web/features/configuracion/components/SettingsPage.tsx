@@ -3,14 +3,8 @@ import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { optimizeImage } from "@/utils/imageOptimization";
 import { Building2, Save } from "lucide-react";
-import { useStore } from "@/features/shared/components/StoreProvider";
-import {
-  PageHeading,
-  Panel,
-  Field,
-  TextField,
-  SelectField,
-} from "@/components/ui/primitives";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
+import { PageHeading, Panel, Field, TextField, SelectField } from "@/components/ui/primitives";
 export function SettingsPage() {
   const { data, user, saveWorkshop, notify } = useStore();
   const [logo, setLogo] = useState(data.workshop.logo);

@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { usePresenceSnapshot } from "../components/PresenceProvider";
+import { usePresenceSnapshot } from "../components/presence/PresenceProvider";
 import type { User } from "@/features/shared/types/domain";
 import type { WorkerPresence } from "../types/worker.types";
 export function usePresence() {
