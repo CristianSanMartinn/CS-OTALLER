@@ -1,0 +1,126 @@
+.notificationWrap {
+  position: relative;
+}
+.notificationPopover {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: 290px;
+  background: var(--neutral-surface, white);
+  box-shadow: 0 10px 40px #14213725;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 50;
+}
+.notificationPopover p {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+:global(.app-shell[data-theme="dark"]) .notificationPopover {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+.notificationTrigger {
+  position: relative;
+}
+.notificationCount {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  background: #de384d;
+  color: white;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  border: 2px solid var(--surface);
+}
+.notificationInbox {
+  width: min(370px, calc(100vw - 24px));
+  padding: 0;
+  background: var(--surface);
+  color: var(--text);
+}
+.notificationHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.notificationReadAll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 16px;
+  font-size: 11px;
+}
+.notificationList {
+  max-height: min(460px, 65dvh);
+  overflow-y: auto;
+}
+.notificationItem {
+  display: flex;
+  gap: 12px;
+  padding: 15px 18px;
+  border-top: 1px solid var(--line);
+}
+.notificationItem > svg {
+  flex-shrink: 0;
+  color: var(--blue);
+  margin-top: 3px;
+}
+.notificationItem strong {
+  font-size: 12px;
+}
+.notificationItem p {
+  margin: 5px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.notificationItem time {
+  color: var(--muted);
+  font-size: 10px;
+}
+.notificationItem.isUnread {
+  background: color-mix(in srgb, var(--blue) 7%, var(--surface));
+}
+.notificationActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--blue);
+}
+.notificationActions button {
+  color: var(--blue);
+}
+.notificationEmpty {
+  text-align: center;
+  padding: 30px 22px;
+}
+.notificationEmpty svg {
+  color: var(--muted);
+  margin: 0 auto 12px;
+  display: block;
+}
+.notificationEmpty strong {
+  font-size: 13px;
+}
+.notificationInbox > p {
+  padding: 0 16px;
+}
+@media (max-width: 600px) {
+  .notificationInbox {
+    position: fixed;
+    top: 70px;
+    right: 12px;
+  }
+}

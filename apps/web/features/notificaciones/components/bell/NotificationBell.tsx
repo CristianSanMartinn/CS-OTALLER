@@ -1,4 +1,5 @@
 "use client";
+import styles from "./NotificationBell.module.css";
 import { Bell, Check, RefreshCw, UserRound, Car, Wrench } from "lucide-react";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
@@ -35,11 +36,11 @@ export function NotificationBell({
     };
   }, [open, onClose]);
   return (
-    <div className="notification-wrap" ref={wrap}>
+    <div className={styles.notificationWrap} ref={wrap}>
       <button
         ref={trigger}
         type="button"
-        className="icon-button notification-trigger"
+        className={`icon-button ${styles.notificationTrigger}`}
         aria-label={
           "Ver notificaciones" + (unread ? ", " + unread + " sin leer" : "")
         }
@@ -52,7 +53,7 @@ export function NotificationBell({
       >
         <Bell size={20} />
         {unread > 0 && (
-          <span className="notification-count">
+          <span className={styles.notificationCount}>
             {unread > 99 ? "99+" : unread}
           </span>
         )}
@@ -60,10 +61,10 @@ export function NotificationBell({
       {open && (
         <section
           id="notification-inbox"
-          className="notification-popover notification-inbox"
+          className={`${styles.notificationPopover} ${styles.notificationInbox}`}
           aria-label="Notificaciones del taller"
         >
-          <div className="notification-heading">
+          <div className={styles.notificationHeading}>
             <strong>Notificaciones</strong>
             <button
               type="button"
@@ -77,7 +78,7 @@ export function NotificationBell({
           {unread > 0 && (
             <button
               type="button"
-              className="text-link notification-read-all"
+              className={`text-link ${styles.notificationReadAll}`}
               disabled={busy}
               onClick={() => void read()}
             >
@@ -85,9 +86,9 @@ export function NotificationBell({
             </button>
           )}
           {error && <p role="alert">{error}</p>}
-          <div className="notification-list">
+          <div className={styles.notificationList}>
             {items.length === 0 ? (
-              <div className="notification-empty">
+              <div className={styles.notificationEmpty}>
                 <Bell size={26} />
                 <strong>No hay avisos todavía</strong>
                 <p>
@@ -108,7 +109,9 @@ export function NotificationBell({
                   <article
                     key={item.id}
                     className={
-                      "notification-item " + (!item.readAt ? "is-unread" : "")
+                      styles.notificationItem +
+                      " " +
+                      (!item.readAt ? styles.isUnread : "")
                     }
                   >
                     <Icon size={19} />
@@ -123,7 +126,7 @@ export function NotificationBell({
                           minute: "2-digit",
                         })}
                       </time>
-                      <div className="notification-actions">
+                      <div className={styles.notificationActions}>
                         {item.href && (
                           <Link
                             href={item.href}
