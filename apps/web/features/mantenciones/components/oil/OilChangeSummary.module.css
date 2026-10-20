@@ -1,0 +1,86 @@
+.oilSummary {
+  border: 1px solid #cce4e1;
+  border-radius: 11px;
+  background: linear-gradient(115deg, #f0faf7, #f9fcff);
+  padding: 24px;
+  margin-bottom: 22px;
+}
+.oilSummaryHeading {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.oilSummary h2 {
+  font-size: 19px;
+}
+.oilSummaryHeading p {
+  font-size: 12px;
+  color: var(--neutral-text, #708d93);
+  margin-top: 4px;
+}
+.oilIcon {
+  background: #d9f0e8;
+  padding: 13px;
+  border-radius: 10px;
+  color: #25836c;
+}
+.oilMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 24px 0;
+}
+.oilMetrics > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 17px;
+  background: var(--neutral-surface, #fff);
+  border: 1px solid #e1eeeb;
+  border-radius: 9px;
+}
+.oilMetrics svg {
+  color: #569888;
+}
+.oilMetrics span {
+  font-size: 11px;
+  color: var(--neutral-text, #6f8891);
+}
+.oilMetrics strong {
+  font-size: 22px;
+  letter-spacing: -0.6px;
+}
+.oilDetail {
+  font-size: 12px;
+  color: var(--neutral-text, #537a76);
+  margin-bottom: 7px;
+}
+.oilSummary > small {
+  color: var(--neutral-text, #829b9e);
+  font-size: 11px;
+}
+:global(.record-list) .oilSummary {
+  margin: 0 0 18px;
+}
+:global(.record-list) .oilMetrics strong {
+  font-size: 19px;
+}
+@media (max-width: 760px) {
+  .oilMetrics {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .oilMetrics > div {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    align-items: center;
+    gap: 6px 10px;
+  }
+  .oilMetrics strong {
+    grid-column: 2;
+  }
+  .oilSummary {
+    padding: 19px;
+  }
+}

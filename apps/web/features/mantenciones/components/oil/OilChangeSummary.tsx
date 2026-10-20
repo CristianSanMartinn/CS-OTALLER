@@ -1,3 +1,4 @@
+import styles from "./OilChangeSummary.module.css";
 import { Droplets, CalendarClock, Gauge } from "lucide-react";
 import { Maintenance } from "@/features/shared/types/domain";
 import { dateLabel, km } from "@/utils/format";
@@ -9,9 +10,9 @@ export function OilChangeSummary({
   title?: string;
 }) {
   return (
-    <section className="oil-summary">
-      <div className="oil-summary-heading">
-        <span className="oil-icon">
+    <section className={styles.oilSummary}>
+      <div className={styles.oilSummaryHeading}>
+        <span className={styles.oilIcon}>
           <Droplets size={24} />
         </span>
         <div>
@@ -22,7 +23,7 @@ export function OilChangeSummary({
           </p>
         </div>
       </div>
-      <div className="oil-metrics">
+      <div className={styles.oilMetrics}>
         <div>
           <Gauge size={18} />
           <span>Kilometraje del cambio</span>
@@ -39,7 +40,7 @@ export function OilChangeSummary({
           <strong>{dateLabel(record.nextDate)}</strong>
         </div>
       </div>
-      <p className="oil-detail">
+      <p className={styles.oilDetail}>
         {record.oilProductName ? record.oilProductName + " · " : ""}
         {record.oilType} · {record.quantity} L · Filtro {record.filterBrand}{" "}
         {record.filter}

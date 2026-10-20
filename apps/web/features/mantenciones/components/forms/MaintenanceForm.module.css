@@ -1,0 +1,27 @@
+.oilFormBanner {
+  padding: 20px 22px;
+  background: var(--neutral-surface, #edf8f3);
+  border-bottom: 1px solid #d7eee2;
+  color: var(--neutral-text, #34745f);
+}
+
+.oilFormBanner p {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.maintenanceReceptionContext {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  margin-bottom: 18px;
+  background: var(--surface);
+}
+
+.maintenanceReceptionContext p {
+  margin: 6px 0;
+}
+
+.maintenanceReceptionContext small {
+  color: var(--muted);
+}

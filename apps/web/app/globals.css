@@ -793,15 +793,6 @@ td .wrap-cell {
 .record-list > div:last-child {
   border: 0;
 }
-.record-title {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 12px;
-}
-.record-title small {
-  color: var(--neutral-text, #8e9db1);
-}
 .record-list p {
   font-size: 12px;
   color: var(--neutral-text, #687d98);
@@ -1539,77 +1530,6 @@ td .wrap-cell {
   border-color: #ffffff30;
   color: #d8e4f8;
 }
-.oil-summary {
-  border: 1px solid #cce4e1;
-  border-radius: 11px;
-  background: linear-gradient(115deg, #f0faf7, #f9fcff);
-  padding: 24px;
-  margin-bottom: 22px;
-}
-.oil-summary-heading {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-.oil-summary h2 {
-  font-size: 19px;
-}
-.oil-summary-heading p {
-  font-size: 12px;
-  color: var(--neutral-text, #708d93);
-  margin-top: 4px;
-}
-.oil-icon {
-  background: #d9f0e8;
-  padding: 13px;
-  border-radius: 10px;
-  color: #25836c;
-}
-.oil-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin: 24px 0;
-}
-.oil-metrics > div {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 17px;
-  background: var(--neutral-surface, #fff);
-  border: 1px solid #e1eeeb;
-  border-radius: 9px;
-}
-.oil-metrics svg {
-  color: #569888;
-}
-.oil-metrics span {
-  font-size: 11px;
-  color: var(--neutral-text, #6f8891);
-}
-.oil-metrics strong {
-  font-size: 22px;
-  letter-spacing: -0.6px;
-}
-.oil-detail {
-  font-size: 12px;
-  color: var(--neutral-text, #537a76);
-  margin-bottom: 7px;
-}
-.oil-summary > small {
-  color: var(--neutral-text, #829b9e);
-  font-size: 11px;
-}
-.oil-form-banner {
-  padding: 20px 22px;
-  background: var(--neutral-surface, #edf8f3);
-  border-bottom: 1px solid #d7eee2;
-  color: var(--neutral-text, #34745f);
-}
-.oil-form-banner p {
-  font-size: 12px;
-  margin-top: 6px;
-}
 .customer-access {
   display: flex;
   align-items: center;
@@ -1771,12 +1691,6 @@ td .wrap-cell {
 .customer-portal .photo-grid figcaption p {
   margin: 7px 0;
 }
-.record-list .oil-summary {
-  margin: 0 0 18px;
-}
-.record-list .oil-metrics strong {
-  font-size: 19px;
-}
 @media (max-width: 760px) {
   .customer-access {
     flex-wrap: wrap;
@@ -1788,20 +1702,6 @@ td .wrap-cell {
   .customer-contact {
     align-items: flex-start;
     flex-direction: column;
-  }
-  .oil-metrics {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin: 18px 0;
-  }
-  .oil-metrics > div {
-    display: grid;
-    grid-template-columns: 22px 1fr;
-    align-items: center;
-    gap: 6px 10px;
-  }
-  .oil-metrics strong {
-    grid-column: 2;
   }
   .customer-portal {
     padding: 0 15px 24px;
@@ -1818,9 +1718,6 @@ td .wrap-cell {
   }
   .customer-vehicle h2 {
     font-size: 20px;
-  }
-  .oil-summary {
-    padding: 19px;
   }
   .customer-header .demo-label {
     font-size: 7px;
@@ -5131,79 +5028,4 @@ button.service-summary-card:hover {
   font-size: 12px;
   color: var(--text);
   padding: 10px 0;
-}
-.maintenance-reception-context {
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  margin-bottom: 18px;
-  background: var(--surface);
-}
-.maintenance-reception-context p {
-  margin: 6px 0;
-}
-.maintenance-reception-context small {
-  color: var(--muted);
-}
-.oil-product-picker {
-  position: relative;
-  gap: 9px;
-}
-.oil-product-picker > label {
-  font-weight: 600;
-}
-.oil-product-picker .intervention-input-wrap input {
-  padding-left: 38px;
-  width: 100%;
-}
-.oil-product-picker > small {
-  color: var(--muted);
-  line-height: 1.5;
-}
-.oil-product-options {
-  max-height: 280px;
-  overflow-y: auto;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--surface);
-}
-.oil-product-options > button {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  text-align: left;
-  width: 100%;
-  padding: 12px 14px;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-}
-.oil-product-options > button:hover,
-.oil-product-options > .is-selected {
-  background: color-mix(in srgb, var(--blue) 10%, var(--surface));
-}
-.oil-product-options span {
-  font-size: 12px;
-  color: var(--muted);
-}
-.oil-product-options > p {
-  padding: 12px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.oil-selected-product {
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  background: color-mix(in srgb, var(--blue) 6%, var(--surface));
-  color: var(--text);
-}
-.oil-selected-product span {
-  font-size: 12px;
-  color: var(--muted);
 }

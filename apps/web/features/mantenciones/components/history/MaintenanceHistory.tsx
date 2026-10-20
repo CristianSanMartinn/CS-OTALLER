@@ -1,3 +1,4 @@
+import styles from "./MaintenanceHistory.module.css";
 import { OilChangeSummary } from "../oil/OilChangeSummary";
 import { Maintenance } from "@/features/shared/types/domain";
 import { EmptyState } from "@/components/ui/primitives";
@@ -14,7 +15,7 @@ export function MaintenanceHistory({ records }: { records: Maintenance[] }) {
           {isEngineOil(m.type, m.maintenanceTypeCode) && (
             <OilChangeSummary record={m} title="Cambio de aceite registrado" />
           )}
-          <div className="record-title">
+          <div className={styles.recordTitle}>
             <strong>{m.type}</strong>
             <small>{dateLabel(m.date)}</small>
           </div>

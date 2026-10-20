@@ -1,0 +1,62 @@
+.oilProductPicker {
+  position: relative;
+  gap: 9px;
+}
+.oilProductPicker > label {
+  font-weight: 600;
+}
+.oilProductPicker :global(.intervention-input-wrap) input {
+  padding-left: 38px;
+  width: 100%;
+}
+.oilProductPicker > small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.oilProductOptions {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.oilProductOptions > button {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.oilProductOptions > button:hover,
+.oilProductOptions > :global(.is-selected) {
+  background: color-mix(in srgb, var(--blue) 10%, var(--surface));
+}
+.oilProductOptions span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.oilProductOptions > p {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.oilSelectedProduct {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: color-mix(in srgb, var(--blue) 6%, var(--surface));
+  color: var(--text);
+}
+.oilSelectedProduct span {
+  font-size: 12px;
+  color: var(--muted);
+}

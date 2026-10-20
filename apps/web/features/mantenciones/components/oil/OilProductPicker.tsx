@@ -1,4 +1,5 @@
 "use client";
+import styles from "./OilProductPicker.module.css";
 import { useId, useState } from "react";
 import { Search } from "lucide-react";
 import type { Maintenance } from "@/features/shared/types/domain";
@@ -35,7 +36,7 @@ export function OilProductPicker({
   }
   return (
     <div
-      className="oil-product-picker field full"
+      className={`${styles.oilProductPicker} field full`}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
@@ -87,7 +88,7 @@ export function OilProductPicker({
           id={id + "-options"}
           role="listbox"
           aria-label="Productos de aceite"
-          className="oil-product-options"
+          className={styles.oilProductOptions}
         >
           {options.map((product, index) => (
             <button
@@ -119,7 +120,7 @@ export function OilProductPicker({
         </div>
       )}
       {value.oilProductName && (
-        <div className="oil-selected-product" aria-live="polite">
+        <div className={styles.oilSelectedProduct} aria-live="polite">
           <strong>
             {value.brand} · {value.oilProductName}
           </strong>

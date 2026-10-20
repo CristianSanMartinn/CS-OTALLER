@@ -1,3 +1,4 @@
+import styles from "./MaintenanceForm.module.css";
 import { workshopWorkHistory } from "@/features/shared/services/workHistory";
 import { maintenanceOrderContext } from "../../services/maintenanceContext";
 import { useOilCatalog } from "../../hooks/useOilCatalog";
@@ -101,7 +102,7 @@ export function MaintenanceForm({
   return (
     <form onSubmit={submit}>
       {isEngineOil(value.type, value.maintenanceTypeCode) && (
-        <div className="oil-form-banner">
+        <div className={styles.oilFormBanner}>
           <strong>Cambio de aceite · ficha de mantenimiento</strong>
           <p>
             Registra el kilometraje de hoy y el próximo cambio. El cliente verá
@@ -110,7 +111,7 @@ export function MaintenanceForm({
         </div>
       )}
       {linkedOrder && (
-        <div className="maintenance-reception-context">
+        <div className={styles.maintenanceReceptionContext}>
           <strong>{linkedOrder.number} · Motivo de ingreso</strong>
           <p>{linkedOrder.reason || "Sin motivo registrado"}</p>
           <small>Información recuperada de la recepción.</small>
