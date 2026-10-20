@@ -1,4 +1,5 @@
 "use client";
+import styles from "./SettingsPage.module.css";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { optimizeImage } from "@/utils/imageOptimization";
@@ -48,7 +49,7 @@ export function SettingsPage() {
           title="Identidad del taller"
           subtitle="Datos que identifican tu espacio de trabajo"
         >
-          <div className="logo-upload">
+          <div className={styles.logoUpload}>
             {logo ? (
               <Image
                 unoptimized
