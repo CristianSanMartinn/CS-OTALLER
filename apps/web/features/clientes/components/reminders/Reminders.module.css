@@ -1,0 +1,33 @@
+.messagePreview {
+  margin: 0 22px 22px;
+  padding: 22px;
+  border: 1px solid #dfebfa;
+  background: var(--neutral-surface, #f6f9ff);
+  border-radius: 10px;
+}
+
+.messagePreview > p {
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--neutral-text, #7188a8);
+  overflow-wrap: anywhere;
+}
+
+.messagePreview blockquote {
+  margin: 20px 0;
+  border-left: 3px solid #75a0eb;
+  padding: 18px;
+  background: var(--neutral-surface, white);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--neutral-text, #496386);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .messagePreview {
+    padding: 16px;
+    margin: 0 16px 18px;
+  }
+}

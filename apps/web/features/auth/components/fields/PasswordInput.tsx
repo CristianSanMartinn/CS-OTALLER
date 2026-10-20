@@ -1,4 +1,5 @@
 "use client";
+import styles from "./PasswordInput.module.css";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 export function PasswordInput() {
@@ -6,7 +7,7 @@ export function PasswordInput() {
   return (
     <label className="field">
       <span>Contraseña</span>
-      <div className="password-input">
+      <div className={styles.passwordInput}>
         <input
           required
           name="password"

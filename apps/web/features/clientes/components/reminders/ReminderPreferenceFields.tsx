@@ -1,3 +1,4 @@
+import styles from "./ReminderPreferenceFields.module.css";
 import { ReminderPreferences } from "@/features/shared/types/domain";
 import { SelectField } from "@/components/ui/primitives";
 import { Mail, MessageCircle } from "lucide-react";
@@ -9,13 +10,13 @@ export function ReminderPreferenceFields({
   onChange: (v: ReminderPreferences) => void;
 }) {
   return (
-    <fieldset className="reminder-preferences">
+    <fieldset className={styles.reminderPreferences}>
       <legend>Preferencias de recordatorios</legend>
       <p>
         El cliente recibirá un enlace a su historial, sin descargar una
         aplicación del taller. Por ahora solo preparamos la configuración.
       </p>
-      <div className="channel-options">
+      <div className={styles.channelOptions}>
         <label>
           <input
             type="checkbox"
@@ -55,7 +56,7 @@ export function ReminderPreferenceFields({
         <option value={15}>15 días antes</option>
         <option value={30}>30 días antes</option>
       </SelectField>
-      <label className="consent-check">
+      <label className={styles.consentCheck}>
         <input
           type="checkbox"
           checked={value.consent}

@@ -759,12 +759,6 @@ td .wrap-cell {
   margin: 0;
   overflow-wrap: anywhere;
 }
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 18px;
-  padding: 22px;
-}
 .vehicle-card {
   border: 1px solid #e6ecf4;
   border-radius: 8px;
@@ -1168,188 +1162,6 @@ td .wrap-cell {
 .bar-chart strong {
   width: 20px;
 }
-.login-screen {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: var(--neutral-surface, #fff);
-}
-.login-story {
-  background: #142137;
-  color: #e8f0ff;
-  padding: 45px 9%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-.login-story .brand {
-  padding: 0;
-}
-.login-story > .brand {
-  margin-bottom: 60px;
-}
-.login-story .eyebrow {
-  color: #829fcf;
-  font-size: 9px;
-}
-.login-story h1 {
-  font-size: 47px;
-  line-height: 1.2;
-  letter-spacing: -1.8px;
-  margin: 20px 0;
-}
-.login-story h1 em {
-  font-style: normal;
-  color: #6e9bfa;
-}
-.login-story p {
-  font-size: 13px;
-  color: var(--neutral-text, #91a2bd);
-  max-width: 320px;
-  line-height: 1.9;
-}
-.login-story > small {
-  color: var(--neutral-text, #5f7698);
-  font-size: 10px;
-}
-.login-graphic {
-  height: 170px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 350px;
-  color: #527bb7;
-  border: 1px solid #2b3d57;
-  border-radius: 14px;
-  margin: 40px 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 24px,
-      #24365060 25px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 24px,
-      #24365060 25px
-    );
-}
-.graphic-tag {
-  position: absolute;
-  bottom: 15px;
-  font-size: 7px;
-  letter-spacing: 2px;
-  color: #6886b1;
-}
-.login-form-side {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 60px 30px;
-}
-.login-form-wrap {
-  width: 360px;
-  max-width: 100%;
-}
-.login-form-wrap h2 {
-  font-size: 28px;
-  margin: 22px 0 7px;
-  letter-spacing: -0.8px;
-}
-.login-form-wrap > p {
-  color: var(--neutral-text, #92a0b4);
-  font-size: 13px;
-  margin-bottom: 32px;
-}
-.login-form-wrap form > .field {
-  margin-bottom: 20px;
-}
-.login-form-wrap .field input {
-  padding: 13px;
-  font-size: 12px;
-}
-.password-input {
-  display: flex;
-  border: 1px solid #dfe5ed;
-  border-radius: 7px;
-  align-items: center;
-}
-.password-input input {
-  border: 0;
-  width: 100%;
-  background: transparent;
-}
-.password-input button {
-  background: transparent;
-  color: var(--neutral-text, #93a5bf);
-  padding: 10px;
-}
-.login-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 2px 0 24px;
-  font-size: 11px;
-  color: var(--neutral-text, #7d8da5);
-}
-.login-options label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.login-options .text-button {
-  font-size: 11px;
-}
-.login-submit {
-  width: 100%;
-  height: 46px;
-  justify-content: space-between;
-  padding: 0 16px;
-}
-.demo-credentials {
-  margin-top: 27px;
-  border: 1px solid #e6edf7;
-  background: var(--neutral-surface, #f8faff);
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  color: #829dc3;
-}
-.demo-credentials svg {
-  flex-shrink: 0;
-}
-.demo-credentials strong {
-  font-size: 11px;
-  color: var(--neutral-text, #7088ad);
-}
-.demo-credentials p {
-  font-size: 11px;
-  line-height: 1.8;
-  margin: 6px 0;
-  color: var(--neutral-text, #8b9db6);
-}
-.demo-credentials code {
-  color: #547bb6;
-}
-.demo-credentials small {
-  font-size: 9px;
-  color: var(--neutral-text, #a1afc2);
-}
-.login-copyright {
-  position: absolute;
-  bottom: 24px;
-  color: var(--neutral-text, #b0bac9);
-  font-size: 10px;
-}
 @media (min-width: 1500px) {
   .main-content {
     padding: 36px 40px;
@@ -1409,9 +1221,6 @@ td .wrap-cell {
   }
   .detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .login-story h1 {
-    font-size: 36px;
   }
   .page-heading {
     align-items: flex-start;
@@ -1540,28 +1349,6 @@ td .wrap-cell {
   }
   .bar-chart > div {
     gap: 12px;
-  }
-  .login-story {
-    display: none;
-  }
-  .login-screen {
-    display: block;
-  }
-  .login-form-side {
-    min-height: 100vh;
-    padding: 45px 25px;
-  }
-  .login-form-wrap h2 {
-    font-size: 29px;
-  }
-  .login-form-wrap:before {
-    content: "C.S.OTALLER";
-    display: block;
-    font-weight: 800;
-    letter-spacing: 1px;
-    font-size: 20px;
-    color: var(--neutral-text, #213b60);
-    margin-bottom: 40px;
   }
   .header-right > .header-divider,
   .header-right > svg {
@@ -2121,88 +1908,6 @@ td .wrap-cell {
   color: var(--neutral-text, #8b9eb7);
   margin-bottom: 25px;
 }
-.reminder-preferences {
-  border: 0;
-  margin: 0;
-  padding: 22px;
-  min-width: 0;
-}
-.reminder-preferences legend {
-  font-size: 13px;
-  font-weight: 700;
-  color: #3b577e;
-  padding: 0;
-}
-.reminder-preferences > p {
-  font-size: 12px;
-  color: var(--neutral-text, #8699b1);
-  margin-bottom: 18px;
-}
-.channel-options {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-.channel-options label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #dce6f4;
-  padding: 15px;
-  border-radius: 8px;
-  flex: 1;
-  min-width: 185px;
-  cursor: pointer;
-  color: #587aa9;
-  font-size: 12px;
-}
-.consent-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 12px;
-  color: var(--neutral-text, #627c9c);
-  margin: 20px 0 10px;
-}
-.consent-check input {
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-.reminder-preferences > small {
-  font-size: 11px;
-  color: var(--neutral-text, #93a3b8);
-}
-.message-preview {
-  margin: 0 22px 22px;
-  padding: 22px;
-  border: 1px solid #dfebfa;
-  background: var(--neutral-surface, #f6f9ff);
-  border-radius: 10px;
-}
-.message-preview > p {
-  margin: 12px 0;
-  font-size: 12px;
-  color: var(--neutral-text, #7188a8);
-  overflow-wrap: anywhere;
-}
-.message-preview blockquote {
-  margin: 20px 0;
-  border-left: 3px solid #75a0eb;
-  padding: 18px;
-  background: var(--neutral-surface, white);
-  border-radius: 0 8px 8px 0;
-  font-size: 13px;
-  line-height: 1.8;
-  color: var(--neutral-text, #496386);
-  overflow-wrap: anywhere;
-}
-.simulation-result {
-  background: var(--neutral-surface, #e5f4ed);
-  padding: 12px;
-  border-radius: 7px;
-  color: #3c8567 !important;
-}
 .qr-sticker {
   box-sizing: border-box;
   width: 80mm;
@@ -2353,16 +2058,6 @@ td .wrap-cell {
   }
   .portal-vehicle-card {
     padding: 23px;
-  }
-  .channel-options {
-    flex-direction: column;
-  }
-  .message-preview {
-    padding: 16px;
-    margin: 0 16px 18px;
-  }
-  .reminder-preferences {
-    padding: 18px;
   }
   .qr-content .row-actions {
     flex-wrap: wrap;

@@ -17,7 +17,7 @@ import {
   Breadcrumb,
   EmptyState,
 } from "@/components/ui/primitives";
-import { DeleteClientDialog } from "./DeleteClientDialog";
+import { DeleteClientDialog } from "../actions/DeleteClientDialog";
 import { ClientCard } from "./ClientCard";
 import { ClientVehicles } from "../vehicles/ClientVehicles";
 import { ClientHistory } from "../history/ClientHistory";

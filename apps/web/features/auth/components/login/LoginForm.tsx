@@ -1,4 +1,5 @@
 "use client";
+import styles from "./LoginForm.module.css";
 import { useState, FormEvent } from "react";
 import { Wrench, ArrowRight, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -31,8 +32,8 @@ export function LoginForm({ workshopId = "" }: { workshopId?: string }) {
     }
   }
   return (
-    <div className="login-screen">
-      <section className="login-story">
+    <div className={styles.loginScreen}>
+      <section className={styles.loginStory}>
         <div className="brand">
           <span className="brand-icon">
             <Wrench />
@@ -54,16 +55,16 @@ export function LoginForm({ workshopId = "" }: { workshopId?: string }) {
             Un espacio de trabajo para cuidar de tus clientes, tu equipo y cada
             reparación.
           </p>
-          <div className="login-graphic">
+          <div className={styles.loginGraphic}>
             <div className="graphic-line" />
             <Wrench size={72} />
-            <div className="graphic-tag">ORDEN · PRECISIÓN · CONFIANZA</div>
+            <div className={styles.graphicTag}>ORDEN · PRECISIÓN · CONFIANZA</div>
           </div>
         </div>
         <small>Software de gestión automotriz</small>
       </section>
-      <section className="login-form-side">
-        <div className="login-form-wrap">
+      <section className={styles.loginFormSide}>
+        <div className={styles.loginFormWrap}>
           <span className="demo-label">
             {live ? "ACCESO AL TALLER" : "ENTORNO DEMO"}
           </span>
@@ -94,7 +95,7 @@ export function LoginForm({ workshopId = "" }: { workshopId?: string }) {
                 </p>
               </details>
             )}
-            <div className="login-options">
+            <div className={styles.loginOptions}>
               <label>
                 <input type="checkbox" name="remember" /> Recordarme
               </label>
@@ -118,12 +119,12 @@ export function LoginForm({ workshopId = "" }: { workshopId?: string }) {
                 {error}
               </p>
             )}
-            <button className="button primary login-submit" disabled={busy}>
+            <button className={"button primary " + styles.loginSubmit} disabled={busy}>
               {busy ? "Ingresando…" : "Iniciar sesión"} <ArrowRight size={18} />
             </button>
           </form>
           {!live && (
-            <div className="demo-credentials">
+            <div className={styles.demoCredentials}>
               <ShieldCheck size={19} />
               <div>
                 <strong>Accesos de demostración</strong>
@@ -151,7 +152,7 @@ export function LoginForm({ workshopId = "" }: { workshopId?: string }) {
             </a>
           )}
         </div>
-        <small className="login-copyright">© 2026 C.S.OTALLER</small>
+        <small className={styles.loginCopyright}>© 2026 C.S.OTALLER</small>
       </section>
     </div>
   );

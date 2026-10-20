@@ -1,4 +1,5 @@
 "use client";
+import styles from "./WorkshopRegistrationForm.module.css";
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { Field, Panel, PageHeading } from "@/components/ui/primitives";
@@ -33,7 +34,7 @@ export function WorkshopRegistrationForm() {
     }
   }
   return (
-    <main className="main-content" style={{ maxWidth: 900, margin: "auto" }}>
+    <main className={"main-content " + styles.registrationPage}>
       <PageHeading
         title="Registra tu taller"
         description="Crea tu espacio de trabajo y una cuenta de administrador."

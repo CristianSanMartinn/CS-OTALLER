@@ -1,4 +1,5 @@
 "use client";
+import reminderStyles from "./Reminders.module.css";
 import { FormEvent, useState } from "react";
 import { apiRequest } from "@/lib/http";
 import { latestMaintenance } from "@/features/mantenciones/services/reminderService";
@@ -194,7 +195,7 @@ export function ClientWhatsAppSettings({ client }: { client: Customer }) {
             Preparar mensaje de WhatsApp
           </button>
           {draft && (
-            <div className="message-preview">
+            <div className={reminderStyles.messagePreview}>
               <blockquote>{draft.text}</blockquote>
               <a
                 className="button primary"

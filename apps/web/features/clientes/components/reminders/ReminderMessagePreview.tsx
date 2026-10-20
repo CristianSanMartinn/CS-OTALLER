@@ -1,4 +1,6 @@
 "use client";
+import styles from "./ReminderMessagePreview.module.css";
+import reminderStyles from "./Reminders.module.css";
 import { useState } from "react";
 import { Customer } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
@@ -68,7 +70,7 @@ export function ReminderMessagePreview({ client }: { client: Customer }) {
               <option value="whatsapp">WhatsApp</option>
             </SelectField>
           </div>
-          <div className="message-preview">
+          <div className={reminderStyles.messagePreview}>
             <span className="demo-label">
               BORRADOR · {channel === "email" ? "CORREO" : "WHATSAPP"}
             </span>
@@ -106,7 +108,7 @@ export function ReminderMessagePreview({ client }: { client: Customer }) {
               Simular envío · no envía
             </button>
             {simulation && (
-              <p role="status" className="simulation-result">
+              <p role="status" className={styles.simulationResult}>
                 {simulation}
               </p>
             )}

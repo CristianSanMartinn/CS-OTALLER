@@ -1,0 +1,68 @@
+.reminderPreferences {
+  border: 0;
+  margin: 0;
+  padding: 22px;
+  min-width: 0;
+}
+
+.reminderPreferences legend {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3b577e;
+  padding: 0;
+}
+
+.reminderPreferences > p {
+  font-size: 12px;
+  color: var(--neutral-text, #8699b1);
+  margin-bottom: 18px;
+}
+
+.channelOptions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.channelOptions label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dce6f4;
+  padding: 15px;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 185px;
+  cursor: pointer;
+  color: #587aa9;
+  font-size: 12px;
+}
+
+.consentCheck {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--neutral-text, #627c9c);
+  margin: 20px 0 10px;
+}
+
+.consentCheck input {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.reminderPreferences > small {
+  font-size: 11px;
+  color: var(--neutral-text, #93a3b8);
+}
+
+@media (max-width: 600px) {
+  .channelOptions {
+    flex-direction: column;
+  }
+  .reminderPreferences {
+    padding: 18px;
+  }
+}

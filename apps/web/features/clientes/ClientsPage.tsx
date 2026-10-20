@@ -5,11 +5,11 @@ import { Customer } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
-import { DeleteClientDialog } from "./details/DeleteClientDialog";
-import { ClientSearch } from "./filters/ClientSearch";
-import { ClientFilters } from "./filters/ClientFilters";
-import { ClientsTable } from "./list/ClientsTable";
-import { ClientForm } from "./forms/ClientForm";
+import { DeleteClientDialog } from "./components/actions/DeleteClientDialog";
+import { ClientSearch } from "./components/filters/ClientSearch";
+import { ClientFilters } from "./components/filters/ClientFilters";
+import { ClientsTable } from "./components/list/ClientsTable";
+import { ClientForm } from "./components/forms/ClientForm";
 export function ClientsPage() {
   const { data, notify, user } = useStore();
   const [deleting, setDeleting] = useState<Customer | null>(null);
