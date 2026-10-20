@@ -4,6 +4,7 @@ import { VehicleBrandLogo } from "./VehicleBrandLogo";
 import type { PortalVehicle } from "../../types/vehicle.types";
 import type { PortalPhoto } from "../../types/portal.types";
 import { km } from "@/utils/format";
+import styles from "./VehicleSelector.module.css";
 export function VehicleSelector({
   vehicle,
   vehicles,
@@ -17,10 +18,10 @@ export function VehicleSelector({
 }) {
   return (
     <section
-      className="vehicle-selector-card"
+      className={styles.vehicleSelectorCard}
       aria-label="Vehículo seleccionado"
     >
-      <div className="vehicle-selector-info">
+      <div className={`${styles.vehicleSelectorInfo} vehicle-selector-info`}>
         <VehicleBrandLogo brand={vehicle.brand} />
         <div>
           <h2>
@@ -30,9 +31,9 @@ export function VehicleSelector({
             {vehicle.year} · {km(vehicle.mileage)}
           </p>
         </div>
-        <strong className="vehicle-selector-plate">{vehicle.plate}</strong>
+        <strong className={styles.vehicleSelectorPlate}>{vehicle.plate}</strong>
       </div>
-      <div className="vehicle-selector-photo">
+      <div className={styles.vehicleSelectorPhoto}>
         {photo ? (
           <Image
             src={photo.url}
@@ -46,7 +47,7 @@ export function VehicleSelector({
         )}
       </div>
       {vehicles.length > 1 && (
-        <label className="vehicle-switcher">
+        <label className={styles.vehicleSwitcher}>
           Cambiar vehículo
           <select
             aria-label="Cambiar vehículo"

@@ -1,3 +1,4 @@
+import portalStyles from "../../Portal.module.css";
 import { CheckCircle2, Clock3, AlertCircle } from "lucide-react";
 export function MaintenanceStatusBadge({
   label,
@@ -13,7 +14,7 @@ export function MaintenanceStatusBadge({
         ? AlertCircle
         : Clock3;
   return (
-    <span className={"public-maintenance-status " + tone}>
+    <span className={portalStyles.publicMaintenanceStatus + " " + tone}>
       <Icon size={15} />
       {label}
     </span>

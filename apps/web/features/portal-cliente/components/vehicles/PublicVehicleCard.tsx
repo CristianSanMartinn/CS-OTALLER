@@ -1,3 +1,4 @@
+import portalStyles from "../../Portal.module.css";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -15,6 +16,7 @@ import {
 } from "../../services/vehicleMaintenanceSummary";
 import { clientVehiclePath } from "../../services/clientAccessService";
 import { dateLabel, km } from "@/utils/format";
+import styles from "./PublicVehicleCard.module.css";
 interface PublicVehicle {
   id: string;
   plate: string;
@@ -51,14 +53,14 @@ export function PublicVehicleCard({
   return (
     <Link
       href={clientVehiclePath(token, v.id)}
-      className="public-vehicle-card"
+      className={styles.publicVehicleCard}
       aria-label={
         "Ver historial de " + v.plate + " · " + v.brand + " " + v.model
       }
     >
-      <div className="public-vehicle-top">
+      <div className={styles.publicVehicleTop}>
         <VehicleBrandLogo brand={v.brand} />
-        <div className="public-vehicle-name">
+        <div className={styles.publicVehicleName}>
           <h3>{v.plate}</h3>
           <strong>
             {v.brand} {v.model}
@@ -67,15 +69,15 @@ export function PublicVehicleCard({
             {v.year} · {km(v.mileage)}
           </p>
         </div>
-        <div className="public-vehicle-right">
+        <div className={styles.publicVehicleRight}>
           <ChevronRight size={22} />
-          <span className={"public-maintenance-status " + summary.tone}>
+          <span className={portalStyles.publicMaintenanceStatus + " " + summary.tone}>
             <Icon size={15} />
             {summary.status}
           </span>
         </div>
       </div>
-      <div className="public-vehicle-metrics">
+      <div className={styles.publicVehicleMetrics}>
         <div>
           <CalendarDays size={19} />
           <span>Última mantención</span>
@@ -97,7 +99,7 @@ export function PublicVehicleCard({
           )}
         </div>
       </div>
-      <span className="public-vehicle-action">
+      <span className={styles.publicVehicleAction}>
         Ver historial y próxima mantención <ChevronRight size={17} />
       </span>
     </Link>

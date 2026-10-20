@@ -1,3 +1,4 @@
+import portalStyles from "../../Portal.module.css";
 import type { ReactNode } from "react";
 export function PortalSection({
   title,
@@ -11,8 +12,8 @@ export function PortalSection({
   className?: string;
 }) {
   return (
-    <section className={"vehicle-portal-section " + className}>
-      <div className="vehicle-portal-section-heading">
+    <section className={portalStyles.portalSection + " " + className}>
+      <div className={portalStyles.portalSectionHeading}>
         <h2>{title}</h2>
         {action}
       </div>

@@ -1,3 +1,4 @@
+import portalStyles from "../../Portal.module.css";
 import {
   CalendarCheck,
   ChevronRight,
@@ -11,6 +12,7 @@ import { dateLabel, km } from "@/utils/format";
 import type { PortalMaintenance } from "../../types/maintenance.types";
 import type { PortalPhoto } from "../../types/portal.types";
 import { PortalSection } from "../layout/PortalSection";
+import styles from "./LastMaintenanceCard.module.css";
 export function LastMaintenanceCard({
   record,
   others,
@@ -29,16 +31,16 @@ export function LastMaintenanceCard({
       title="Última mantención"
       action={
         record ? (
-          <span className="portal-muted">{dateLabel(record.date)}</span>
+          <span className={portalStyles.portalMuted}>{dateLabel(record.date)}</span>
         ) : undefined
       }
     >
       {record ? (
         <button
-          className="last-maintenance-button"
+          className={styles.lastMaintenanceButton}
           onClick={() => onOpen(record.id)}
         >
-          <span className="last-maintenance-visual">
+          <span className={styles.lastMaintenanceVisual}>
             {photo ? (
               <Image
                 src={photo.url}
@@ -51,7 +53,7 @@ export function LastMaintenanceCard({
               <Droplets size={65} strokeWidth={1.5} />
             )}
           </span>
-          <span className="last-maintenance-info">
+          <span className={styles.lastMaintenanceInfo}>
             <strong>{record.type}</strong>
             <span>
               <Gauge size={17} />
@@ -73,19 +75,19 @@ export function LastMaintenanceCard({
           <ChevronRight size={23} />
         </button>
       ) : (
-        <p className="portal-muted">
+        <p className={portalStyles.portalMuted}>
           Todavía no hay mantenciones registradas para este vehículo.
         </p>
       )}
       {others.length > 0 && (
         <>
-          <div className="other-services-heading">
+          <div className={styles.otherServicesHeading}>
             <h3>Otros servicios registrados</h3>
-            <button onClick={onHistory} className="portal-text-button">
+            <button onClick={onHistory} className={portalStyles.portalTextButton}>
               Ver todos
             </button>
           </div>
-          <div className="other-services-grid">
+          <div className={styles.otherServicesGrid}>
             {others.slice(0, 3).map((m) => (
               <button key={m.id} onClick={() => onOpen(m.id)}>
                 <Wrench size={25} />

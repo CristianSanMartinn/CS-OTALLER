@@ -1,4 +1,5 @@
 "use client";
+import portalStyles from "../../Portal.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -21,6 +22,7 @@ import { CustomerWorkHistory } from "../history/CustomerWorkHistory";
 import { ServicePhotos } from "../photos/ServicePhotos";
 import { CustomerReminders } from "../reminders/CustomerReminders";
 import { dateLabel, km } from "@/utils/format";
+import styles from "./VehicleDetail.module.css";
 export function VehicleDetail({
   view,
   token,
@@ -79,12 +81,12 @@ export function VehicleDetail({
   return (
     <div
       className={
-        "vehicle-detail-portal service-visit-portal portal-vehicle-transition" +
+        `${portalStyles.vehicleDetailPortal} ${styles.serviceVisitPortal} service-visit-portal ${styles.portalVehicleTransition}` +
         (switching ? " is-switching" : "")
       }
     >
-      <main className="vehicle-detail-content">
-        <div ref={heading} tabIndex={-1} className="portal-heading-anchor">
+      <main className={portalStyles.vehicleDetailContent}>
+        <div ref={heading} tabIndex={-1} className={styles.portalHeadingAnchor}>
           <PortalHeader
             workshop={view.workshop}
             home={home}
@@ -100,7 +102,7 @@ export function VehicleDetail({
           />
         </div>
         {maintenance ? (
-          <div className="maintenance-detail-layout">
+          <div className={styles.maintenanceDetailLayout}>
             <MaintenanceSummaryCard record={maintenance} order={order} />
             <div>
               <ServicePhotos photos={order?.photos ?? []} service />
@@ -120,7 +122,7 @@ export function VehicleDetail({
               onChange={switchVehicle}
             />
             <nav
-              className="vehicle-portal-tabs"
+              className={styles.vehiclePortalTabs}
               aria-label="Secciones del vehículo"
             >
               {(
@@ -141,7 +143,7 @@ export function VehicleDetail({
               ))}
             </nav>
             {tab === "summary" && (
-              <div className="vehicle-summary-layout">
+              <div className={styles.vehicleSummaryLayout}>
                 <VehicleServiceOverview
                   view={view}
                   records={records}
@@ -160,7 +162,7 @@ export function VehicleDetail({
                   onHistory={() => showTab("history")}
                 />
 
-                <aside className="portal-appointment-callout">
+                <aside className={styles.portalAppointmentCallout}>
                   <CalendarDays size={36} />
                   <div>
                     <h2>¿Necesitas una mantención?</h2>
@@ -181,13 +183,13 @@ export function VehicleDetail({
               </div>
             )}
             {tab === "history" && (
-              <div className="vehicle-history-layout">
+              <div className={styles.vehicleHistoryLayout}>
                 <PortalSection title="Historial de mantenciones">
                   {records.length ? (
                     records.map((m) => (
                       <button
                         key={m.id}
-                        className="maintenance-history-row"
+                        className={styles.maintenanceHistoryRow}
                         onClick={() => open(m.id)}
                       >
                         <Wrench />
@@ -201,7 +203,7 @@ export function VehicleDetail({
                       </button>
                     ))
                   ) : (
-                    <p className="portal-muted">
+                    <p className={portalStyles.portalMuted}>
                       No hay mantenciones registradas todavía.
                     </p>
                   )}
@@ -212,7 +214,7 @@ export function VehicleDetail({
             {tab === "photos" && <ServicePhotos photos={view.photos} />}
           </>
         )}
-        <footer className="vehicle-detail-footer">
+        <footer className={styles.vehicleDetailFooter}>
           <strong>{view.workshop.name}</strong>
           <span>{view.workshop.hours}</span>
           <p>

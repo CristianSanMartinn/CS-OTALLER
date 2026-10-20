@@ -3,6 +3,7 @@ import { useVehicleDetail } from "../../hooks/useVehicleDetail";
 import { PortalSection } from "../layout/PortalSection";
 import { PortalEntrance } from "../layout/PortalLoadingScreen";
 import { VehicleDetail } from "./VehicleDetail";
+import portalStyles from "../../Portal.module.css";
 export function CustomerPortal({
   token,
   clientVehicleId,
@@ -12,8 +13,8 @@ export function CustomerPortal({
 }) {
   const result = useVehicleDetail(token, clientVehicleId);
   const content = !result.view ? (
-    <div className="vehicle-detail-portal">
-      <main className="vehicle-detail-content">
+    <div className={portalStyles.vehicleDetailPortal}>
+      <main className={portalStyles.vehicleDetailContent}>
         <PortalSection
           title={result.loading ? "Cargando historial…" : "Ficha no disponible"}
         >

@@ -1,0 +1,80 @@
+.portalServicePhotos :global(.panel) {
+  background: var(--neutral-surface, #fff);
+  color: var(--neutral-text, #10213a);
+  border-radius: 19px;
+  border: 1px solid #dce6ef;
+  overflow: hidden;
+}
+.portalServicePhotos :global(.panel-heading) h2 {
+  color: var(--neutral-text, #10213a);
+}
+.portalServicePhotos :global(.photo-grid) {
+  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.portalServicePhotos :global(.photo-grid) :global(.empty-state) {
+  grid-column: 1/-1;
+}
+@media (max-width: 600px) {
+  .portalServicePhotos :global(.panel-heading) {
+    flex-wrap: wrap;
+  }
+}
+.portalPhotosHorizontal {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 8px;
+}
+.portalPhotosHorizontal figure {
+  margin: 0;
+  flex: 0 0 calc((100% - 24px) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.portalPhotosHorizontal :global(.image-preview-trigger) {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  background: var(--neutral-surface, #eef4fa);
+}
+.portalPhotosHorizontal img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+.portalPhotosHorizontal figcaption {
+  color: var(--neutral-text, #59718a);
+  font-size: 11px;
+  margin-top: 8px;
+}
+.portalPhotosEmpty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: var(--neutral-text, #59718a);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.portalPhotoBack {
+  color: #82caff;
+  background: none;
+  border: 0;
+  padding: 0 0 14px;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .portalPhotosHorizontal {
+    gap: 9px;
+  }
+  .portalPhotosHorizontal figure {
+    flex-basis: calc((100% - 18px) / 3);
+  }
+  .portalPhotosHorizontal img {
+    height: 100px;
+  }
+}

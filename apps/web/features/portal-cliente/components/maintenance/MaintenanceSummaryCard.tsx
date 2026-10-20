@@ -1,3 +1,5 @@
+import maintenanceStyles from "./Maintenance.module.css";
+import portalStyles from "../../Portal.module.css";
 import { isEngineOil } from "@/features/shared/services/interventions";
 import { Droplets, CalendarDays, Gauge, Package, Wrench } from "lucide-react";
 import type { PortalMaintenance } from "../../types/maintenance.types";
@@ -6,6 +8,7 @@ import { dateLabel, km } from "@/utils/format";
 import { PortalSection } from "../layout/PortalSection";
 import { WorkPerformedList } from "../history/WorkPerformedList";
 import { interventionLabel } from "@/features/shared/services/interventions";
+import styles from "./MaintenanceSummaryCard.module.css";
 export function MaintenanceSummaryCard({
   record: m,
   order,
@@ -19,13 +22,13 @@ export function MaintenanceSummaryCard({
     <PortalSection
       title={oil && m.filter ? m.type + " y filtro" : m.type}
       action={
-        <span className="maintenance-record-badge">
+        <span className={styles.maintenanceRecordBadge}>
           {completed ? "Completado" : "Registrada"}
         </span>
       }
       className="maintenance-detail-card"
     >
-      <div className="maintenance-detail-meta">
+      <div className={styles.maintenanceDetailMeta}>
         <span>
           <CalendarDays size={18} />
           {dateLabel(m.date)}
@@ -39,9 +42,9 @@ export function MaintenanceSummaryCard({
           Mantención registrada
         </span>
       </div>
-      <p className="portal-muted">{interventionLabel(m)}</p>
+      <p className={portalStyles.portalMuted}>{interventionLabel(m)}</p>
       {!!m.workDetails?.length && (
-        <ul className="public-intervention-details">
+        <ul className={portalStyles.publicInterventionDetails}>
           {m.workDetails.map((detail) => (
             <li key={detail}>{detail}</li>
           ))}
@@ -50,9 +53,9 @@ export function MaintenanceSummaryCard({
       {oil && (
         <>
           <h3>Productos utilizados</h3>
-          <div className="maintenance-products">
+          <div className={styles.maintenanceProducts}>
             <article>
-              <span className="product-illustration">
+              <span className={styles.productIllustration}>
                 <Droplets size={58} />
               </span>
               <h4>Aceite de motor</h4>
@@ -67,7 +70,7 @@ export function MaintenanceSummaryCard({
               </p>
             </article>
             <article>
-              <span className="product-illustration">
+              <span className={styles.productIllustration}>
                 <Package size={58} />
               </span>
               <h4>Filtro de aceite</h4>
@@ -81,7 +84,7 @@ export function MaintenanceSummaryCard({
       {order ? (
         <WorkPerformedList services={order.services} />
       ) : (
-        <p className="portal-muted">
+        <p className={portalStyles.portalMuted}>
           {m.type} registrada por el taller. No hay una orden asociada con más
           detalles.
         </p>
@@ -89,7 +92,7 @@ export function MaintenanceSummaryCard({
       {order?.parts.length ? (
         <>
           <h3>Repuestos del servicio</h3>
-          <ul className="maintenance-parts">
+          <ul className={styles.maintenanceParts}>
             {order.parts.map((p) => (
               <li key={p.id}>
                 {p.quantity} × {p.name} {p.brand}
@@ -98,9 +101,9 @@ export function MaintenanceSummaryCard({
           </ul>
         </>
       ) : null}
-      <div className="maintenance-next-strip">
+      <div className={styles.maintenanceNextStrip}>
         <h3>Próximo servicio</h3>
-        <div className="maintenance-metric-pair">
+        <div className={maintenanceStyles.metricPair}>
           <div>
             <Gauge />
             <span>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Wrench } from "lucide-react";
 import type { PortalWorkshop } from "../../types/portal.types";
+import styles from "./PortalHeader.module.css";
 export function PortalHeader({
   workshop,
   home,
@@ -14,17 +15,17 @@ export function PortalHeader({
   onBack?: () => void;
 }) {
   return (
-    <header className={"vehicle-portal-header" + (detail ? " is-detail" : "")}>
+    <header className={styles.vehiclePortalHeader + (detail ? " is-detail" : "")}>
       {onBack ? (
-        <button className="portal-return" onClick={onBack}>
+        <button className={styles.portalReturn} onClick={onBack}>
           <ArrowLeft size={20} /> Volver al resumen
         </button>
       ) : (
-        <Link href={home} className="portal-return">
+        <Link href={home} className={styles.portalReturn}>
           <ArrowLeft size={20} /> Mis vehículos
         </Link>
       )}
-      <div className="vehicle-portal-brand">
+      <div className={styles.vehiclePortalBrand}>
         {workshop.logo ? (
           <Image
             src={workshop.logo}
@@ -41,7 +42,7 @@ export function PortalHeader({
           </strong>
         )}
       </div>
-      <div className="vehicle-portal-welcome">
+      <div className={styles.vehiclePortalWelcome}>
         <span>HISTORIAL DIGITAL DEL TALLER</span>
         <h1>
           {detail ? "Detalle de mantenimiento" : "Tu vehículo, en buenas manos"}

@@ -1,3 +1,5 @@
+import styles from "./WorkPerformedList.module.css";
+import portalStyles from "../../Portal.module.css";
 import { CheckCircle2, Clock3 } from "lucide-react";
 import type { PortalOrder } from "../../types/portal.types";
 import { interventionLabel } from "@/features/shared/services/interventions";
@@ -7,7 +9,7 @@ export function WorkPerformedList({
   services: PortalOrder["services"];
 }) {
   return services.length ? (
-    <ul className="performed-work-list">
+    <ul className={styles.performedWorkList}>
       {services.map((s) => (
         <li key={s.id}>
           {["Completado", "Finalizado"].includes(s.status) ? (
@@ -22,7 +24,7 @@ export function WorkPerformedList({
               {s.interventionType ? " · " + interventionLabel(s) : ""}
             </small>
             {!!s.workDetails?.length && (
-              <ul className="public-intervention-details">
+              <ul className={`${portalStyles.publicInterventionDetails} ${styles.nestedDetails}`}>
                 {s.workDetails.map((detail) => (
                   <li key={detail}>{detail}</li>
                 ))}
@@ -34,6 +36,6 @@ export function WorkPerformedList({
       ))}
     </ul>
   ) : (
-    <p className="portal-muted">Sin trabajos adicionales registrados.</p>
+    <p className={portalStyles.portalMuted}>Sin trabajos adicionales registrados.</p>
   );
 }

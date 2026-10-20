@@ -1,3 +1,5 @@
+import styles from "./CustomerReminders.module.css";
+import portalStyles from "../../Portal.module.css";
 import { CalendarClock } from "lucide-react";
 import type { PortalMaintenance } from "../../types/maintenance.types";
 import { vehicleMaintenanceSummary } from "../../services/vehicleMaintenanceSummary";
@@ -12,7 +14,7 @@ export function CustomerReminders({
   const summary = vehicleMaintenanceSummary(records, mileage);
   return (
     <PortalSection title="Recomendación del taller">
-      <div className="portal-care-note">
+      <div className={styles.portalCareNote}>
         <CalendarClock />
         <p>
           {summary.tone === "overdue"
@@ -22,7 +24,7 @@ export function CustomerReminders({
               : "Consulta los intervalos registrados y las indicaciones del taller para cuidar tu vehículo."}
         </p>
       </div>
-      <p className="portal-muted">
+      <p className={portalStyles.portalMuted}>
         Los avisos se calculan con los registros del taller. Esta pantalla no
         envía mensajes automáticos.
       </p>

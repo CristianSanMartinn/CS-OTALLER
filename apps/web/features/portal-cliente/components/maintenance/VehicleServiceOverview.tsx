@@ -1,3 +1,4 @@
+import portalStyles from "../../Portal.module.css";
 import { isEngineOil } from "@/features/shared/services/interventions";
 import {
   Droplets,
@@ -11,6 +12,7 @@ import type { PortalView } from "../../types/portal.types";
 import type { PortalMaintenance } from "../../types/maintenance.types";
 import { MaintenanceProgress } from "./MaintenanceProgress";
 import { km, dateLabel } from "@/utils/format";
+import styles from "./VehicleServiceOverview.module.css";
 export function VehicleServiceOverview({
   view,
   records,
@@ -100,25 +102,25 @@ export function VehicleServiceOverview({
     },
   ];
   return (
-    <section className="service-overview" aria-label="Resumen de servicios">
-      <div className="service-overview-heading">
-        <span className="service-record-label">CUIDADO Y MANTENIMIENTO</span>
+    <section className={styles.serviceOverview} aria-label="Resumen de servicios">
+      <div className={styles.serviceOverviewHeading}>
+        <span className={portalStyles.serviceRecordLabel}>CUIDADO Y MANTENIMIENTO</span>
         <h2>Todo el historial, en un solo lugar</h2>
       </div>
-      <div className="service-overview-grid">
+      <div className={styles.serviceOverviewGrid}>
         {cards.map(({ key, label, value, detail, Icon, action }) => {
           const content = (
             <>
-              <span className={"service-card-icon " + key}>
+              <span className={`${styles.serviceCardIcon} ` + key}>
                 <Icon size={30} />
               </span>
-              <span className="service-card-copy">
+              <span className={styles.serviceCardCopy}>
                 <small>{label}</small>
                 <strong>{value}</strong>
                 <span>{detail}</span>
               </span>
               {action && (
-                <ChevronRight size={20} className="service-card-arrow" />
+                <ChevronRight size={20} className={styles.serviceCardArrow} />
               )}
             </>
           );
@@ -126,20 +128,20 @@ export function VehicleServiceOverview({
             <button
               type="button"
               key={key}
-              className="service-summary-card"
+              className={styles.serviceSummaryCard}
               onClick={action}
             >
               {content}
             </button>
           ) : (
-            <div key={key} className="service-summary-card">
+            <div key={key} className={styles.serviceSummaryCard}>
               {content}
             </div>
           );
         })}
       </div>
-      <article className={"service-next-notice " + tone}>
-        <div className="service-notice-title">
+      <article className={`${styles.serviceNextNotice} ` + tone}>
+        <div className={styles.serviceNoticeTitle}>
           <span>
             <BellRing size={23} />
           </span>
@@ -174,7 +176,7 @@ export function VehicleServiceOverview({
             />
             <button
               type="button"
-              className="service-details-button"
+              className={styles.serviceDetailsButton}
               onClick={() => onOpen(next.id)}
             >
               Ver detalles del mantenimiento
@@ -187,7 +189,7 @@ export function VehicleServiceOverview({
             programar los siguientes cuidados de tu vehículo.
           </p>
         )}
-        <small className="service-notice-footnote">
+        <small className={styles.serviceNoticeFootnote}>
           El cálculo utiliza el último kilometraje registrado. No estima cuánto
           conduces ni envía mensajes automáticos.
         </small>

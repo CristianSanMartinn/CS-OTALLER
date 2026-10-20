@@ -1,0 +1,41 @@
+.brandEmblem {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  background: var(--neutral-surface, #edf5ff);
+  border-radius: 50%;
+  color: var(--neutral-text, #0b2844);
+}
+.brandEmblem img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+@media (max-width: 360px) {
+  .brandEmblem {
+    width: 43px;
+    height: 43px;
+  }
+}
+@media (max-width: 600px) {
+  :global(.vehicle-selector-info) .brandEmblem {
+    width: 43px;
+    height: 43px;
+  }
+  :global(.vehicle-selector-info) .brandEmblem img {
+    width: 30px;
+    height: 30px;
+  }
+}
+:global(.service-vehicle-identity) .brandEmblem {
+  position: absolute;
+  right: 0;
+  bottom: 5px;
+  background: #ffffffed;
+  border-radius: 12px;
+  width: 55px;
+  height: 55px;
+  padding: 8px;
+}

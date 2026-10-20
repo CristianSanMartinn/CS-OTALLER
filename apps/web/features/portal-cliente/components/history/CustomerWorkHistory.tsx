@@ -1,3 +1,4 @@
+import portalStyles from "../../Portal.module.css";
 import type { PortalOrder } from "../../types/portal.types";
 import { PortalSection } from "../layout/PortalSection";
 import { WorkHistoryItem } from "./WorkHistoryItem";
@@ -9,7 +10,7 @@ export function CustomerWorkHistory({ orders }: { orders: PortalOrder[] }) {
           .sort((a, b) => b.date.localeCompare(a.date))
           .map((o) => <WorkHistoryItem key={o.id} order={o} />)
       ) : (
-        <p className="portal-muted">Todavía no hay órdenes registradas.</p>
+        <p className={portalStyles.portalMuted}>Todavía no hay órdenes registradas.</p>
       )}
     </PortalSection>
   );

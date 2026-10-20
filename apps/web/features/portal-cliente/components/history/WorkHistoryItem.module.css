@@ -1,0 +1,41 @@
+.workHistoryItem {
+  border: 1px solid #e3ebf2;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.workHistoryItem summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.workHistoryItem summary::-webkit-details-marker {
+  display: none;
+}
+.workHistoryItem summary > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.workHistoryItem summary strong {
+  display: block;
+  font-size: 14px;
+}
+.workHistoryItem summary small {
+  display: block;
+  font-size: 11px;
+  color: var(--neutral-text, #59718a);
+  margin-top: 6px;
+}
+.workHistoryBody {
+  padding: 0 16px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--neutral-text, #3f5972);
+}
+@media (max-width: 600px) {
+  .workHistoryItem summary {
+    flex-wrap: wrap;
+  }
+}

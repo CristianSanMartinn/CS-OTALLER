@@ -1,0 +1,200 @@
+.portalMuted {
+  color: var(--neutral-text, #59718a);
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .portalSectionHeading > .portalMuted {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
+:global(.service-visit-portal) .portalMuted {
+  color: #a0b4c8;
+}
+
+.publicInterventionDetails {
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.publicMaintenanceStatus {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  border-radius: 9px;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+.publicMaintenanceStatus:global(.current) {
+  background: #dcf8ec;
+  color: #00885f;
+}
+.publicMaintenanceStatus:global(.soon) {
+  background: #fff0d2;
+  color: #b66b00;
+}
+.publicMaintenanceStatus:global(.overdue) {
+  background: var(--neutral-surface, #fee9e7);
+  color: #b93d32;
+}
+.publicMaintenanceStatus:global(.neutral) {
+  background: var(--neutral-surface, #edf1f7);
+  color: var(--neutral-text, #566579);
+}
+@media (max-width: 360px) {
+  .publicMaintenanceStatus {
+    font-size: 10px;
+    padding: 5px;
+  }
+}
+@media (min-width: 741px) {
+  .publicMaintenanceStatus {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+}
+@media (max-width: 600px) {
+  :global(.maintenance-card-title) .publicMaintenanceStatus {
+    font-size: 10px;
+    padding: 6px;
+  }
+}
+@media (max-width: 360px) {
+  :global(.maintenance-card-title) .publicMaintenanceStatus {
+    margin-left: 57px;
+  }
+}
+.publicMaintenanceStatus:global(.current) {
+  animation: portal-status-enter 300ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .publicMaintenanceStatus:global(.current) {
+    animation: none !important;
+  }
+}
+@keyframes portal-status-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.portalTextButton {
+  background: none;
+  border: 0;
+  color: #007aff;
+  font-size: 13px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.portalTextButton > svg {
+  vertical-align: middle;
+}
+
+.serviceRecordLabel {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: #88a9bf;
+}
+
+.portalSectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) {
+  .portalSectionHeading {
+    margin-bottom: 17px;
+  }
+}
+
+.portalSection {
+  background: var(--neutral-surface, #fff);
+  color: var(--neutral-text, #0b1930);
+  border: 1px solid #dce6ef;
+  border-radius: 19px;
+  padding: 24px;
+  box-shadow: 0 7px 20px #0002;
+  min-width: 0;
+}
+.portalSection :where(h2) {
+  font-size: 20px;
+  line-height: 1.3;
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+.portalSection :where(h3) {
+  font-size: 17px;
+  margin: 24px 0 15px;
+}
+@media (max-width: 600px) {
+  .portalSection {
+    padding: 18px;
+    border-radius: 17px;
+  }
+}
+@media (max-width: 600px) {
+  .portalSection :where(h2) {
+    font-size: 18px;
+  }
+}
+.portalSection {
+  animation: var(--portal-section-animation, portal-card-enter 350ms ease-out both);
+}
+@media (prefers-reduced-motion: reduce) {
+  .portalSection {
+    animation: none !important;
+  }
+}
+:global(.service-visit-portal) .portalSection {
+  background: #111e2c;
+  border-color: #2c3e50;
+  color: #edf5ff;
+}
+:global(.service-visit-portal) .portalSection :is(h2, h3, h4) {
+  color: #edf5ff;
+}
+
+.vehicleDetailPortal {
+  min-height: 100dvh;
+  background:
+    linear-gradient(180deg, #020c1480, #06131deb 400px, #13222d),
+    url("/images/garage-backdrop.svg") center top/1400px 700px no-repeat,
+    #06131c;
+  color: #f5faff;
+  padding: 0 24px 32px;
+}
+.vehicleDetailContent {
+  max-width: 1120px;
+  margin: auto;
+}
+.vehicleDetailPortal button:focus-visible,
+.vehicleDetailPortal a:focus-visible {
+  outline: 3px solid #28bdfa;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .vehicleDetailPortal {
+    padding: 0 16px 24px;
+  }
+}
+@media (max-width: 360px) {
+  .vehicleDetailPortal {
+    padding-inline: 12px;
+  }
+}
+:global(.service-visit-portal) .vehicleDetailContent {
+  max-width: 1120px;
+}

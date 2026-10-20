@@ -1,0 +1,80 @@
+.maintenanceCardTitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.maintenanceCardTitle > div {
+  flex: 1;
+}
+.maintenanceCardTitle p {
+  margin: 0 0 5px;
+  font-size: 14px;
+}
+.maintenanceCardTitle h2 {
+  font-size: 25px;
+}
+.maintenanceIcon {
+  width: 58px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.maintenanceIcon:global(.amber) {
+  background: #fff0bf;
+  color: #f3a300;
+}
+.portalPrimaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 17px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #008aff, #0864f5);
+  color: white;
+  font-size: 16px;
+  margin-top: 18px;
+  font-weight: 650;
+}
+.portalPrimaryButton > svg:last-child {
+  margin-left: auto;
+}
+@media (max-width: 600px) {
+  .maintenanceCardTitle {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .maintenanceIcon {
+    width: 47px;
+    height: 54px;
+  }
+  .maintenanceCardTitle h2 {
+    font-size: 21px;
+  }
+  .maintenanceCardTitle p {
+    font-size: 12px;
+  }
+  .portalPrimaryButton {
+    font-size: 14px;
+    padding: 15px;
+    gap: 9px;
+  }
+}
+.maintenanceIcon > svg {
+  animation: portal-oil-drop 700ms ease-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .maintenanceIcon > svg {
+    animation: none !important;
+  }
+}
+@keyframes portal-oil-drop {
+  0% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: none;
+  }
+}

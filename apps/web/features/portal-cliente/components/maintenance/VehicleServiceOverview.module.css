@@ -1,0 +1,216 @@
+.serviceOverview {
+  grid-column: 1/-1;
+}
+.serviceOverviewHeading {
+  margin-bottom: 17px;
+}
+.serviceOverviewHeading h2 {
+  font-size: 21px;
+  margin: 7px 0;
+  color: #edf5ff;
+}
+.serviceOverviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.serviceSummaryCard {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  width: 100%;
+  padding: 22px;
+  text-align: left;
+  border: 1px solid #2b4154;
+  border-radius: 15px;
+  background: linear-gradient(120deg, #142534, #101b2a);
+  color: #edf5ff;
+  min-height: 130px;
+  box-shadow: inset 0 1px 0 #ffffff06;
+}
+button.serviceSummaryCard {
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+button.serviceSummaryCard:hover {
+  border-color: #38badf;
+  transform: translateY(-2px);
+}
+.serviceCardIcon {
+  height: 57px;
+  width: 57px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: #50d6ff;
+  background: #123d58;
+  border: 1px solid #276581;
+}
+.serviceCardIcon:global(.oil) {
+  color: #ffc965;
+  background: #44351c;
+  border-color: #80632d;
+}
+.serviceCardIcon:global(.filters) {
+  color: #79ddca;
+  background: #173d39;
+  border-color: #2a665c;
+}
+.serviceCardIcon:global(.history) {
+  color: #bca4ff;
+  background: #302c4c;
+  border-color: #575077;
+}
+.serviceCardCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.serviceCardCopy small {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  color: #90a9be;
+  font-weight: 700;
+}
+.serviceCardCopy strong {
+  font-size: 17px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.serviceCardCopy > span {
+  font-size: 12px;
+  color: #a5b6c8;
+  line-height: 1.5;
+}
+.serviceCardArrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #7899b2;
+}
+.serviceNextNotice {
+  padding: 25px;
+  border: 1px solid #275c52;
+  background: linear-gradient(130deg, #173830, #13222b);
+  border-radius: 17px;
+  margin-top: 20px;
+}
+.serviceNextNotice:global(.soon) {
+  background: linear-gradient(130deg, #34301b, #18242e);
+  border-color: #716039;
+}
+.serviceNextNotice:global(.overdue) {
+  background: linear-gradient(130deg, #3a2027, #19222e);
+  border-color: #7c4149;
+}
+.serviceNextNotice:global(.neutral) {
+  background: #15232f;
+  border-color: #31485b;
+}
+.serviceNoticeTitle {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.serviceNoticeTitle > span {
+  height: 48px;
+  width: 48px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #ffffff0b;
+  color: #68dfba;
+}
+:global(.soon) .serviceNoticeTitle > span {
+  color: #ffd36b;
+}
+:global(.overdue) .serviceNoticeTitle > span {
+  color: #ff8a93;
+}
+.serviceNoticeTitle small {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #9eb7bf;
+}
+.serviceNoticeTitle h3 {
+  font-size: 20px;
+  color: #e3fff4;
+  margin: 5px 0;
+  line-height: 1.35;
+}
+:global(.soon) .serviceNoticeTitle h3 {
+  color: #ffe090;
+}
+:global(.overdue) .serviceNoticeTitle h3 {
+  color: #ffabb3;
+}
+.serviceNextNotice > p {
+  font-size: 14px;
+  color: #c1d1de;
+  line-height: 1.85;
+  margin: 20px 0;
+}
+.serviceDetailsButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  color: white;
+  background: #0879ef;
+  border: 1px solid #278cfa;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 22px;
+  cursor: pointer;
+}
+.serviceDetailsButton:hover {
+  background: #1469ce;
+}
+.serviceNoticeFootnote {
+  display: block;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #96acbd;
+  margin-top: 14px;
+}
+@media (max-width: 720px) {
+  .serviceOverviewGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .serviceSummaryCard {
+    min-height: 112px;
+    padding: 19px 17px;
+    gap: 15px;
+  }
+  .serviceCardCopy strong {
+    font-size: 16px;
+  }
+  .serviceCardCopy small {
+    font-size: 9px;
+  }
+  .serviceNextNotice {
+    padding: 20px 17px;
+  }
+  .serviceNoticeTitle h3 {
+    font-size: 18px;
+  }
+  .serviceOverviewHeading h2 {
+    font-size: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button.serviceSummaryCard {
+    transition: none;
+  }
+  button.serviceSummaryCard:hover {
+    transform: none;
+  }
+}

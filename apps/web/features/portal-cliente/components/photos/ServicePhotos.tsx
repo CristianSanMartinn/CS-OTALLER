@@ -1,10 +1,12 @@
 "use client";
+import portalStyles from "../../Portal.module.css";
 import { useState } from "react";
 import { Images, ChevronRight } from "lucide-react";
 import { PhotoGallery } from "@/components/ImageUploader/PhotoGallery";
 import { ImagePreview } from "@/components/ImageUploader/ImagePreview";
 import type { PortalPhoto } from "../../types/portal.types";
 import { PortalSection } from "../layout/PortalSection";
+import styles from "./ServicePhotos.module.css";
 export function ServicePhotos({
   photos,
   service = false,
@@ -17,10 +19,10 @@ export function ServicePhotos({
     ? "Fotografías del servicio"
     : "Fotografías de tu vehículo";
   return (
-    <div className="portal-service-photos">
+    <div className={styles.portalServicePhotos}>
       {all ? (
         <>
-          <button className="portal-photo-back" onClick={() => setAll(false)}>
+          <button className={styles.portalPhotoBack} onClick={() => setAll(false)}>
             Volver a la vista previa
           </button>
           <PhotoGallery photos={photos} title={title} />
@@ -31,7 +33,7 @@ export function ServicePhotos({
           action={
             photos.length > 0 ? (
               <button
-                className="portal-text-button"
+                className={portalStyles.portalTextButton}
                 onClick={() => setAll(true)}
               >
                 Ver todas ({photos.length}) <ChevronRight size={15} />
@@ -40,7 +42,7 @@ export function ServicePhotos({
           }
         >
           {photos.length ? (
-            <div className="portal-photos-horizontal">
+            <div className={styles.portalPhotosHorizontal}>
               {photos.slice(0, 4).map((p) => (
                 <figure key={p.id}>
                   <ImagePreview
@@ -57,7 +59,7 @@ export function ServicePhotos({
               ))}
             </div>
           ) : (
-            <div className="portal-photos-empty">
+            <div className={styles.portalPhotosEmpty}>
               <Images size={30} />
               <p>
                 Aún no hay fotografías registradas

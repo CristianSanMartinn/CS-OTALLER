@@ -6,6 +6,7 @@ import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { clientAccess } from "../../services/clientAccessService";
 import { PortalEntrance } from "../layout/PortalLoadingScreen";
 import { PublicVehicleCard } from "./PublicVehicleCard";
+import styles from "./CustomerVehiclesPortal.module.css";
 export function CustomerVehiclesPortal({ token }: { token: string }) {
   const { data, live } = useStore();
   const remote = usePublicPortal<NonNullable<ReturnType<typeof clientAccess>>>(
@@ -15,8 +16,8 @@ export function CustomerVehiclesPortal({ token }: { token: string }) {
   const access = live ? remote.data : clientAccess(data, token);
   const ready = !live || !!access || !!remote.error;
   const content = !access ? (
-    <div className="public-garage">
-      <main className="public-garage-content">
+    <div className={styles.publicGarage}>
+      <main className={styles.publicGarageContent}>
         <h1>
           {live && !remote.error
             ? "Cargando tus vehículos…"
@@ -30,9 +31,9 @@ export function CustomerVehiclesPortal({ token }: { token: string }) {
       </main>
     </div>
   ) : (
-    <div className="public-garage">
-      <main className="public-garage-content">
-        <header className="public-workshop-logo">
+    <div className={styles.publicGarage}>
+      <main className={styles.publicGarageContent}>
+        <header className={styles.publicWorkshopLogo}>
           {access.workshop.logo ? (
             <Image
               unoptimized
@@ -46,33 +47,33 @@ export function CustomerVehiclesPortal({ token }: { token: string }) {
             <strong>{access.workshop.name}</strong>
           )}
         </header>
-        <section className="public-welcome">
+        <section className={styles.publicWelcome}>
           <h1>Bienvenido</h1>
           <p>
             Aquí puedes consultar el historial y estado de mantenimiento de tus
             vehículos.
           </p>
         </section>
-        <section className="public-vehicles-section">
+        <section className={styles.publicVehiclesSection}>
           <h2>Mis vehículos</h2>
           <p>
             Selecciona un vehículo para ver su historial, fotografías y próximas
             mantenciones.
           </p>
-          <div className="public-vehicles-list">
+          <div className={styles.publicVehiclesList}>
             {access.vehicles.length ? (
               access.vehicles.map((v) => (
                 <PublicVehicleCard key={v.id} vehicle={v} token={token} />
               ))
             ) : (
-              <div className="public-empty">
+              <div className={styles.publicEmpty}>
                 <h3>Aún no hay vehículos asociados</h3>
                 <p>El taller agregará tus vehículos a este mismo QR.</p>
               </div>
             )}
           </div>
         </section>
-        <aside className="public-qr-info">
+        <aside className={styles.publicQrInfo}>
           <span>
             <ScanLine size={31} />
           </span>
@@ -86,7 +87,7 @@ export function CustomerVehiclesPortal({ token }: { token: string }) {
             </p>
           </div>
         </aside>
-        <aside className="public-new-vehicle">
+        <aside className={styles.publicNewVehicle}>
           <PlusCircle size={32} />
           <div>
             <strong>¿Tienes un nuevo vehículo?</strong>
@@ -96,7 +97,7 @@ export function CustomerVehiclesPortal({ token }: { token: string }) {
             </p>
           </div>
         </aside>
-        <footer className="public-garage-footer">
+        <footer className={styles.publicGarageFooter}>
           Este enlace permite consultar únicamente información del historial
           automotriz. No se muestran datos personales del propietario.
           <p>

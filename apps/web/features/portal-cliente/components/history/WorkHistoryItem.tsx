@@ -1,3 +1,4 @@
+import styles from "./WorkHistoryItem.module.css";
 import { ChevronDown } from "lucide-react";
 import type { PortalOrder } from "../../types/portal.types";
 import { WorkOrderStatus } from "@/features/ordenes/components/status/WorkOrderStatus";
@@ -5,7 +6,7 @@ import { dateLabel, km } from "@/utils/format";
 import { WorkPerformedList } from "./WorkPerformedList";
 export function WorkHistoryItem({ order: o }: { order: PortalOrder }) {
   return (
-    <details className="portal-work-history-item">
+    <details className={styles.workHistoryItem}>
       <summary>
         <span>
           <strong>{o.reason}</strong>
@@ -16,7 +17,7 @@ export function WorkHistoryItem({ order: o }: { order: PortalOrder }) {
         <WorkOrderStatus status={o.status} />
         <ChevronDown size={18} />
       </summary>
-      <div className="portal-work-history-body">
+      <div className={styles.workHistoryBody}>
         <h3>Diagnóstico</h3>
         <p>{o.diagnosis || "El taller aún no registra un diagnóstico."}</p>
         <h3>Trabajos realizados</h3>

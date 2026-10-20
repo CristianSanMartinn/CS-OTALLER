@@ -1,0 +1,60 @@
+.maintenanceProgress {
+  margin: 26px 0 20px;
+}
+.maintenanceProgressTrack {
+  height: 10px;
+  background: var(--neutral-surface, #edf1f5);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.maintenanceProgressTrack > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #00b77e, #0fbe8c);
+  border-radius: 999px;
+}
+.maintenanceProgress > div + div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  margin: 10px 0 7px;
+}
+.maintenanceProgress span {
+  color: var(--neutral-text, #4c6883);
+}
+.maintenanceProgress small {
+  font-size: 11px;
+  color: var(--neutral-text, #6d8093);
+}
+@media (max-width: 600px) {
+  .maintenanceProgress > div + div {
+    font-size: 12px;
+  }
+}
+.maintenanceProgressTrack > span {
+  animation: portal-progress-fill 800ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  transform-origin: left;
+}
+@media (prefers-reduced-motion: reduce) {
+  .maintenanceProgressTrack > span {
+    animation: none !important;
+  }
+}
+:global(.service-visit-portal) .maintenanceProgress > div:last-of-type {
+  color: #b7cddd;
+}
+:global(.service-visit-portal) .maintenanceProgress strong {
+  color: #edf5ff;
+}
+:global(.service-visit-portal) .maintenanceProgressTrack {
+  background: #3c4d5b;
+}
+@keyframes portal-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

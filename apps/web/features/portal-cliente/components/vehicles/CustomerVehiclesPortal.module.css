@@ -1,0 +1,254 @@
+.publicGarage {
+  min-height: 100dvh;
+  color: #f7fbff;
+  background:
+    linear-gradient(180deg, #00101b40 0%, #03131ff2 440px, #071925 100%),
+    url("/images/garage-backdrop.svg") center top/cover no-repeat,
+    #06131c;
+}
+.publicGarageContent {
+  max-width: 880px;
+  margin: auto;
+  padding: 0 24px 28px;
+}
+.publicWorkshopLogo {
+  height: 172px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.publicWorkshopLogo img {
+  width: 220px;
+  height: 152px;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+.publicWorkshopLogo strong {
+  font-size: 30px;
+  color: #12d0f0;
+  text-align: center;
+}
+.publicWelcome h1,
+.publicVehiclesSection h2 {
+  font-size: 27px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin: 0 0 5px;
+}
+.publicWelcome p,
+.publicVehiclesSection > p {
+  font-size: 15px;
+  color: #dde6ee;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 560px;
+}
+.publicQrInfo,
+.publicNewVehicle {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #147ab1;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #063252c9, #021729eb);
+  padding: 15px;
+  margin: 19px 0;
+  color: #edf7ff;
+}
+.publicQrInfo > span {
+  display: grid;
+  place-items: center;
+  background: #0d4167;
+  border-radius: 10px;
+  min-width: 52px;
+  height: 52px;
+  color: #8ddfff;
+}
+.publicQrInfo strong,
+.publicNewVehicle strong {
+  font-size: 14px;
+}
+.publicQrInfo em {
+  font-style: normal;
+  color: #62d5ff;
+}
+.publicQrInfo p,
+.publicNewVehicle p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #c2d1df;
+  margin: 5px 0 0;
+}
+.publicVehiclesSection > p {
+  margin-bottom: 15px;
+}
+.publicVehiclesList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+.publicNewVehicle {
+  margin-top: 15px;
+}
+.publicNewVehicle > svg {
+  flex-shrink: 0;
+  color: #81d8fb;
+}
+.publicGarageFooter {
+  font-size: 11px;
+  color: var(--neutral-text, #92a9ba);
+  line-height: 1.5;
+  text-align: center;
+  margin-top: 22px;
+}
+.publicGarageFooter span {
+  display: block;
+  margin-top: 8px;
+}
+.publicEmpty {
+  border: 1px solid #214d66;
+  background: #062436;
+  padding: 22px;
+  border-radius: 12px;
+  grid-column: 1/-1;
+}
+.publicEmpty h3 {
+  font-size: 17px;
+  color: white;
+  margin: 0 0 8px;
+}
+.publicEmpty p {
+  font-size: 13px;
+  color: #bdd1df;
+}
+@media (max-width: 740px) {
+  .publicGarageContent {
+    max-width: 520px;
+    padding: 0 20px 24px;
+  }
+  .publicVehiclesList {
+    grid-template-columns: 1fr;
+  }
+  .publicWorkshopLogo {
+    height: 148px;
+  }
+  .publicWorkshopLogo img {
+    width: 220px;
+    height: 140px;
+  }
+  .publicWelcome h1,
+.publicVehiclesSection h2 {
+    font-size: 24px;
+  }
+}
+@media (max-width: 360px) {
+  .publicGarageContent {
+    padding-inline: 12px;
+  }
+}
+@media (min-width: 741px) {
+  .publicGarage {
+    background-size:
+      auto,
+      1600px 760px,
+      auto;
+    background-position: center top;
+    padding: 40px 24px;
+  }
+  .publicGarageContent {
+    max-width: 1120px;
+    padding: 28px 36px;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    column-gap: 36px;
+    align-items: center;
+    background: linear-gradient(150deg, #092333e8, #061622f5);
+    border: 1px solid #24485c;
+    border-radius: 24px;
+    box-shadow: 0 24px 70px #0005;
+  }
+  .publicWorkshopLogo {
+    height: 172px;
+  }
+  .publicWelcome h1 {
+    font-size: 34px;
+    margin-bottom: 10px;
+  }
+  .publicWelcome p {
+    font-size: 17px;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  .publicQrInfo,
+.publicVehiclesSection,
+.publicNewVehicle,
+.publicGarageFooter {
+    grid-column: 1 / -1;
+  }
+  .publicQrInfo {
+    margin: 12px 0 30px;
+    padding: 18px 20px;
+  }
+  .publicQrInfo strong,
+.publicNewVehicle strong {
+    font-size: 16px;
+  }
+  .publicQrInfo p,
+.publicNewVehicle p {
+    font-size: 14px;
+  }
+  .publicVehiclesSection > p {
+    max-width: none;
+    margin-bottom: 22px;
+  }
+  .publicVehiclesList {
+    gap: 22px;
+  }
+  .publicNewVehicle {
+    margin: 24px 0 0;
+    padding: 18px 20px;
+  }
+  .publicGarageFooter {
+    margin-top: 24px;
+    font-size: 12px;
+  }
+}
+@media (min-width: 741px) and (max-width: 1000px) {
+  .publicGarage {
+    padding: 24px 20px;
+  }
+  .publicGarageContent {
+    padding: 20px 24px;
+    column-gap: 24px;
+  }
+  .publicVehiclesList {
+    grid-template-columns: 1fr;
+  }
+}
+.publicQrInfo {
+  order: 4;
+}
+.publicGarageContent > .publicVehiclesSection {
+  order: 3;
+}
+.publicGarageContent > .publicWorkshopLogo {
+  order: 1;
+}
+.publicGarageContent > .publicWelcome {
+  order: 2;
+}
+.publicGarageContent > .publicNewVehicle {
+  order: 5;
+}
+.publicGarageContent > .publicGarageFooter {
+  order: 6;
+}
+@media (min-width: 741px) {
+  .publicGarageContent > .publicQrInfo {
+    margin: 26px 0 0;
+  }
+  .publicGarageContent > .publicVehiclesSection {
+    margin-top: 20px;
+  }
+}

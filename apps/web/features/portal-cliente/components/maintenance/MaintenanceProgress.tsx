@@ -1,3 +1,5 @@
+import styles from "./MaintenanceProgress.module.css";
+import portalStyles from "../../Portal.module.css";
 import { km } from "@/utils/format";
 export function MaintenanceProgress({
   current,
@@ -10,7 +12,7 @@ export function MaintenanceProgress({
 }) {
   if (!target || target <= start)
     return (
-      <p className="portal-muted">
+      <p className={portalStyles.portalMuted}>
         El taller aún no ha definido el próximo kilometraje.
       </p>
     );
@@ -20,14 +22,14 @@ export function MaintenanceProgress({
   );
   const remaining = Math.max(0, target - current);
   return (
-    <div className="maintenance-progress">
+    <div className={styles.maintenanceProgress}>
       <div
         role="progressbar"
         aria-label="Kilometraje recorrido desde la mantención"
         aria-valuenow={Math.round(progress)}
         aria-valuemin={0}
         aria-valuemax={100}
-        className="maintenance-progress-track"
+        className={styles.maintenanceProgressTrack}
       >
         <span style={{ width: progress + "%" }} />
       </div>

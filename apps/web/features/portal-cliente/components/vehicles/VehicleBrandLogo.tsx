@@ -1,3 +1,4 @@
+import styles from "./VehicleBrandLogo.module.css";
 import Image from "next/image";
 import { CarFront } from "lucide-react";
 const brands = new Set([
@@ -18,7 +19,7 @@ const brands = new Set([
 export function VehicleBrandLogo({ brand }: { brand: string }) {
   const key = brand.toLowerCase().replace(/[^a-z]/g, "");
   return (
-    <span className="public-brand-emblem">
+    <span className={styles.brandEmblem}>
       {brands.has(key) ? (
         <Image
           src={"/brands/" + key + ".svg"}
