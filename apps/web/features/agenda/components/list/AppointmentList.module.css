@@ -1,0 +1,9 @@
+.appointmentList {
+  padding: 4px 20px;
+}
+
+@media (max-width: 430px) {
+  .appointmentList {
+    padding: 2px 14px;
+  }
+}

@@ -1,0 +1,22 @@
+.agendaLayout {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1250px) {
+  .agendaLayout {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
+  .agendaLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .agendaLayout > :global(.panel):first-child {
+    max-width: 420px;
+    width: 100%;
+  }
+}

@@ -1,0 +1,50 @@
+.calendar {
+  padding: 19px;
+}
+.calendarHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.calendarHeading strong {
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.calendarGrid small {
+  color: var(--neutral-text, #a0acc0);
+  padding: 5px;
+}
+.calendarGrid button {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--neutral-text, #687d98);
+  font-size: 11px;
+}
+.calendarGrid button:hover {
+  background: var(--neutral-surface, #edf3ff);
+}
+.calendarGrid button.selected {
+  background: var(--blue);
+  color: white;
+}
+.calendarGrid i {
+  position: absolute;
+  bottom: 4px;
+  width: 3px;
+  height: 3px;
+  background: #66a5ef;
+  left: calc(50% - 1px);
+  border-radius: 50%;
+}
+.calendarGrid .selected i {
+  background: var(--neutral-surface, white);
+}

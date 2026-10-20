@@ -1,3 +1,4 @@
+import styles from "./AppointmentCalendar.module.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Appointment } from "@/features/shared/types/domain";
 export function AppointmentCalendar({
@@ -30,8 +31,8 @@ export function AppointmentCalendar({
     );
   }
   return (
-    <div className="calendar">
-      <div className="calendar-heading">
+    <div className={styles.calendar}>
+      <div className={styles.calendarHeading}>
         <button
           className="icon-button"
           aria-label="Mes anterior"
@@ -50,7 +51,7 @@ export function AppointmentCalendar({
           <ChevronRight size={18} />
         </button>
       </div>
-      <div className="calendar-grid">
+      <div className={styles.calendarGrid}>
         {["L", "M", "M", "J", "V", "S", "D"].map((x, i) => (
           <small key={i}>{x}</small>
         ))}
@@ -63,7 +64,7 @@ export function AppointmentCalendar({
             aria-label={key(day)}
             aria-pressed={date === key(day)}
             onClick={() => onChange(key(day))}
-            className={date === key(day) ? "selected" : ""}
+            className={date === key(day) ? styles.selected : ""}
           >
             {day}
             {appointments.some(

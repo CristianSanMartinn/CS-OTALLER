@@ -1,4 +1,5 @@
 "use client";
+import styles from "./AgendaPage.module.css";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Appointment } from "@/features/shared/types/domain";
@@ -41,7 +42,7 @@ export function AgendaPage() {
           )
         }
       />
-      <div className="agenda-layout">
+      <div className={styles.agendaLayout}>
         <Panel>
           <AppointmentCalendar
             date={date}

@@ -1,4 +1,5 @@
 "use client";
+import styles from "./AppointmentCard.module.css";
 import { useState } from "react";
 import { CancelVisitDialog } from "@/components/Modal/CancelVisitDialog";
 import { CancellationDetails } from "@/components/ui/CancellationDetails";
@@ -15,13 +16,13 @@ export function AppointmentCard({
   const { data, user } = useStore();
   const [cancelOpen, setCancelOpen] = useState(false);
   return (
-    <div className="appointment-card">
-      <div className="appointment-time">
+    <div className={styles.appointmentCard}>
+      <div className={styles.appointmentTime}>
         <CalendarDays size={18} />
         <strong>{a.time}</strong>
         <small>{a.date}</small>
       </div>
-      <div className="appointment-card-main">
+      <div className={styles.appointmentCardMain}>
         <strong>
           {data.customers.find((c) => c.id === a.customerId)?.name}
         </strong>
