@@ -14,6 +14,12 @@ const codes = [
 ] as const;
 export type MaintenanceTypeCode = (typeof codes)[number];
 
+function isMaintenanceTypeCode(value: unknown): value is MaintenanceTypeCode {
+  return (
+    typeof value === "string" && (codes as readonly string[]).includes(value)
+  );
+}
+
 export function inferMaintenanceType(name: string): MaintenanceTypeCode {
   const normalized = name
     .normalize("NFD")
@@ -48,7 +54,10 @@ export function inferMaintenanceType(name: string): MaintenanceTypeCode {
     "filtro de cabina": "CABIN_FILTER",
     "cambio de filtro de cabina": "CABIN_FILTER",
   };
-  return aliases[normalized] ?? "OTHER";
+  const inferred = Object.hasOwn(aliases, normalized)
+    ? aliases[normalized]
+    : undefined;
+  return isMaintenanceTypeCode(inferred) ? inferred : "OTHER";
 }
 
 export function readMaintenanceTypeCode(
@@ -56,12 +65,9 @@ export function readMaintenanceTypeCode(
   name: string,
 ): MaintenanceTypeCode {
   // Accept old clients during the rollout; new clients always send a code.
-  if (value === undefined) return inferMaintenanceType(name);
-  if (
-    typeof value !== "string" ||
-    !(codes as readonly string[]).includes(value)
-  ) {
+  const code = value === undefined ? inferMaintenanceType(name) : value;
+  if (!isMaintenanceTypeCode(code)) {
     throw new BadRequestException("Categoría de mantención inválida.");
   }
-  return value as MaintenanceTypeCode;
+  return code;
 }

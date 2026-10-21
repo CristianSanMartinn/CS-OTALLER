@@ -790,6 +790,7 @@ test("Reparación sin intervalo no oculta el próximo mantenimiento programado",
 console.log("\n" + count + " pruebas completadas.");
 
 const {
+  maintenanceCategories,
   maintenanceTypeCode,
   maintenanceGroupKey,
   maintenanceState,
@@ -1792,6 +1793,50 @@ test("Seleccionar servicios de filtros conserva los tres códigos hacia el conte
     const payload = JSON.parse(JSON.stringify(form.current()));
     assert.equal(payload.services[0].maintenanceTypeCode, code);
     assert.equal(maintenanceOrderContext(payload).maintenanceTypeCode, code);
+  }
+});
+
+test("La inferencia solo utiliza aliases propios y devuelve categorías válidas", () => {
+  const validCodes = new Set(
+    maintenanceCategories.map((category) => category.code),
+  );
+  for (const [type, expected] of [
+    ["Cambio de aceite", "OIL_CHANGE"],
+    ["  CAMBIO  DE LÍQUIDO DE FRENOS  ", "BRAKE_FLUID"],
+    ["Servicio personalizado", "OTHER"],
+    ["constructor", "OTHER"],
+    ["__proto__", "OTHER"],
+    ["toString", "OTHER"],
+  ]) {
+    const code = maintenanceTypeCode({ type });
+    assert.equal(code, expected);
+    assert.ok(validCodes.has(code));
+  }
+  for (const code of validCodes) {
+    assert.equal(
+      maintenanceTypeCode({ type: "constructor", maintenanceTypeCode: code }),
+      code,
+    );
+  }
+});
+
+test("Las órdenes antiguas sin código conservan inferencia propia y fallback seguro", () => {
+  const { maintenanceTypeCode: omitted, ...legacy } = order.services[0];
+  for (const [name, expected] of [
+    ["Cambio de aceite", "OIL_CHANGE"],
+    ["Filtro de aire", "AIR_FILTER"],
+    ["Filtro de cabina", "CABIN_FILTER"],
+    ["Filtro combustible", "FUEL_FILTER"],
+    ["Servicio personalizado", "OTHER"],
+    ["constructor", "OTHER"],
+    ["__proto__", "OTHER"],
+    ["toString", "OTHER"],
+  ]) {
+    const service = { ...legacy, name };
+    const context = maintenanceOrderContext({ ...order, services: [service] });
+    assert.equal(context.maintenanceTypeCode, expected);
+    assert.equal(context.type, name);
+    assert.equal(Object.hasOwn(service, "maintenanceTypeCode"), false);
   }
 });
 

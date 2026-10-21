@@ -64,11 +64,14 @@ const legacyNames: Record<string, MaintenanceTypeCode> = {
 export function maintenanceTypeCode(
   record: MaintenanceClassification,
 ): MaintenanceTypeCode {
-  return (
-    record.maintenanceTypeCode ??
-    legacyNames[normalizeMaintenanceName(record.type)] ??
-    "OTHER"
-  );
+  if (record.maintenanceTypeCode != null) return record.maintenanceTypeCode;
+  const name = normalizeMaintenanceName(record.type);
+  const inferred = Object.hasOwn(legacyNames, name)
+    ? legacyNames[name]
+    : "OTHER";
+  return maintenanceCategories.some((category) => category.code === inferred)
+    ? inferred
+    : "OTHER";
 }
 
 export function maintenanceGroupKey(record: MaintenanceClassification) {
