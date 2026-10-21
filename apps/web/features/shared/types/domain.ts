@@ -1,4 +1,7 @@
-import type { MaintenanceClassification } from "../../../../../packages/types/src/maintenance.types";
+import type {
+  MaintenanceClassification,
+  MaintenanceTypeCode,
+} from "../../../../../packages/types/src/maintenance.types";
 export type { MaintenanceTypeCode } from "../../../../../packages/types/src/maintenance.types";
 export type CancellationReason =
   "CLIENT_CANCELLED" | "NO_BUDGET" | "DIAGNOSIS_ONLY" | "OTHER";
@@ -84,6 +87,7 @@ export interface Intervention {
   workDetails?: string[];
 }
 export interface ServiceItem extends Intervention {
+  maintenanceTypeCode?: MaintenanceTypeCode;
   id: string;
   name: string;
   description: string;

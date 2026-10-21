@@ -1,3 +1,4 @@
+import { maintenanceTypeCode } from "@/features/shared/services/maintenanceRules";
 import { workshopWorkHistory } from "@/features/shared/services/workHistory";
 import { Plus, Trash2 } from "lucide-react";
 import { Panel, Field, SelectField } from "@/components/ui/primitives";
@@ -63,6 +64,21 @@ export function ServicesSection({ order, onChange }: OrderSectionProps) {
                 !existingServices.has(s.id) ||
                 !!s.interventionType ||
                 !!s.interventionReason
+              }
+              onChoose={(suggestion) =>
+                edit(s.id, {
+                  name: suggestion.name,
+                  maintenanceTypeCode:
+                    suggestion.maintenanceTypeCode ??
+                    maintenanceTypeCode({ type: suggestion.name }),
+                  interventionType: suggestion.interventionType,
+                  interventionReason: suggestion.interventionReason,
+                  workDetails: suggestion.workDetails
+                    ? [...suggestion.workDetails]
+                    : suggestion.name !== s.name
+                      ? []
+                      : (s.workDetails ?? []),
+                })
               }
               onChange={(patch) => edit(s.id, patch)}
             />

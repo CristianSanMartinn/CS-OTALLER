@@ -13,7 +13,10 @@ export function maintenanceOrderContext(
     ...(service
       ? {
           type: service.name,
-          maintenanceTypeCode: maintenanceTypeCode({ type: service.name }),
+          maintenanceTypeCode: maintenanceTypeCode({
+            type: service.name,
+            maintenanceTypeCode: service.maintenanceTypeCode,
+          }),
           interventionType: service.interventionType ?? "MAINTENANCE",
           interventionReason: service.interventionReason ?? "SCHEDULED",
           workDetails: [...(service.workDetails ?? [])],

@@ -43,6 +43,7 @@ export function mapOrder(r: any, admin: boolean) {
     services: (r.services ?? []).map((x: any) => ({
       id: x.id,
       name: x.name,
+      maintenanceTypeCode: x.maintenance_type_code ?? undefined,
       interventionType: x.intervention_type ?? undefined,
       interventionReason: x.intervention_reason ?? undefined,
       workDetails: x.work_details ?? [],

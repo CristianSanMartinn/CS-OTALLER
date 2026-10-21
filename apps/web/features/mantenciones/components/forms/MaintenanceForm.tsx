@@ -4,20 +4,23 @@ import { maintenanceOrderContext } from "../../services/maintenanceContext";
 import { useOilCatalog } from "../../hooks/useOilCatalog";
 import { validateOilSelection } from "../../services/oilSuggestions";
 import { FormEvent, useState } from "react";
-import {
-  maintenanceCategories,
-  maintenanceTypeCode,
-} from "@/features/shared/services/maintenanceRules";
-import {
-  Maintenance,
-  MaintenanceTypeCode,
-} from "@/features/shared/types/domain";
+import { maintenanceCategories, maintenanceTypeCode } from "@/features/shared/services/maintenanceRules";
+import {  Maintenance, MaintenanceTypeCode, WorkOrder } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Field, SelectField, TextField } from "@/components/ui/primitives";
 import { OilChangeForm } from "../oil/OilChangeForm";
 import { InterventionEditor } from "@/components/InterventionEditor/InterventionEditor";
 import { isEngineOil } from "@/features/shared/services/interventions";
 import { today, uid } from "@/utils/format";
+
+
+function hasExplicitOrderCategory(order: WorkOrder | undefined) {
+  return (
+    order?.services.length === 1 &&
+    order.services[0].maintenanceTypeCode != null
+  );
+}
+
 export function MaintenanceForm({
   orderId = "",
   onSave,
@@ -54,7 +57,9 @@ export function MaintenanceForm({
     notes: "",
     ...maintenanceOrderContext(order),
   });
-  const [automaticCategory, setAutomaticCategory] = useState(true);
+  const [automaticCategory, setAutomaticCategory] = useState(
+    () => !hasExplicitOrderCategory(order),
+  );
   const linkedOrder = data.orders.find((saved) => saved.id === value.orderId);
   const catalog = useOilCatalog();
   const [error, setError] = useState("");
@@ -132,9 +137,11 @@ export function MaintenanceForm({
                 item.vehicleId === e.target.value &&
                 !["DELIVERED", "CANCELLED"].includes(item.status),
             );
-            const context = maintenanceOrderContext(
-              currentOrders.length === 1 ? currentOrders[0] : undefined,
-            );
+            const selected =
+              currentOrders.length === 1 ? currentOrders[0] : undefined;
+            const context = maintenanceOrderContext(selected);
+            if (context.type !== undefined)
+              setAutomaticCategory(!hasExplicitOrderCategory(selected));
             change({
               ...context,
               vehicleId: e.target.value,
@@ -157,7 +164,10 @@ export function MaintenanceForm({
             const selected = data.orders.find(
               (saved) => saved.id === e.target.value,
             );
-            change(maintenanceOrderContext(selected));
+            const context = maintenanceOrderContext(selected);
+            if (context.type !== undefined)
+              setAutomaticCategory(!hasExplicitOrderCategory(selected));
+            change(context);
           }}
         >
           <option value="">Sin orden vinculada</option>
@@ -195,7 +205,7 @@ export function MaintenanceForm({
             </SelectField>
           }
           onChoose={(suggestion) => {
-            setAutomaticCategory(true);
+            setAutomaticCategory(suggestion.maintenanceTypeCode == null);
             change({
               type: suggestion.name,
               interventionType: suggestion.interventionType,

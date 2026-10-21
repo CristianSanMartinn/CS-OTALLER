@@ -19,6 +19,7 @@ import {
 } from "../common/operations.js";
 import { codeStates, serviceStates, mapOrder } from "./order.mapping.js";
 import { readIntervention } from "../common/interventions.js";
+import { readMaintenanceTypeCode } from "../common/maintenance-type.js";
 const states = [
   "RECEIVED",
   "DIAGNOSIS",
@@ -197,7 +198,7 @@ export class WorkOrdersService {
       const oldServices = previous
         ? (
             await c.query(
-              "SELECT id,price,intervention_type,intervention_reason,work_details FROM work_order_services WHERE work_order_id=$1 AND workshop_id=$2",
+              "SELECT id,price,intervention_type,intervention_reason,work_details,maintenance_type_code FROM work_order_services WHERE work_order_id=$1 AND workshop_id=$2",
               [id, user.workshopId],
             )
           ).rows
@@ -218,12 +219,14 @@ export class WorkOrdersService {
             )
           ).rows
         : [];
+      const serviceCodes = new Map<string, string | null>();
       let labor = 0,
         partsTotal = 0;
       for (const s of services) {
         bodyObject(s, [
           "id",
           "name",
+          "maintenanceTypeCode",
           "description",
           "interventionType",
           "interventionReason",
@@ -235,10 +238,16 @@ export class WorkOrdersService {
         uuid(text(s, "id", 36, true));
         text(s, "name", 150, true);
         text(s, "description", 20000);
-        const intervention = readIntervention(
-          s,
-          oldServices.find((old) => old.id === s.id),
+        const previousService = oldServices.find((old) => old.id === s.id);
+        // Omission from an old client must not erase an existing classification.
+        // Do not infer missing codes here: historical services remain unclassified.
+        serviceCodes.set(
+          String(s.id),
+          s.maintenanceTypeCode === undefined
+            ? (previousService?.maintenance_type_code ?? null)
+            : readMaintenanceTypeCode(s.maintenanceTypeCode, String(s.name)),
         );
+        const intervention = readIntervention(s, previousService);
         s.interventionType = intervention.kind;
         s.interventionReason = intervention.reason;
         s.workDetails = intervention.details;
@@ -378,7 +387,7 @@ export class WorkOrdersService {
         );
       for (const s of services)
         await c.query(
-          "INSERT INTO work_order_services(id,workshop_id,work_order_id,mechanic_id,name,description,price,status,intervention_type,intervention_reason,work_details) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)",
+          "INSERT INTO work_order_services(id,workshop_id,work_order_id,mechanic_id,name,description,price,status,intervention_type,intervention_reason,work_details,maintenance_type_code) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
           [
             s.id,
             user.workshopId,
@@ -391,6 +400,7 @@ export class WorkOrdersService {
             s.interventionType,
             s.interventionReason,
             JSON.stringify(s.workDetails),
+            serviceCodes.get(String(s.id)) ?? null,
           ],
         );
       for (const p of parts)

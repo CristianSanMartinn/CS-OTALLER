@@ -1039,7 +1039,9 @@ test("El formulario rechaza aceite incompatible con su producto y permite produc
 });
 console.log(count + " pruebas totales del registro asistido completadas.");
 
-const { summarizeMaintenance } = load("features/shared/services/maintenanceRules");
+const { summarizeMaintenance } = load(
+  "features/shared/services/maintenanceRules",
+);
 const { dashboardMaintenanceSummary } = load(
   "features/dashboard/services/maintenanceSummary",
 );
@@ -1162,3 +1164,492 @@ test("Dashboard conserva los límites compartidos, separa falta de historial y n
   assert.equal(unscheduled.current, 0);
 });
 console.log(count + " pruebas totales con dashboard completadas.");
+
+// Exercise the actual form handlers with isolated hooks and child components.
+// This does not replace browser tests of React rendering or accessibility.
+function mountMaintenanceForm(orders = [], orderId = "") {
+  const state = [];
+  let cursor = 0;
+  const jsx = (type, props) => ({ type, props });
+  const result = { exports: {} };
+  const source = ts.transpileModule(
+    fs.readFileSync(
+      path.join(
+        root,
+        "features/mantenciones/components/forms/MaintenanceForm.tsx",
+      ),
+      "utf8",
+    ),
+    {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+        jsx: ts.JsxEmit.ReactJSX,
+      },
+    },
+  ).outputText;
+  const fakeData = { ...data, orders };
+  const stubs = {
+    react: {
+      useState(initial) {
+        const slot = cursor++;
+        if (!(slot in state))
+          state[slot] = typeof initial === "function" ? initial() : initial;
+        return [
+          state[slot],
+          (value) => {
+            state[slot] =
+              typeof value === "function" ? value(state[slot]) : value;
+          },
+        ];
+      },
+    },
+    "react/jsx-runtime": { jsx, jsxs: jsx },
+    "./MaintenanceForm.module.css": { default: {} },
+    "../../hooks/useOilCatalog": {
+      useOilCatalog: () => ({ products: [], loading: false, error: "" }),
+    },
+    "@/features/shared/components/store/StoreProvider": {
+      useStore: () => ({
+        data: fakeData,
+        user: admin,
+        saveMaintenance: () => {
+          throw new Error("Unexpected save");
+        },
+      }),
+    },
+    "@/components/ui/primitives": {
+      Field: "Field",
+      SelectField: "SelectField",
+      TextField: "TextField",
+    },
+    "../oil/OilChangeForm": { OilChangeForm: "OilChangeForm" },
+    "@/components/InterventionEditor/InterventionEditor": {
+      InterventionEditor: "InterventionEditor",
+    },
+  };
+  vm.runInNewContext(source, {
+    exports: result.exports,
+    module: result,
+    require: (request) =>
+      request in stubs
+        ? stubs[request]
+        : load(
+            request.startsWith("@/")
+              ? request.slice(2)
+              : path.relative(
+                  root,
+                  path.resolve(
+                    root,
+                    "features/mantenciones/components/forms",
+                    request,
+                  ),
+                ),
+          ),
+  });
+  const render = () => {
+    cursor = 0;
+    return result.exports.MaintenanceForm({
+      orderId,
+      onSave() {},
+      onCancel() {},
+    });
+  };
+  function find(node, predicate) {
+    if (!node || typeof node !== "object") return undefined;
+    if (Array.isArray(node)) {
+      for (const child of node) {
+        const found = find(child, predicate);
+        if (found) return found;
+      }
+      return undefined;
+    }
+    if (predicate(node)) return node;
+    return (
+      find(node.props?.children, predicate) ??
+      find(node.props?.extraClassification, predicate)
+    );
+  }
+  const select = (predicate) => find(render(), predicate);
+  return {
+    editor: () => select((node) => node.type === "InterventionEditor"),
+    field: (label) => select((node) => node.props?.label === label),
+    hasOilFields: () => !!select((node) => node.type === "OilChangeForm"),
+    category: () =>
+      select((node) => node.props?.label === "Categoría del servicio").props
+        .value,
+  };
+}
+
+test("El contexto conserva el código explícito aunque el nombre del servicio sea personalizado", () => {
+  const service = {
+    ...order.services[0],
+    name: "Servicio premium del motor",
+    maintenanceTypeCode: "OIL_CHANGE",
+  };
+  const context = maintenanceOrderContext({ ...order, services: [service] });
+  assert.equal(context.maintenanceTypeCode, "OIL_CHANGE");
+  assert.equal(context.type, service.name);
+  assert.equal(service.maintenanceTypeCode, "OIL_CHANGE");
+});
+
+test("OTHER explícito prevalece y las órdenes antiguas mantienen la inferencia", () => {
+  const service = {
+    ...order.services[0],
+    name: "Cambio de aceite",
+    maintenanceTypeCode: "OTHER",
+  };
+  assert.equal(
+    maintenanceOrderContext({ ...order, services: [service] })
+      .maintenanceTypeCode,
+    "OTHER",
+  );
+  const { maintenanceTypeCode: omitted, ...legacy } = service;
+  assert.equal(
+    maintenanceOrderContext({ ...order, services: [legacy] })
+      .maintenanceTypeCode,
+    "OIL_CHANGE",
+  );
+  assert.equal(
+    maintenanceOrderContext({
+      ...order,
+      services: [{ ...legacy, name: "Trabajo personalizado" }],
+    }).maintenanceTypeCode,
+    "OTHER",
+  );
+  assert.equal(
+    maintenanceOrderContext(undefined).maintenanceTypeCode,
+    undefined,
+  );
+  assert.equal(
+    maintenanceOrderContext({ ...order, services: [] }).maintenanceTypeCode,
+    undefined,
+  );
+  assert.equal(
+    maintenanceOrderContext({ ...order, services: [service, legacy] })
+      .maintenanceTypeCode,
+    undefined,
+  );
+});
+
+test("Una sugerencia con código conserva aceite y sus campos al editar varias veces el label", () => {
+  const form = mountMaintenanceForm();
+  form.editor().props.onChoose({
+    name: "Servicio premium del motor",
+    maintenanceTypeCode: "OIL_CHANGE",
+    interventionType: "MAINTENANCE",
+    interventionReason: "SCHEDULED",
+  });
+  form.editor().props.onChange({ name: "Servicio especial" });
+  form.editor().props.onChange({ name: "Servicio especial y filtro" });
+  assert.equal(form.category(), "OIL_CHANGE");
+  assert.equal(form.editor().props.value.name, "Servicio especial y filtro");
+  assert.ok(form.hasOilFields());
+});
+
+test("La categoría manual permanece al renombrar y solo cambia al elegir otra", () => {
+  const form = mountMaintenanceForm();
+  form
+    .field("Categoría del servicio")
+    .props.onChange({ target: { value: "OIL_CHANGE" } });
+  form.editor().props.onChange({ name: "Servicio personalizado" });
+  assert.equal(form.category(), "OIL_CHANGE");
+  form
+    .field("Categoría del servicio")
+    .props.onChange({ target: { value: "OTHER" } });
+  form.editor().props.onChange({ name: "Cambio de aceite" });
+  assert.equal(form.category(), "OTHER");
+  assert.ok(!form.hasOilFields());
+});
+
+test("La escritura y las sugerencias sin código siguen usando la inferencia anterior", () => {
+  const form = mountMaintenanceForm();
+  form.editor().props.onChange({ name: "Cambio de aceite" });
+  assert.equal(form.category(), "OIL_CHANGE");
+  form.editor().props.onChange({ name: "Bujías" });
+  assert.equal(form.category(), "SPARK_PLUGS");
+  form.editor().props.onChoose({
+    name: "Cambio de aceite",
+    interventionType: "MAINTENANCE",
+    interventionReason: "SCHEDULED",
+  });
+  form.editor().props.onChange({ name: "Refrigerante" });
+  assert.equal(form.category(), "COOLANT");
+});
+
+test("Al abrir Mantenciones desde una orden se protege su código explícito", () => {
+  const linked = {
+    ...order,
+    services: [
+      {
+        ...order.services[0],
+        name: "Servicio premium",
+        maintenanceTypeCode: "OIL_CHANGE",
+      },
+    ],
+  };
+  const form = mountMaintenanceForm([linked], linked.id);
+  form.editor().props.onChange({ name: "Otro título visible" });
+  assert.equal(form.category(), "OIL_CHANGE");
+  assert.ok(form.hasOilFields());
+});
+
+test("Cambiar entre órdenes explícitas y antiguas actualiza la categoría sin arrastrar la anterior", () => {
+  const explicit = {
+    ...order,
+    id: "explicit",
+    services: [
+      {
+        ...order.services[0],
+        name: "Servicio premium",
+        maintenanceTypeCode: "OIL_CHANGE",
+      },
+    ],
+  };
+  const legacy = {
+    ...order,
+    id: "legacy",
+    services: [{ ...order.services[0], name: "Refrigerante" }],
+  };
+  const other = {
+    ...order,
+    id: "other",
+    services: [
+      {
+        ...order.services[0],
+        name: "Cambio de aceite",
+        maintenanceTypeCode: "OTHER",
+      },
+    ],
+  };
+  const form = mountMaintenanceForm([explicit, legacy, other]);
+  form
+    .field("Orden vinculada")
+    .props.onChange({ target: { value: explicit.id } });
+  form.editor().props.onChange({ name: "Trabajo especial" });
+  assert.equal(form.category(), "OIL_CHANGE");
+  form
+    .field("Orden vinculada")
+    .props.onChange({ target: { value: legacy.id } });
+  assert.equal(form.category(), "COOLANT");
+  form.editor().props.onChange({ name: "Bujías" });
+  assert.equal(form.category(), "SPARK_PLUGS");
+  form.field("Orden vinculada").props.onChange({ target: { value: other.id } });
+  form.editor().props.onChange({ name: "Cambio de aceite y filtro" });
+  assert.equal(form.category(), "OTHER");
+});
+
+test("Seleccionar vehículo recupera el código explícito de su única orden activa", () => {
+  const vehicle = data.vehicles[0];
+  const linked = {
+    ...order,
+    vehicleId: vehicle.id,
+    status: "RECEIVED",
+    services: [
+      {
+        ...order.services[0],
+        name: "Servicio premium",
+        maintenanceTypeCode: "OIL_CHANGE",
+      },
+    ],
+  };
+  const form = mountMaintenanceForm([linked]);
+  form.field("Vehículo").props.onChange({ target: { value: vehicle.id } });
+  form.editor().props.onChange({ name: "Servicio personalizado del vehículo" });
+  assert.equal(form.category(), "OIL_CHANGE");
+});
+
+console.log(
+  count + " pruebas totales con conservación de categoría completadas.",
+);
+
+function mountServicesSection(initialOrder) {
+  let current = structuredClone(initialOrder);
+  const saved = structuredClone(initialOrder);
+  const jsx = (type, props) => ({ type, props });
+  const result = { exports: {} };
+  const relative =
+    "features/ordenes/components/editor/sections/ServicesSection.tsx";
+  const source = ts.transpileModule(
+    fs.readFileSync(path.join(root, relative), "utf8"),
+    {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+        jsx: ts.JsxEmit.ReactJSX,
+      },
+    },
+  ).outputText;
+  const stubs = {
+    "react/jsx-runtime": { jsx, jsxs: jsx },
+    "lucide-react": { Plus: "Plus", Trash2: "Trash2" },
+    "@/components/ui/primitives": {
+      Panel: "Panel",
+      Field: "Field",
+      SelectField: "SelectField",
+    },
+    "@/components/InterventionEditor/InterventionEditor": {
+      InterventionEditor: "InterventionEditor",
+    },
+    "@/features/shared/components/store/StoreProvider": {
+      useStore: () => ({ data: { ...data, orders: [saved] }, user: admin }),
+    },
+  };
+  vm.runInNewContext(source, {
+    module: result,
+    exports: result.exports,
+    require: (request) =>
+      request in stubs
+        ? stubs[request]
+        : load(
+            request.startsWith("@/")
+              ? request.slice(2)
+              : path.relative(
+                  root,
+                  path.resolve(root, path.dirname(relative), request),
+                ),
+          ),
+  });
+  const render = () =>
+    result.exports.ServicesSection({
+      order: current,
+      onChange: (patch) => {
+        current = { ...current, ...patch };
+      },
+    });
+  function findAll(node, predicate) {
+    if (!node || typeof node !== "object") return [];
+    if (Array.isArray(node))
+      return node.flatMap((child) => findAll(child, predicate));
+    return [
+      ...(predicate(node) ? [node] : []),
+      ...findAll(node.props?.children, predicate),
+      ...findAll(node.props?.action, predicate),
+    ];
+  }
+  return {
+    editor: (index = 0) =>
+      findAll(render(), (node) => node.type === "InterventionEditor")[index],
+    description: () =>
+      findAll(render(), (node) => node.props?.label === "Descripción")[0],
+    add: () =>
+      findAll(
+        render(),
+        (node) =>
+          node.type === "button" &&
+          node.props.children.some?.(
+            (child) =>
+              typeof child === "string" && child.includes("Agregar trabajo"),
+          ),
+      )[0].props.onClick(),
+    current: () => current,
+  };
+}
+
+test("Servicios captura el código de la sugerencia y lo incluye en el payload sin perderlo al editar", () => {
+  const form = mountServicesSection({
+    ...order,
+    services: [{ ...order.services[0], workDetails: ["Anterior"] }],
+  });
+  form
+    .editor()
+    .props.onChoose({
+      name: "Servicio premium del motor",
+      maintenanceTypeCode: "OIL_CHANGE",
+      interventionType: "MAINTENANCE",
+      interventionReason: "SCHEDULED",
+      workDetails: ["Filtro instalado"],
+    });
+  form.editor().props.onChange({ name: "Servicio personalizado y filtro" });
+  form
+    .description()
+    .props.onChange({ target: { value: "Descripción actualizada" } });
+  const payload = JSON.parse(
+    JSON.stringify({ services: form.current().services }),
+  );
+  assert.equal(payload.services[0].maintenanceTypeCode, "OIL_CHANGE");
+  assert.equal(payload.services[0].name, "Servicio personalizado y filtro");
+  assert.equal(payload.services[0].description, "Descripción actualizada");
+  assert.deepEqual(payload.services[0].workDetails, ["Filtro instalado"]);
+  assert.equal(payload.services[0].id, order.services[0].id);
+  assert.equal(payload.services[0].price, order.services[0].price);
+});
+
+test("Otra sugerencia cambia el código; OTHER explícito prevalece y se conserva el comportamiento de detalles", () => {
+  const form = mountServicesSection({
+    ...order,
+    services: [
+      {
+        ...order.services[0],
+        name: "Refrigerante",
+        workDetails: ["Detalle conservado"],
+      },
+    ],
+  });
+  form
+    .editor()
+    .props.onChoose({
+      name: "Refrigerante",
+      interventionType: "MAINTENANCE",
+      interventionReason: "SCHEDULED",
+    });
+  assert.equal(form.current().services[0].maintenanceTypeCode, "COOLANT");
+  assert.deepEqual(Array.from(form.current().services[0].workDetails), [
+    "Detalle conservado",
+  ]);
+  form
+    .editor()
+    .props.onChoose({
+      name: "Cambio de aceite",
+      maintenanceTypeCode: "OTHER",
+      interventionType: "REPAIR",
+      interventionReason: "FAULT",
+    });
+  assert.equal(form.current().services[0].maintenanceTypeCode, "OTHER");
+  assert.equal(form.current().services[0].workDetails.length, 0);
+  form.editor().props.onChange({ name: "Cambio de aceite y filtro" });
+  assert.equal(form.current().services[0].maintenanceTypeCode, "OTHER");
+});
+
+test("Escribir un servicio sin selección y agregar uno vacío no impone un código a las órdenes antiguas", () => {
+  const legacy = { ...order.services[0] };
+  delete legacy.maintenanceTypeCode;
+  const form = mountServicesSection({ ...order, services: [legacy] });
+  form.editor().props.onChange({ name: "Cambio de aceite" });
+  assert.equal(
+    Object.hasOwn(form.current().services[0], "maintenanceTypeCode"),
+    false,
+  );
+  form.add();
+  assert.equal(form.current().services.length, 2);
+  assert.equal(
+    Object.hasOwn(form.current().services[1], "maintenanceTypeCode"),
+    false,
+  );
+});
+
+test("Elegir categoría en un servicio no modifica el código ni los datos de otro", () => {
+  const first = { ...order.services[0], maintenanceTypeCode: "OIL_CHANGE" };
+  const second = {
+    ...order.services[0],
+    id: "other-service",
+    name: "Servicio independiente",
+  };
+  const form = mountServicesSection({ ...order, services: [first, second] });
+  form
+    .editor(1)
+    .props.onChoose({
+      name: "Bujías",
+      maintenanceTypeCode: "SPARK_PLUGS",
+      interventionType: "MAINTENANCE",
+      interventionReason: "SCHEDULED",
+    });
+  assert.equal(form.current().services[0].maintenanceTypeCode, "OIL_CHANGE");
+  assert.equal(form.current().services[0].name, first.name);
+  assert.equal(form.current().services[1].maintenanceTypeCode, "SPARK_PLUGS");
+});
+
+console.log(
+  count +
+    " pruebas totales con persistencia de clasificación en órdenes completadas.",
+);
