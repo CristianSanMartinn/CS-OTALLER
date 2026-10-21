@@ -4,6 +4,9 @@ export type MaintenanceTypeCode =
   | "BRAKE_FLUID"
   | "SPARK_PLUGS"
   | "TIMING"
+  | "AIR_FILTER"
+  | "CABIN_FILTER"
+  | "FUEL_FILTER"
   | "FILTERS"
   | "OTHER";
 

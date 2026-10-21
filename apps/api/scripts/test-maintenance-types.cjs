@@ -601,6 +601,191 @@ async function main() {
       "Edicion concurrente desactualizada no sobrescribe el codigo de una orden compartida",
     );
 
+    // New filter codes use the existing order persistence unchanged.
+    const { latestMaintenanceByType, maintenanceTypeCode: classifyFilter } =
+      loadWeb("features/shared/services/maintenanceRules");
+    const filterRows = [];
+    for (const [name, code] of [
+      ["Cambio de filtro de aire", "AIR_FILTER"],
+      ["Cambio de filtro de cabina", "CABIN_FILTER"],
+      ["Cambio de filtro de combustible", "FUEL_FILTER"],
+      ["Filtro de aire", "FILTERS"],
+    ]) {
+      const selectedCode = classifyFilter({
+        type: name,
+        ...(code === "FILTERS" ? { maintenanceTypeCode: code } : {}),
+      });
+      assert.equal(selectedCode, code);
+      const body = {
+        ...orderBody,
+        services: [
+          {
+            ...orderBody.services[0],
+            id: crypto.randomUUID(),
+            name,
+            maintenanceTypeCode: selectedCode,
+          },
+        ],
+      };
+      const filterOrder = await orders.save(admin, request(body));
+      const loaded = await reload(filterOrder.id);
+      assert.equal(loaded.services[0].maintenanceTypeCode, code);
+      const context = maintenanceOrderContext(loaded);
+      assert.equal(context.maintenanceTypeCode, code);
+      const result = await service.create(admin, {
+        ...base,
+        ...context,
+        date: "2026-10-20",
+        nextMileage: 12000,
+        nextDate: "2027-04-20",
+      });
+      const row = (await service.findAll(admin)).find(
+        (m) => m.id === result.id,
+      );
+      assert.equal(row.maintenanceTypeCode, code);
+      assert.equal(row.type, name);
+      assert.equal(row.orderId, filterOrder.id);
+      assert.equal(
+        (
+          await client.query(
+            "SELECT count(*)::int AS count FROM oil_change_details WHERE maintenance_id=$1 AND workshop_id=$2",
+            [result.id, workshop],
+          )
+        ).rows[0].count,
+        0,
+      );
+      filterRows.push(row);
+      const oldService = { ...loaded.services[0] };
+      delete oldService.maintenanceTypeCode;
+      await orders.save(
+        admin,
+        request({ ...body, services: [oldService] }),
+        filterOrder.id,
+      );
+      assert.equal(
+        (await reload(filterOrder.id)).services[0].maintenanceTypeCode,
+        code,
+      );
+      check(
+        code +
+          ": seleccionar -> guardar -> recargar -> mantención; PATCH antiguo conserva código",
+      );
+    }
+    const beforeExpansion = (
+      await client.query(
+        "SELECT to_jsonb(m) AS row FROM maintenance_records m WHERE workshop_id=$1 ORDER BY id",
+        [workshop],
+      )
+    ).rows;
+    const beforeServices = (
+      await client.query(
+        "SELECT to_jsonb(s) AS row FROM work_order_services s WHERE workshop_id=$1 ORDER BY id",
+        [workshop],
+      )
+    ).rows;
+    const filterMigration = fs
+      .readFileSync(
+        path.join(
+          __dirname,
+          "../../../database/migrations/20261021_filter_maintenance_type_codes.sql",
+        ),
+        "utf8",
+      )
+      .replace(/^BEGIN;\s*$/gm, "")
+      .replace(/^COMMIT;\s*$/gm, "");
+    // Keep the real migration inside the fixture's outer ROLLBACK.
+    for (let pass = 0; pass < 2; pass++) {
+      await client.query(filterMigration);
+      assert.deepEqual(
+        (
+          await client.query(
+            "SELECT to_jsonb(m) AS row FROM maintenance_records m WHERE workshop_id=$1 ORDER BY id",
+            [workshop],
+          )
+        ).rows,
+        beforeExpansion,
+      );
+      assert.deepEqual(
+        (
+          await client.query(
+            "SELECT to_jsonb(s) AS row FROM work_order_services s WHERE workshop_id=$1 ORDER BY id",
+            [workshop],
+          )
+        ).rows,
+        beforeServices,
+      );
+    }
+    check(
+      "Migración repetible conserva íntegros los registros FILTERS y los tres códigos nuevos sin reclasificar",
+    );
+
+    assert.equal(latestMaintenanceByType(filterRows).length, 4);
+    const freshFilter = await service.create(admin, {
+      ...base,
+      type: "Servicio de admisión actualizado",
+      maintenanceTypeCode: "AIR_FILTER",
+      date: "2026-10-21",
+      nextMileage: 14000,
+      nextDate: "2027-05-21",
+    });
+    const freshRow = (await service.findAll(admin)).find(
+      (m) => m.id === freshFilter.id,
+    );
+    const active = latestMaintenanceByType([...filterRows, freshRow]);
+    assert.equal(active.length, 4);
+    assert.equal(
+      active.find((m) => m.maintenanceTypeCode === "AIR_FILTER").id,
+      freshFilter.id,
+    );
+    for (const code of ["CABIN_FILTER", "FUEL_FILTER", "FILTERS"])
+      assert.equal(
+        active.find((m) => m.maintenanceTypeCode === code).id,
+        filterRows.find((m) => m.maintenanceTypeCode === code).id,
+      );
+    check(
+      "Programaciones reales de aire, cabina, combustible y FILTERS son independientes; aire nuevo sustituye solo aire",
+    );
+
+    for (const [name, code] of [
+      ["  CAMBIO  DE FILTRO DE AIRE  ", "AIR_FILTER"],
+      ["filtro de cabina", "CABIN_FILTER"],
+      ["filtro combustible", "FUEL_FILTER"],
+    ]) {
+      assert.equal(readMaintenanceTypeCode(undefined, name), code);
+      assert.equal(readMaintenanceTypeCode("FILTERS", name), "FILTERS");
+    }
+    const ancientBody = {
+      ...orderBody,
+      services: [
+        {
+          ...orderBody.services[0],
+          id: crypto.randomUUID(),
+          name: "Filtro de cabina",
+        },
+      ],
+    };
+    delete ancientBody.services[0].maintenanceTypeCode;
+    const ancientOrder = await orders.save(admin, request(ancientBody));
+    const ancientLoaded = await reload(ancientOrder.id);
+    assert.equal(ancientLoaded.services[0].maintenanceTypeCode, undefined);
+    assert.equal(
+      maintenanceOrderContext(ancientLoaded).maintenanceTypeCode,
+      "CABIN_FILTER",
+    );
+    const ancientSaved = await service.create(admin, {
+      ...base,
+      ...maintenanceOrderContext(ancientLoaded),
+      date: "2026-10-21",
+    });
+    assert.equal(
+      (await service.findAll(admin)).find((m) => m.id === ancientSaved.id)
+        .maintenanceTypeCode,
+      "CABIN_FILTER",
+    );
+    check(
+      "Orden antigua sin código conserva NULL y permite crear mantención de cabina por equivalencia exacta",
+    );
+
     console.log(
       count + " grupos de pruebas aprobados; los datos QA se revierten.",
     );

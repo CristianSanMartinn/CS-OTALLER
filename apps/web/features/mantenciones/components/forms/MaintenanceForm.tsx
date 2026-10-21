@@ -197,11 +197,17 @@ export function MaintenanceForm({
                 });
               }}
             >
-              {maintenanceCategories.map((category) => (
-                <option key={category.code} value={category.code}>
-                  {category.label}
-                </option>
-              ))}
+              {maintenanceCategories
+                .filter(
+                  (category) =>
+                    category.code !== "FILTERS" ||
+                    value.maintenanceTypeCode === "FILTERS",
+                )
+                .map((category) => (
+                  <option key={category.code} value={category.code}>
+                    {category.label}
+                  </option>
+                ))}
             </SelectField>
           }
           onChoose={(suggestion) => {

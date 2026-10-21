@@ -6,6 +6,9 @@ const codes = [
   "BRAKE_FLUID",
   "SPARK_PLUGS",
   "TIMING",
+  "AIR_FILTER",
+  "CABIN_FILTER",
+  "FUEL_FILTER",
   "FILTERS",
   "OTHER",
 ] as const;
@@ -37,13 +40,13 @@ export function inferMaintenanceType(name: string): MaintenanceTypeCode {
     "correa de distribucion": "TIMING",
     "cambio de correa de distribucion": "TIMING",
     "cadena de distribucion": "TIMING",
-    "filtro de aire": "FILTERS",
-    "cambio de filtro de aire": "FILTERS",
-    "filtro combustible": "FILTERS",
-    "filtro de combustible": "FILTERS",
-    "cambio de filtro de combustible": "FILTERS",
-    "filtro de cabina": "FILTERS",
-    "cambio de filtro de cabina": "FILTERS",
+    "filtro de aire": "AIR_FILTER",
+    "cambio de filtro de aire": "AIR_FILTER",
+    "filtro combustible": "FUEL_FILTER",
+    "filtro de combustible": "FUEL_FILTER",
+    "cambio de filtro de combustible": "FUEL_FILTER",
+    "filtro de cabina": "CABIN_FILTER",
+    "cambio de filtro de cabina": "CABIN_FILTER",
   };
   return aliases[normalized] ?? "OTHER";
 }

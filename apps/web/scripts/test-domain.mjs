@@ -809,7 +809,7 @@ test("El código de aceite conserva la ficha aunque el título sea personalizado
   );
   assert.equal(
     maintenanceTypeCode({ type: "Cambio de filtro de aire" }),
-    "FILTERS",
+    "AIR_FILTER",
   );
 });
 
@@ -1653,3 +1653,146 @@ console.log(
   count +
     " pruebas totales con persistencia de clasificación en órdenes completadas.",
 );
+
+test("Filtros: equivalencias exactas separan aire, cabina y combustible sin reclasificar códigos explícitos", () => {
+  for (const [name, code] of [
+    ["filtro de aire", "AIR_FILTER"],
+    ["  CAMBIO   DE FILTRO DE AIRE  ", "AIR_FILTER"],
+    ["filtro de cabina", "CABIN_FILTER"],
+    ["Cambio de filtro de cabina", "CABIN_FILTER"],
+    ["filtro combustible", "FUEL_FILTER"],
+    ["filtro de combustible", "FUEL_FILTER"],
+    ["Cambio de filtro de combustible", "FUEL_FILTER"],
+  ])
+    assert.equal(maintenanceTypeCode({ type: name }), code);
+  assert.equal(
+    maintenanceTypeCode({
+      type: "Filtro de aire",
+      maintenanceTypeCode: "FILTERS",
+    }),
+    "FILTERS",
+  );
+  assert.equal(
+    maintenanceTypeCode({
+      type: "Filtro de aire",
+      maintenanceTypeCode: "CABIN_FILTER",
+    }),
+    "CABIN_FILTER",
+  );
+  for (const type of ["Filtros", "Filtro de aire y cabina", "Filtro de aceite"])
+    assert.equal(maintenanceTypeCode({ type }), "OTHER");
+});
+
+test("AIR_FILTER no reemplaza CABIN_FILTER y CABIN_FILTER no reemplaza FUEL_FILTER", () => {
+  const records = ["AIR_FILTER", "CABIN_FILTER", "FUEL_FILTER", "FILTERS"].map(
+    (code, index) => ({
+      ...maintenanceFixture,
+      id: code,
+      workshopId: "filter-shop",
+      vehicleId: "filter-car",
+      maintenanceTypeCode: code,
+      type: "Nombre visible compartido",
+      date: "2026-10-" + (10 + index),
+    }),
+  );
+  assert.deepEqual(
+    Array.from(latestMaintenanceByType(records), (r) => r.id).sort(),
+    records.map((r) => r.id).sort(),
+  );
+  const fresh = {
+    ...records[0],
+    id: "air-new",
+    type: "Servicio de admisión",
+    date: "2026-10-20",
+  };
+  assert.deepEqual(
+    Array.from(
+      latestMaintenanceByType([...records, fresh]),
+      (r) => r.id,
+    ).sort(),
+    ["air-new", "CABIN_FILTER", "FUEL_FILTER", "FILTERS"].sort(),
+  );
+  assert.equal(records.length, 4);
+});
+
+test("Programación de filtros sigue aislada por taller y vehículo", () => {
+  const first = {
+    ...maintenanceFixture,
+    id: "one",
+    workshopId: "one",
+    vehicleId: "one",
+    maintenanceTypeCode: "AIR_FILTER",
+  };
+  const records = [
+    first,
+    { ...first, id: "other-shop", workshopId: "two" },
+    { ...first, id: "other-car", vehicleId: "two" },
+  ];
+  assert.equal(latestMaintenanceByType(records).length, 3);
+});
+
+test("Formulario ofrece filtros específicos y conserva FILTERS solo cuando viene heredado", () => {
+  const form = mountMaintenanceForm();
+  const optionCodes = () =>
+    form
+      .editor()
+      .props.extraClassification.props.children.map(
+        (option) => option.props.value,
+      );
+  assert.equal(optionCodes().includes("FILTERS"), false);
+  for (const code of ["AIR_FILTER", "CABIN_FILTER", "FUEL_FILTER"]) {
+    assert.ok(optionCodes().includes(code));
+    form
+      .editor()
+      .props.extraClassification.props.onChange({ target: { value: code } });
+    form.editor().props.onChange({ name: "Nombre personalizado" });
+    assert.equal(form.category(), code);
+    assert.equal(form.hasOilFields(), false);
+  }
+  const legacy = {
+    ...order,
+    services: [
+      {
+        ...order.services[0],
+        name: "Filtro de aire",
+        maintenanceTypeCode: "FILTERS",
+      },
+    ],
+  };
+  const inherited = mountMaintenanceForm([legacy], legacy.id);
+  assert.equal(inherited.category(), "FILTERS");
+  assert.ok(
+    inherited
+      .editor()
+      .props.extraClassification.props.children.some(
+        (option) => option.props.value === "FILTERS",
+      ),
+  );
+  inherited.editor().props.onChange({ name: "Cambio de filtro de cabina" });
+  assert.equal(inherited.category(), "FILTERS");
+});
+
+test("Seleccionar servicios de filtros conserva los tres códigos hacia el contexto de Mantenciones", () => {
+  for (const [name, code] of [
+    ["Filtro de aire", "AIR_FILTER"],
+    ["Filtro de cabina", "CABIN_FILTER"],
+    ["Filtro combustible", "FUEL_FILTER"],
+  ]) {
+    const form = mountServicesSection({
+      ...order,
+      services: [{ ...order.services[0] }],
+    });
+    form
+      .editor()
+      .props.onChoose({
+        name,
+        interventionType: "MAINTENANCE",
+        interventionReason: "SCHEDULED",
+      });
+    const payload = JSON.parse(JSON.stringify(form.current()));
+    assert.equal(payload.services[0].maintenanceTypeCode, code);
+    assert.equal(maintenanceOrderContext(payload).maintenanceTypeCode, code);
+  }
+});
+
+console.log(count + " pruebas totales con filtros independientes completadas.");
