@@ -3,18 +3,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { User } from "@/features/shared/types/domain";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Panel, PageHeading, SearchBox } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
-import { WorkersTable } from "./WorkersTable";
-import { WorkerForm } from "./WorkerForm";
-import { WorkerDetails } from "./WorkerDetails";
+import { WorkersTable } from "./list/WorkersTable";
+import { WorkerForm } from "./forms/WorkerForm";
+import { useWorkers } from "../hooks/useWorkers";
+import { WorkerDetails } from "./details/WorkerDetails";
 export function WorkersPage() {
-  const { data, user, update, notify } = useStore();
+  const { data, user, saveWorker, notify } = useStore();
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<User>();
   const [detail, setDetail] = useState<User>();
   const [toggle, setToggle] = useState<User>();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { workers, online, available } = useWorkers(query);
   if (user?.role !== "ADMIN") return null;
   return (
     <>
@@ -28,6 +32,11 @@ export function WorkersPage() {
           </Link>
         }
       />
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
       <Panel>
         <div className="toolbar">
           <SearchBox
@@ -36,15 +45,12 @@ export function WorkersPage() {
             placeholder="Buscar nombre, correo o especialidad..."
           />
           <span className="muted">
-            {data.users.filter((u) => u.active).length} activos
+            {data.users.filter((u) => u.active).length} activos ·{" "}
+            {available ? online + " conectados" : "Conexión sin confirmar"}
           </span>
         </div>
         <WorkersTable
-          workers={data.users.filter((u) =>
-            (u.name + u.email + u.specialty)
-              .toLowerCase()
-              .includes(query.toLowerCase()),
-          )}
+          workers={workers}
           currentId={user.id}
           onEdit={setEditing}
           onView={setDetail}
@@ -56,11 +62,7 @@ export function WorkersPage() {
           <WorkerForm
             worker={editing}
             onCancel={() => setEditing(undefined)}
-            onSave={(u) => {
-              update((d) => ({
-                ...d,
-                users: d.users.map((x) => (x.id === u.id ? u : x)),
-              }));
+            onSave={() => {
               setEditing(undefined);
               notify("Trabajador actualizado");
             }}
@@ -96,19 +98,27 @@ export function WorkersPage() {
             </button>
             <button
               className="button primary"
-              onClick={() => {
-                update((d) => ({
-                  ...d,
-                  users: d.users.map((u) =>
-                    u.id === toggle.id ? { ...u, active: !u.active } : u,
-                  ),
-                }));
-                notify(
-                  toggle.active
-                    ? "Trabajador desactivado"
-                    : "Trabajador reactivado",
-                );
-                setToggle(undefined);
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  await saveWorker(
+                    { ...toggle, active: !toggle.active },
+                    undefined,
+                    true,
+                  );
+                  notify(
+                    toggle.active
+                      ? "Trabajador desactivado"
+                      : "Trabajador reactivado",
+                  );
+                  setToggle(undefined);
+                } catch (e) {
+                  setError((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
               }}
             >
               Confirmar

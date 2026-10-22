@@ -1,0 +1,58 @@
+.dashboardColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr);
+  gap: 22px;
+}
+
+.dashboardColumns > div {
+  min-width: 0;
+}
+
+@media (min-width: 1500px) {
+  .dashboardColumns {
+    grid-template-columns: minmax(0, 3fr) minmax(290px, 1fr);
+  }
+}
+
+@media (max-width: 1250px) {
+  .dashboardColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboardColumns > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboardColumns > div:last-child {
+    display: block;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 17px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 1000px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .statsGrid {
+    gap: 12px;
+  }
+}
+
+.panelFoot {
+  font-size: 9px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  color: var(--neutral-text, #91a0b5);
+}

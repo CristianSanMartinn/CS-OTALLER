@@ -1,0 +1,35 @@
+.headingActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dateChip {
+  border: 1px solid #e1e6ee;
+  padding: 10px 12px;
+  background: var(--neutral-surface, white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 7px;
+  font-size: 10px;
+  color: var(--neutral-text, #657187);
+  white-space: nowrap;
+}
+
+@media (max-width: 1250px) {
+  .headingActions .dateChip {
+    display: none;
+  }
+}
+
+@media (max-width: 430px) {
+  .dateChip {
+    display: none;
+  }
+}
+
+:global(.app-shell[data-theme="dark"]) .dateChip {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}

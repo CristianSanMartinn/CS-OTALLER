@@ -1,0 +1,148 @@
+.vehiclePortalHeader {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0 36px;
+  align-items: center;
+  padding: 22px 0 30px;
+}
+.portalReturn {
+  grid-column: 1/-1;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: #c3e3f5;
+  font-size: 14px;
+  width: fit-content;
+  background: none;
+  border: 0;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.portalReturn:hover {
+  color: white;
+}
+.vehiclePortalBrand {
+  min-height: 155px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.vehiclePortalBrand img {
+  width: 220px;
+  height: 150px;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+.vehiclePortalBrand strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #31d1f1;
+  font-size: 24px;
+}
+.vehiclePortalWelcome > span {
+  font-size: 11px;
+  color: #67cef1;
+  letter-spacing: 1.4px;
+}
+.vehiclePortalWelcome h1 {
+  font-size: 34px;
+  line-height: 1.18;
+  letter-spacing: -0.8px;
+  margin: 10px 0;
+}
+.vehiclePortalWelcome p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #d9e6f0;
+  max-width: 610px;
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .vehiclePortalHeader {
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+  }
+  .vehiclePortalWelcome h1 {
+    font-size: 29px;
+  }
+}
+@media (max-width: 600px) {
+  .vehiclePortalHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 12px 4px 24px;
+  }
+  .portalReturn {
+    font-size: 12px;
+  }
+  .vehiclePortalBrand {
+    min-height: 138px;
+  }
+  .vehiclePortalBrand img {
+    width: 220px;
+    height: 140px;
+  }
+  .vehiclePortalWelcome > span {
+    font-size: 9px;
+  }
+  .vehiclePortalWelcome h1 {
+    font-size: 26px;
+    margin-top: 10px;
+  }
+  .vehiclePortalWelcome p {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .vehiclePortalHeader:global(.is-detail) .vehiclePortalBrand {
+    min-height: 100px;
+  }
+  .vehiclePortalHeader:global(.is-detail) .vehiclePortalBrand img {
+    width: 160px;
+    height: 100px;
+  }
+}
+:global(.service-visit-portal) .vehiclePortalHeader {
+  grid-template-columns: 160px 1fr;
+  padding-bottom: 24px;
+  gap: 10px 28px;
+}
+:global(.service-visit-portal) .vehiclePortalBrand {
+  min-height: 90px;
+}
+:global(.service-visit-portal) .vehiclePortalBrand img {
+  width: 155px;
+  height: 100px;
+  object-fit: contain;
+}
+:global(.service-visit-portal) .vehiclePortalWelcome h1 {
+  font-size: clamp(23px, 3vw, 34px);
+}
+@media (max-width: 720px) {
+  :global(.service-visit-portal) .vehiclePortalHeader {
+    grid-template-columns: 100px 1fr;
+    gap: 10px 14px;
+    padding: 16px 0 20px;
+  }
+  :global(.service-visit-portal) .vehiclePortalBrand {
+    min-height: 75px;
+  }
+  :global(.service-visit-portal) .vehiclePortalBrand img {
+    width: 100px;
+    height: 80px;
+  }
+  :global(.service-visit-portal) .vehiclePortalBrand strong {
+    font-size: 14px;
+  }
+  :global(.service-visit-portal) .vehiclePortalWelcome h1 {
+    font-size: 21px;
+  }
+  :global(.service-visit-portal) .vehiclePortalWelcome p {
+    font-size: 12px;
+  }
+  :global(.service-visit-portal) .vehiclePortalWelcome > span {
+    font-size: 8px;
+  }
+}

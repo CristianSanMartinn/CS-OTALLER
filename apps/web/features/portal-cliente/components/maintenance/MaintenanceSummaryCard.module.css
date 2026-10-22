@@ -1,0 +1,109 @@
+.maintenanceDetailMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: var(--neutral-text, #506a85);
+  font-size: 13px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9edf2;
+}
+.maintenanceDetailMeta > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.maintenanceRecordBadge {
+  color: #00835f;
+  background: #d9f6e9;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.maintenanceProducts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.maintenanceProducts article {
+  border: 1px solid #e3ebf2;
+  border-radius: 14px;
+  padding: 16px;
+}
+.productIllustration {
+  display: grid;
+  place-items: center;
+  height: 112px;
+  background: var(--neutral-surface, #f1f7fd);
+  border-radius: 10px;
+  color: #007eff;
+  margin-bottom: 14px;
+}
+.maintenanceProducts h4 {
+  font-size: 15px;
+  margin: 0 0 7px;
+}
+.maintenanceProducts strong {
+  display: block;
+  font-size: 14px;
+}
+.maintenanceProducts p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--neutral-text, #526c85);
+}
+.maintenanceNextStrip {
+  background: var(--neutral-surface, #eef6ff);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 28px;
+}
+.maintenanceNextStrip h3 {
+  color: #007aff;
+  margin: 0 0 16px;
+}
+.maintenanceNextStrip p {
+  font-size: 12px;
+  color: var(--neutral-text, #59718a);
+  margin-bottom: 0;
+}
+.maintenanceParts {
+  color: var(--neutral-text, #526c85);
+  padding-left: 20px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .maintenanceProducts {
+    gap: 10px;
+  }
+  .maintenanceProducts article {
+    padding: 12px;
+  }
+  .maintenanceProducts strong {
+    font-size: 12px;
+  }
+  .maintenanceProducts h4 {
+    font-size: 14px;
+  }
+  .maintenanceProducts p {
+    font-size: 12px;
+  }
+  .productIllustration {
+    height: 95px;
+  }
+}
+:global(.service-visit-portal) :is(.maintenanceProducts article) {
+  background: #162739;
+  border-color: #31475d;
+  color: #edf5ff;
+}
+:global(.service-visit-portal) :is(div.maintenanceDetailMeta, ul.maintenanceParts) {
+  color: #c5d6e8;
+}
+:global(.service-visit-portal) .maintenanceNextStrip {
+  background: #152f4b;
+  color: #d2e8ff;
+}
+:global(.service-visit-portal) .maintenanceProducts p {
+  color: #9db5ca;
+}

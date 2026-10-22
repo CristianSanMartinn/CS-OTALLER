@@ -1,0 +1,21 @@
+.orderOverview {
+  display: flex;
+  gap: 15px;
+  background: var(--neutral-surface, #edf3ff);
+  color: #6288ce;
+  border: 1px solid #dce6fa;
+  padding: 19px 22px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.orderOverview strong {
+  font-size: 13px;
+}
+
+.orderOverview p {
+  font-size: 11px;
+  margin-top: 3px;
+  color: var(--neutral-text, #849cc3);
+}

@@ -1,0 +1,92 @@
+"use client";
+import { CustomerAccessCard } from "../access/CustomerAccessCard";
+import { VehiclePhotoGallery } from "../photos/VehiclePhotoGallery";
+import { OilChangeSummary } from "@/features/mantenciones/components/oil/OilChangeSummary";
+import Link from "next/link";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
+import {
+  PageHeading,
+  Panel,
+  Breadcrumb,
+  EmptyState,
+  DetailGrid,
+} from "@/components/ui/primitives";
+import { VehicleHistory } from "../history/VehicleHistory";
+import { VehicleMaintenanceHistory } from "../history/VehicleMaintenanceHistory";
+import { NextMaintenanceCard } from "@/features/mantenciones/components/reminders/NextMaintenanceCard";
+import { isEngineOil } from "@/features/shared/services/interventions";
+import { km } from "@/utils/format";
+export function VehicleDetails({ id }: { id: string }) {
+  const { data, user } = useStore();
+  const v = data.vehicles.find((v) => v.id === id);
+  if (!v) return <EmptyState title="Vehículo no encontrado o sin acceso" />;
+  const orders = data.orders.filter((o) => o.vehicleId === id);
+  const maintenance = data.maintenance.filter((m) => m.vehicleId === id);
+  const oil = [...maintenance]
+    .filter((m) => isEngineOil(m.type, m.maintenanceTypeCode))
+    .sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage)[0];
+  return (
+    <>
+      <Breadcrumb label="Vehículos" href="/vehiculos" current={v.plate} />
+      <PageHeading
+        title={v.brand + " " + v.model}
+        description={v.plate + " · " + v.year + " · Historial del vehículo"}
+        action={
+          <Link
+            className="button primary"
+            href={"/ordenes/nueva?vehiculo=" + id}
+          >
+            Nueva orden
+          </Link>
+        }
+      />
+      <Panel title="Datos generales">
+        <DetailGrid
+          items={[
+            ["Patente", v.plate],
+            [
+              "Propietario",
+              data.customers.find((c) => c.id === v.customerId)?.name,
+            ],
+            ["Kilometraje", km(v.mileage)],
+            ["Versión", v.version],
+            ["VIN", v.vin],
+            ["Motor", v.engine],
+            ["Combustible", v.fuel],
+            ["Transmisión", v.transmission],
+            ["Color", v.color],
+          ]}
+        />
+      </Panel>
+      {user?.role === "ADMIN" && (
+        <CustomerAccessCard customerId={v.customerId} plate={v.plate} />
+      )}
+      {oil && <OilChangeSummary record={oil} />}
+      <NextMaintenanceCard records={maintenance} mileage={v.mileage} />
+      <Panel title="Órdenes anteriores">
+        <VehicleHistory orders={orders} />
+      </Panel>
+      <Panel title="Diagnósticos y reparaciones">
+        <div className="record-list">
+          {orders.map((o) => (
+            <div key={o.id}>
+              <Link className="text-link" href={"/ordenes/" + o.id}>
+                {o.number}
+              </Link>
+              <p>{o.diagnosis || "Diagnóstico pendiente"}</p>
+              <small>
+                {o.services
+                  .map((s) => s.name + " (" + s.status + ")")
+                  .join(" · ")}
+              </small>
+            </div>
+          ))}
+        </div>
+      </Panel>
+      <Panel title="Mantenciones">
+        <VehicleMaintenanceHistory records={maintenance} />
+      </Panel>
+      <VehiclePhotoGallery key={v.id} vehicle={v} />
+    </>
+  );
+}

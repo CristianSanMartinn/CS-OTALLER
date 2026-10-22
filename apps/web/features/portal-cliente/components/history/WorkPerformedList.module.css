@@ -1,0 +1,39 @@
+.performedWorkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 15px;
+}
+
+.performedWorkList li {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  color: var(--neutral-text, #3d5874);
+  font-size: 14px;
+}
+
+.performedWorkList svg {
+  color: #00ac7c;
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.performedWorkList small {
+  display: block;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.performedWorkList p {
+  margin: 5px 0 0;
+  font-size: 13px;
+}
+
+.performedWorkList .nestedDetails li {
+  display: list-item;
+  padding: 0;
+  border: 0;
+  color: inherit;
+}

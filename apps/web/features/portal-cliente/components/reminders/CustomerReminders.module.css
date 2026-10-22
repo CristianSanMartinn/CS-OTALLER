@@ -1,0 +1,22 @@
+.portalCareNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.portalCareNote svg {
+  color: #008aff;
+  flex-shrink: 0;
+}
+
+.portalCareNote p {
+  margin: 0;
+  color: var(--neutral-text, #3b5873);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+:global(.service-visit-portal) .portalCareNote {
+  background: #18293b;
+  color: #c5d6e8;
+}

@@ -1,17 +1,18 @@
 "use client";
+import styles from "./AgendaPage.module.css";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Appointment } from "@/features/shared/types/domain";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { Panel, PageHeading } from "@/components/ui/primitives";
 import { Modal } from "@/components/Modal/Modal";
 import { today, dateLabel } from "@/utils/format";
-import { AppointmentCalendar } from "./AppointmentCalendar";
-import { AppointmentList } from "./AppointmentList";
-import { AppointmentFilters } from "./AppointmentFilters";
-import { AppointmentForm } from "./AppointmentForm";
+import { AppointmentCalendar } from "./calendar/AppointmentCalendar";
+import { AppointmentList } from "./list/AppointmentList";
+import { AppointmentFilters } from "./filters/AppointmentFilters";
+import { AppointmentForm } from "./forms/AppointmentForm";
 export function AgendaPage() {
-  const { data, user, update, notify } = useStore();
+  const { data, user, notify } = useStore();
   const [date, setDate] = useState(today);
   const [filter, setFilter] = useState("");
   const [open, setOpen] = useState(false);
@@ -41,7 +42,7 @@ export function AgendaPage() {
           )
         }
       />
-      <div className="agenda-layout">
+      <div className={styles.agendaLayout}>
         <Panel>
           <AppointmentCalendar
             date={date}
@@ -85,13 +86,7 @@ export function AgendaPage() {
             appointment={editing}
             date={date}
             onCancel={() => setOpen(false)}
-            onSave={(a) => {
-              update((d) => ({
-                ...d,
-                appointments: editing
-                  ? d.appointments.map((x) => (x.id === a.id ? a : x))
-                  : [a, ...d.appointments],
-              }));
+            onSave={() => {
               notify("Cita guardada");
               setOpen(false);
             }}

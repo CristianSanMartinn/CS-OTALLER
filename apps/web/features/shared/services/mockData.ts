@@ -212,68 +212,66 @@ export function createMockData(): Store {
     "Revisión sistema de refrigeración",
     "Cambio de aceite y filtros",
   ];
-  const orders: WorkOrder[] = vehicles
-    .slice(0, 6)
-    .map((v, i) => ({
-      id: "o" + (i + 1),
-      workshopId,
-      number: "OT-" + (1048 - i),
-      date,
-      time: ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00"][i],
-      customerId: v.customerId,
-      vehicleId: v.id,
-      mechanicId: i % 2 ? "u3" : "u2",
-      mileage: v.mileage,
-      reason: reasons[i],
-      symptoms:
-        i === 2
-          ? "Tirones al acelerar y testigo de motor encendido."
-          : "Revisión solicitada por el cliente.",
-      diagnosis:
-        i === 0
-          ? "Aceite degradado. Se recomienda cambio de aceite y filtros."
-          : "",
-      findings: "",
-      observations: "",
-      status: states[i],
-      codes:
-        i === 2
-          ? [
-              {
-                id: "code1",
-                code: "P0300",
-                description: "Fallo de encendido aleatorio",
-                status: "Activo",
-                notes: "Revisar bobinas y bujías",
-              },
-            ]
-          : [],
-      services: [
-        {
-          id: "s" + i,
-          name: reasons[i],
-          description: "",
-          mechanicId: i % 2 ? "u3" : "u2",
-          price: 45000 + i * 5000,
-          status: i === 3 || i === 5 ? "Finalizado" : "Pendiente",
-        },
-      ],
-      parts:
-        i === 0
-          ? [
-              {
-                id: "p1",
-                name: "Aceite 5W-30",
-                brand: "Mobil",
-                partNumber: "MOB-530",
-                quantity: 1,
-                price: 38900,
-                notes: "Envase 5 litros",
-              },
-            ]
-          : [],
-      photos: [],
-    }));
+  const orders: WorkOrder[] = vehicles.slice(0, 6).map((v, i) => ({
+    id: "o" + (i + 1),
+    workshopId,
+    number: "OT-" + (1048 - i),
+    date,
+    time: ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00"][i],
+    customerId: v.customerId,
+    vehicleId: v.id,
+    mechanicId: i % 2 ? "u3" : "u2",
+    mileage: v.mileage,
+    reason: reasons[i],
+    symptoms:
+      i === 2
+        ? "Tirones al acelerar y testigo de motor encendido."
+        : "Revisión solicitada por el cliente.",
+    diagnosis:
+      i === 0
+        ? "Aceite degradado. Se recomienda cambio de aceite y filtros."
+        : "",
+    findings: "",
+    observations: "",
+    status: states[i],
+    codes:
+      i === 2
+        ? [
+            {
+              id: "code1",
+              code: "P0300",
+              description: "Fallo de encendido aleatorio",
+              status: "Activo",
+              notes: "Revisar bobinas y bujías",
+            },
+          ]
+        : [],
+    services: [
+      {
+        id: "s" + i,
+        name: reasons[i],
+        description: "",
+        mechanicId: i % 2 ? "u3" : "u2",
+        price: 45000 + i * 5000,
+        status: i === 3 || i === 5 ? "Finalizado" : "Pendiente",
+      },
+    ],
+    parts:
+      i === 0
+        ? [
+            {
+              id: "p1",
+              name: "Aceite 5W-30",
+              brand: "Mobil",
+              partNumber: "MOB-530",
+              quantity: 1,
+              price: 38900,
+              notes: "Envase 5 litros",
+            },
+          ]
+        : [],
+    photos: [],
+  }));
   return {
     users,
     customers,
@@ -300,25 +298,23 @@ export function createMockData(): Store {
         notes: "Revisar nivel en 1.000 km.",
       },
     ],
-    appointments: vehicles
-      .slice(0, 4)
-      .map((v, i) => ({
-        id: "a" + i,
-        workshopId,
-        customerId: v.customerId,
-        vehicleId: v.id,
-        mechanicId: i % 2 ? "u3" : "u2",
-        service: [
-          "Mantención preventiva",
-          "Diagnóstico electrónico",
-          "Revisión de frenos",
-          "Cambio de aceite",
-        ][i],
-        date,
-        time: ["09:00", "11:30", "14:00", "16:30"][i],
-        notes: "",
-        status: i === 0 ? "En taller" : "Confirmada",
-      })),
+    appointments: vehicles.slice(0, 4).map((v, i) => ({
+      id: "a" + i,
+      workshopId,
+      customerId: v.customerId,
+      vehicleId: v.id,
+      mechanicId: i % 2 ? "u3" : "u2",
+      service: [
+        "Mantención preventiva",
+        "Diagnóstico electrónico",
+        "Revisión de frenos",
+        "Cambio de aceite",
+      ][i],
+      date,
+      time: ["09:00", "11:30", "14:00", "16:30"][i],
+      notes: "",
+      status: i === 0 ? "En taller" : "Confirmada",
+    })),
     workshop: {
       id: workshopId,
       workshopId,

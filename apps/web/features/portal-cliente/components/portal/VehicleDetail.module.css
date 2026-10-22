@@ -1,0 +1,217 @@
+.portalHeadingAnchor:focus {
+  outline: none;
+}
+.vehiclePortalTabs {
+  display: flex;
+  gap: 14px;
+  margin: 20px 0;
+}
+.vehiclePortalTabs button {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  color: #deebf7;
+  background: #12232fa8;
+  border: 1px solid #284253;
+  border-radius: 14px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.vehiclePortalTabs button[aria-pressed="true"] {
+  background: linear-gradient(125deg, #008cff, #0663fa);
+  border-color: #008bff;
+  color: white;
+  box-shadow: 0 6px 16px #0073ef30;
+}
+.vehiclePortalTabs button:focus-visible {
+  outline: 3px solid #28bdfa;
+  outline-offset: 3px;
+}
+.vehicleSummaryLayout,
+.vehicleHistoryLayout,
+.maintenanceDetailLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+.portalAppointmentCallout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 25px;
+  border: 1px solid #386073;
+  background:
+    linear-gradient(110deg, #071722e3, #0b2c41ce),
+    url("/images/garage-backdrop.svg") center/cover;
+  border-radius: 18px;
+  min-height: 140px;
+}
+.portalAppointmentCallout > svg {
+  color: #21cdff;
+  flex-shrink: 0;
+}
+.portalAppointmentCallout h2 {
+  font-size: 19px;
+  margin: 0 0 8px;
+}
+.portalAppointmentCallout p {
+  margin: 0;
+  color: #c5d6e5;
+  font-size: 14px;
+}
+.portalAppointmentCallout a {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--neutral-surface, #fff);
+  color: var(--neutral-text, #14253a);
+  padding: 12px;
+  border-radius: 999px;
+}
+.maintenanceHistoryRow {
+  width: 100%;
+  background: var(--neutral-surface, white);
+  color: var(--neutral-text, #10213a);
+  border: 0;
+  border-bottom: 1px solid #e3ebf2;
+  padding: 17px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.maintenanceHistoryRow span {
+  flex: 1;
+}
+.maintenanceHistoryRow strong,
+.maintenanceHistoryRow small {
+  display: block;
+}
+.maintenanceHistoryRow small {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--neutral-text, #59718a);
+}
+.maintenanceDetailLayout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+.maintenanceDetailLayout > div {
+  display: grid;
+  gap: 20px;
+}
+.vehicleDetailFooter {
+  text-align: center;
+  padding: 28px 10px 0;
+  color: var(--neutral-text, #9ab0c0);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.vehicleDetailFooter strong,
+.vehicleDetailFooter span {
+  display: block;
+}
+.vehicleDetailFooter strong {
+  color: #cbdcea;
+}
+@media (max-width: 900px) {
+  .vehicleSummaryLayout,
+.vehicleHistoryLayout,
+.maintenanceDetailLayout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .vehiclePortalTabs {
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .vehiclePortalTabs button {
+    flex-direction: column;
+    gap: 9px;
+    font-size: 13px;
+    min-height: 76px;
+    border-radius: 13px;
+  }
+  .vehicleSummaryLayout,
+.vehicleHistoryLayout,
+.maintenanceDetailLayout {
+    gap: 18px;
+  }
+  .portalAppointmentCallout {
+    padding: 18px;
+    gap: 12px;
+  }
+  .portalAppointmentCallout h2 {
+    font-size: 16px;
+  }
+  .portalAppointmentCallout p {
+    font-size: 12px;
+  }
+  .portalAppointmentCallout a {
+    padding: 10px;
+  }
+  .portalAppointmentCallout a > svg:first-child {
+    display: none;
+  }
+}
+.portalVehicleTransition {
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+.portalVehicleTransition:global(.is-switching) {
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .portalVehicleTransition {
+    transition: none;
+  }
+}
+.serviceVisitPortal {
+  background:
+    radial-gradient(ellipse at 15% 0, #12344b 0, transparent 45%), #070e15;
+  color: #edf5ff;
+  padding-bottom: 36px;
+}
+.serviceVisitPortal .vehiclePortalTabs {
+  margin: 0 0 24px;
+}
+.serviceVisitPortal .vehiclePortalTabs button {
+  background: #111d2b;
+  border-color: #263c50;
+  color: #a5b9cf;
+}
+.serviceVisitPortal .vehiclePortalTabs button[aria-pressed="true"] {
+  background: #077afa;
+  color: white;
+}
+.serviceVisitPortal .vehicleSummaryLayout {
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+.serviceVisitPortal :is(button.maintenanceHistoryRow) {
+  background: #162739;
+  border-color: #31475d;
+  color: #edf5ff;
+}
+.serviceVisitPortal .maintenanceHistoryRow small {
+  color: #9db5ca;
+}
+.serviceVisitPortal .portalAppointmentCallout {
+  margin: 0;
+  align-self: start;
+}
+@media (max-width: 720px) {
+  .serviceVisitPortal {
+    padding: 0 14px 28px;
+  }
+  .serviceVisitPortal .vehicleSummaryLayout {
+    grid-template-columns: 1fr;
+  }
+}

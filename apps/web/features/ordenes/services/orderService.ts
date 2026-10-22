@@ -18,19 +18,35 @@ export function saveOrder(data: Store, user: User, order: WorkOrder): Store {
     !vehicle ||
     !customer ||
     vehicle.customerId !== customer.id ||
-    !mechanic
+    (order.assignmentType !== "TEAM" && !mechanic)
   )
     throw new Error("Verifica el cliente, el vehículo y el mecánico asignado.");
   if (
     user.role === "WORKER" &&
-    (order.mechanicId !== user.id ||
+    ((previous
+      ? (order.assignmentType ?? "INDIVIDUAL") !==
+          (previous.assignmentType ?? "INDIVIDUAL") ||
+        order.mechanicId !== previous.mechanicId
+      : order.assignmentType === "TEAM" || order.mechanicId !== user.id) ||
       (!previous &&
         !data.orders.some(
-          (o) => o.vehicleId === order.vehicleId && o.mechanicId === user.id,
+          (o) =>
+            o.vehicleId === order.vehicleId &&
+            o.workshopId === user.workshopId &&
+            (o.assignmentType === "TEAM" || o.mechanicId === user.id),
         )))
   )
     throw new Error(
       "Solo puedes registrar fichas para tus vehículos asignados.",
+    );
+  if (order.assignmentType === "TEAM" && order.mechanicId)
+    throw new Error("La orden compartida no lleva un mecánico exclusivo.");
+  if (
+    previous?.assignmentType === "TEAM" &&
+    order.updatedAt !== previous.updatedAt
+  )
+    throw new Error(
+      "Otra persona actualizó esta orden. Recarga la ficha antes de guardar.",
     );
   if (previous && !canChangeStatus(user, previous, order.status))
     throw new Error("No tienes permiso para realizar este cambio de estado.");
@@ -77,6 +93,7 @@ export function saveOrder(data: Store, user: User, order: WorkOrder): Store {
           })),
         }
       : { ...order };
+  saved.updatedAt = new Date().toISOString();
   if (!previous)
     saved.number =
       "OT-" +

@@ -1,0 +1,20 @@
+.logoUpload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  color: #819fc7;
+  flex-wrap: wrap;
+}
+
+.logoUpload img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.logoUpload small {
+  font-size: 10px;
+}

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import {
   PageHeading,
   Panel,
@@ -25,6 +25,11 @@ export function PartsPage() {
       <PageHeading
         title="Repuestos"
         description="Piezas utilizadas en las órdenes de trabajo. La gestión de inventario se incorporará posteriormente."
+        action={
+          <Link href="/ordenes" className="button primary">
+            Agregar repuestos a una orden
+          </Link>
+        }
       />
       <Panel>
         <div className="toolbar">

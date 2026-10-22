@@ -1,0 +1,9 @@
+.orderLink {
+  font-weight: 700;
+  font-size: 10px;
+  color: #4a71bd;
+}
+
+:global(.app-shell[data-theme="dark"]) .orderLink {
+  color: #94bcff;
+}

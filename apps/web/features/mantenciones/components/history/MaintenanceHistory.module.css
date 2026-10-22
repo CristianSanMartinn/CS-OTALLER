@@ -1,0 +1,10 @@
+.recordTitle {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+:where(.recordTitle) small {
+  color: var(--neutral-text, #8e9db1);
+}

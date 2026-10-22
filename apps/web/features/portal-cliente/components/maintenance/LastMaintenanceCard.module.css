@@ -1,0 +1,117 @@
+.lastMaintenanceButton {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  align-items: center;
+  gap: 16px;
+  background: var(--neutral-surface, #fff);
+  color: var(--neutral-text, #10213a);
+  border: 1px solid #e3eaf1;
+  border-radius: 14px;
+  padding: 0 14px 0 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.lastMaintenanceVisual {
+  width: 125px;
+  min-height: 140px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(150deg, #e4f1ff, #cae6ff);
+  color: #007aff;
+}
+.lastMaintenanceVisual img {
+  width: 125px;
+  height: 150px;
+  object-fit: cover;
+}
+.lastMaintenanceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+  padding: 15px 0;
+  min-width: 0;
+}
+.lastMaintenanceInfo > strong {
+  font-size: 17px;
+}
+.lastMaintenanceInfo > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--neutral-text, #496782);
+}
+.otherServicesHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 13px;
+}
+.otherServicesHeading h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.otherServicesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.otherServicesGrid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 15px 7px;
+  border: 1px solid #e4ebf2;
+  border-radius: 13px;
+  background: var(--neutral-surface, #fff);
+  color: var(--neutral-text, #10213a);
+  cursor: pointer;
+}
+.otherServicesGrid svg {
+  color: #087fff;
+}
+.otherServicesGrid strong {
+  font-size: 12px;
+}
+.otherServicesGrid small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--neutral-text, #59718a);
+}
+@media (max-width: 600px) {
+  .lastMaintenanceButton {
+    gap: 10px;
+    padding-right: 9px;
+  }
+  .lastMaintenanceVisual {
+    width: 85px;
+  }
+  .lastMaintenanceVisual img {
+    width: 85px;
+  }
+  .lastMaintenanceInfo > strong {
+    font-size: 15px;
+  }
+  .lastMaintenanceInfo > span {
+    font-size: 11px;
+  }
+  .lastMaintenanceInfo svg {
+    flex-shrink: 0;
+  }
+}
+:global(.service-visit-portal) :is(.lastMaintenanceButton, .otherServicesGrid button) {
+  background: #162739;
+  border-color: #31475d;
+  color: #edf5ff;
+}
+:global(.service-visit-portal) :is(.lastMaintenanceInfo > span, .lastMaintenanceInfo strong) {
+  color: #c5d6e8;
+}

@@ -76,7 +76,7 @@ export function Sidebar({
     };
   }, [open, onClose]);
   const path = usePathname();
-  const { user, data } = useAuth();
+  const { user, data, live } = useAuth();
   return (
     <>
       <button
@@ -140,7 +140,8 @@ export function Sidebar({
             ))}
         </nav>
         <div className="sidebar-bottom">
-          <span className="online-dot" /> Entorno de demostración
+          <span className="online-dot" />{" "}
+          {live ? "Conectado al taller" : "Entorno de demostración"}
           <small>C.S.OTALLER · v1.0</small>
         </div>
       </aside>

@@ -1,5 +1,6 @@
 "use client";
-import { useStore } from "@/features/shared/components/StoreProvider";
+import styles from "./StatisticsPage.module.css";
+import { useStore } from "@/features/shared/components/store/StoreProvider";
 import { PageHeading, Panel } from "@/components/ui/primitives";
 import { statusLabels } from "@/features/ordenes/types/order.constants";
 export function StatisticsPage() {
@@ -9,19 +10,19 @@ export function StatisticsPage() {
     <>
       <PageHeading
         title="Estadísticas"
-        description="Resumen operativo de las órdenes registradas en esta demostración."
+        description="Resumen operativo de las órdenes registradas en tu taller."
       />
       <Panel
         title="Distribución por estado"
         subtitle="Conteo actual de órdenes del taller"
       >
-        <div className="bar-chart">
+        <div className={styles.barChart}>
           {Object.entries(statusLabels).map(([status, label]) => {
             const count = data.orders.filter((o) => o.status === status).length;
             return (
               <div key={status}>
                 <span>{label}</span>
-                <div className="bar-track">
+                <div className={styles.barTrack}>
                   <div
                     style={{
                       width:

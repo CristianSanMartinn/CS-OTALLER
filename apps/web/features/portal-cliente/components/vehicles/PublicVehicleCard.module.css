@@ -1,0 +1,165 @@
+.publicVehicleCard {
+  background: var(--neutral-surface, #fff);
+  color: var(--neutral-text, #08152a);
+  border: 1px solid #dce5ef;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 5px 16px #0004;
+  transition: transform 0.15s;
+}
+.publicVehicleCard:hover {
+  transform: translateY(-2px);
+}
+.publicVehicleCard:focus-visible {
+  outline: 3px solid #00cfff;
+  outline-offset: 4px;
+}
+.publicVehicleTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.publicVehicleName {
+  min-width: 0;
+  flex: 1;
+}
+.publicVehicleName h3 {
+  font-size: 20px;
+  line-height: 1.1;
+  margin: 0 0 4px;
+  font-weight: 850;
+}
+.publicVehicleName > strong {
+  font-size: 13px;
+  display: block;
+}
+.publicVehicleName p {
+  font-size: 12px;
+  color: var(--neutral-text, #536a87);
+  margin: 4px 0 0;
+}
+.publicVehicleRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 11px;
+}
+.publicVehicleMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #d9e3ef;
+  padding-top: 11px;
+}
+.publicVehicleMetrics > div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 4px;
+  padding: 0 5px;
+}
+.publicVehicleMetrics > div + div {
+  border-left: 1px solid #e5ebf3;
+}
+.publicVehicleMetrics svg {
+  color: var(--neutral-text, #0b2143);
+}
+.publicVehicleMetrics span {
+  font-size: 10px;
+  color: var(--neutral-text, #5a6a83);
+}
+.publicVehicleMetrics strong {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.publicVehicleMetrics small {
+  font-size: 9px;
+  color: var(--neutral-text, #60728d);
+}
+@media (max-width: 360px) {
+  .publicVehicleCard {
+    padding: 12px;
+  }
+  .publicVehicleTop {
+    gap: 8px;
+  }
+  .publicVehicleMetrics span {
+    font-size: 9px;
+  }
+}
+@media (min-width: 741px) {
+  .publicVehicleCard {
+    padding: 24px;
+    min-width: 0;
+    display: block;
+  }
+  .publicVehicleTop {
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+  .publicVehicleName h3 {
+    font-size: 24px;
+  }
+  .publicVehicleName > strong {
+    font-size: 15px;
+  }
+  .publicVehicleName p {
+    font-size: 13px;
+  }
+  .publicVehicleMetrics {
+    padding-top: 18px;
+  }
+  .publicVehicleMetrics > div {
+    padding: 0 9px;
+    gap: 7px;
+  }
+  .publicVehicleMetrics span {
+    font-size: 12px;
+  }
+  .publicVehicleMetrics strong {
+    font-size: 14px;
+  }
+  .publicVehicleMetrics small {
+    font-size: 11px;
+  }
+}
+.publicVehicleCard {
+  animation: var(--portal-section-animation, portal-card-enter 350ms ease-out both);
+}
+.publicVehicleCard:nth-child(2) {
+  animation-delay: 45ms;
+}
+.publicVehicleAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 12px 8px;
+  color: #0674ed;
+  background: var(--neutral-surface, #eef6ff);
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 650;
+}
+@media (max-width: 600px) {
+  .publicVehicleAction {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .publicVehicleCard {
+    animation: none !important;
+  }
+}
+.publicVehicleCard {
+  display: flex;
+  flex-direction: column;
+}
+.publicVehicleCard .publicVehicleAction {
+  margin-top: auto;
+}
+.publicVehicleCard .publicVehicleMetrics {
+  margin-bottom: 18px;
+}

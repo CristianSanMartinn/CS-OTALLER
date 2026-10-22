@@ -1,4 +1,4 @@
-import { OrdersPage } from "@/features/ordenes/components/OrdersPage";
+import { OrdersPage } from "@/features/ordenes/OrdersPage";
 export default async function Page({
   searchParams,
 }: {

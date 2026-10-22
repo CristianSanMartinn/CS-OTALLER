@@ -1,0 +1,47 @@
+.barChart {
+  padding: 26px;
+}
+
+.barChart > div {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+  font-size: 12px;
+}
+
+.barChart span {
+  width: 160px;
+  color: var(--neutral-text, #7890ae);
+}
+
+.barTrack {
+  flex: 1;
+  height: 13px;
+  background: var(--neutral-surface, #eff3fa);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barTrack > div {
+  background: #5280e5;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.barChart strong {
+  width: 20px;
+}
+
+@media (max-width: 760px) {
+  .barChart {
+    padding: 18px;
+  }
+  .barChart span {
+    width: 130px;
+    font-size: 10px;
+  }
+  .barChart > div {
+    gap: 12px;
+  }
+}

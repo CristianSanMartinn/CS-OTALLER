@@ -1,0 +1,6 @@
+.simulationResult {
+  background: var(--neutral-surface, #e5f4ed);
+  padding: 12px;
+  border-radius: 7px;
+  color: #3c8567 !important;
+}

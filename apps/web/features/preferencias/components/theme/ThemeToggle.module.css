@@ -1,0 +1,29 @@
+.themePreference {
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  margin-bottom: 22px;
+}
+
+.themePreference p {
+  color: var(--muted);
+  margin: 5px 0 14px;
+}
+
+.themePreference [role="group"] {
+  display: flex;
+  gap: 10px;
+}
+
+:global(.app-shell[data-theme="dark"]) .themePreference {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+@media print {
+  .themeToggle {
+    display: none;
+  }
+}

@@ -1,3 +1,18 @@
+import type {
+  MaintenanceClassification,
+  MaintenanceTypeCode,
+} from "../../../../../packages/types/src/maintenance.types";
+export type { MaintenanceTypeCode } from "../../../../../packages/types/src/maintenance.types";
+export type CancellationReason =
+  "CLIENT_CANCELLED" | "NO_BUDGET" | "DIAGNOSIS_ONLY" | "OTHER";
+export interface Cancellation {
+  reason: CancellationReason;
+  notes: string;
+  date: string;
+  userId: string;
+}
+export type VisitKind = "order" | "appointment";
+export type CancellationInput = Pick<Cancellation, "reason" | "notes">;
 export type Role = "ADMIN" | "WORKER";
 export interface Entity {
   id: string;
@@ -12,6 +27,7 @@ export interface User extends Entity {
   phone: string;
   specialty: string;
   avatarUrl?: string;
+  theme?: "light" | "dark";
 }
 export interface ReminderPreferences {
   emailEnabled: boolean;
@@ -21,6 +37,8 @@ export interface ReminderPreferences {
   daysBefore: 7 | 15 | 30;
 }
 export interface Customer extends Entity {
+  active?: boolean;
+  photos?: Photo[];
   publicAccessToken?: string;
   reminderPreferences?: ReminderPreferences;
   name: string;
@@ -61,7 +79,15 @@ export interface ScannerCode {
   status: string;
   notes: string;
 }
-export interface ServiceItem {
+export type InterventionType = "MAINTENANCE" | "REPAIR";
+export type InterventionReason = "SCHEDULED" | "WEAR" | "FAULT" | "OTHER";
+export interface Intervention {
+  interventionType?: InterventionType;
+  interventionReason?: InterventionReason;
+  workDetails?: string[];
+}
+export interface ServiceItem extends Intervention {
+  maintenanceTypeCode?: MaintenanceTypeCode;
   id: string;
   name: string;
   description: string;
@@ -87,6 +113,9 @@ export interface Photo {
   userId: string;
 }
 export interface WorkOrder extends Entity {
+  assignmentType?: "INDIVIDUAL" | "TEAM";
+  updatedAt?: string;
+  cancellation?: Cancellation;
   number: string;
   date: string;
   time: string;
@@ -105,12 +134,14 @@ export interface WorkOrder extends Entity {
   parts: PartItem[];
   photos: Photo[];
 }
-export interface Maintenance extends Entity {
+export interface Maintenance
+  extends Entity, Intervention, MaintenanceClassification {
   vehicleId: string;
   orderId: string;
   mechanicId: string;
   type: string;
   mileage: number;
+  oilProductName?: string;
   oilType: string;
   viscosity: string;
   brand: string;
@@ -125,6 +156,7 @@ export interface Maintenance extends Entity {
 export type AppointmentStatus =
   "Programada" | "Confirmada" | "En taller" | "Finalizada" | "Cancelada";
 export interface Appointment extends Entity {
+  cancellation?: Cancellation;
   customerId: string;
   vehicleId: string;
   mechanicId: string;

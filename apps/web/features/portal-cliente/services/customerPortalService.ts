@@ -1,4 +1,5 @@
 import { Store } from "@/features/shared/types/domain";
+
 export const customerPath = (vehicleId: string) =>
   "/mi-vehiculo/demo-" + encodeURIComponent(vehicleId);
 // Proyección explícita de datos de demostración. No sustituye autorización de backend.
@@ -32,6 +33,7 @@ export function customerVehicle(data: Store, token: string) {
     },
     workshop: {
       name: data.workshop.name,
+      logo: data.workshop.logo,
       phone: data.workshop.phone,
       address: data.workshop.address,
       hours: data.workshop.hours,
@@ -50,6 +52,9 @@ export function customerVehicle(data: Store, token: string) {
       services: o.services.map((s) => ({
         id: s.id,
         name: s.name,
+        interventionType: s.interventionType,
+        interventionReason: s.interventionReason,
+        workDetails: s.workDetails,
         description: s.description,
         status: s.status,
       })),
