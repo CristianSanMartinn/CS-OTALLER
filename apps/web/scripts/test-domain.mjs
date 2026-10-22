@@ -2062,3 +2062,105 @@ test("Portal: mantenciones de otros talleres o vehículos no sustituyen el regis
   assert.equal(maintenanceRecordSummary([portalHistoricalFixture, otherWorkshop, otherVehicle], portalHistoricalFixture.id, 15000, portalHistoricalDay).status, "Vencida");
 });
 console.log(count + " pruebas totales con contexto histórico del Portal completadas.");
+
+const defensiveDay = "2026-10-22";
+const defensiveRecord = {
+  id: "defensive", type: "Cambio de aceite", maintenanceTypeCode: "OIL_CHANGE",
+  date: "2026-10-01", mileage: 10000, nextMileage: null, nextDate: null,
+};
+function assertDefensiveState(record, mileage, expected) {
+  const state = maintenanceState(record, mileage, defensiveDay);
+  assert.equal(state.status, expected);
+  const summary = summarizeMaintenance([record], mileage, defensiveDay);
+  const labels = { UNSCHEDULED: "Sin programación", AL_DIA: "Al día", PROXIMA: "Próxima", VENCIDA: "Vencida" };
+  assert.equal(summary.status, labels[expected]);
+  if (expected === "UNSCHEDULED") {
+    assert.equal(summary.next, undefined);
+    assert.equal(summary.tone, "neutral");
+  } else {
+    assert.equal(summary.next.record, record);
+    assert.equal(summary.next.days, state.days ?? Infinity);
+    assert.equal(summary.next.distance, state.remaining ?? Infinity);
+  }
+  return state;
+}
+test("Fechas inválidas, vacías o inexistentes sin km no generan programación", () => {
+  for (const nextDate of [undefined, null, "", "incorrecta", "2026-02-30", "2026-13-01", "2026-1-01", "2026-10-22T00:00:00Z", 123, {}]) {
+    const state = assertDefensiveState({ ...defensiveRecord, nextDate }, 10000, "UNSCHEDULED");
+    assert.equal(state.days, null);
+    assert.equal(state.remaining, null);
+  }
+});
+test("Una fecha inválida no impide evaluar un objetivo válido de kilometraje", () => {
+  for (const [nextMileage, expected] of [[10000, "VENCIDA"], [12500, "PROXIMA"], [12501, "AL_DIA"]]) {
+    const state = assertDefensiveState({ ...defensiveRecord, nextDate: "2026-02-30", nextMileage }, 10000, expected);
+    assert.equal(state.days, null);
+    assert.equal(state.remaining, nextMileage - 10000);
+  }
+});
+test("Kilometraje actual inválido ignora solo km y conserva evaluación por fecha", () => {
+  for (const mileage of [undefined, null, NaN, Infinity, -1, "10000", "", {}]) {
+    for (const [nextDate, expected] of [["2026-10-22", "VENCIDA"], ["2026-11-21", "PROXIMA"], ["2026-11-22", "AL_DIA"]]) {
+      const state = assertDefensiveState({ ...defensiveRecord, nextMileage: 20000, nextDate }, mileage, expected);
+      assert.equal(state.remaining, null);
+    }
+  }
+});
+test("Sin fecha válida ni comparación válida de km el estado es UNSCHEDULED", () => {
+  for (const mileage of [undefined, null, NaN, Infinity, "10000", -1]) {
+    assertDefensiveState({ ...defensiveRecord, nextMileage: 20000, nextDate: "inválida" }, mileage, "UNSCHEDULED");
+  }
+});
+test("Objetivos de kilometraje ausentes, cero, negativos o inválidos no se convierten en cero", () => {
+  for (const nextMileage of [undefined, null, 0, -1, NaN, Infinity, "20000", {}]) {
+    assertDefensiveState({ ...defensiveRecord, nextMileage }, 10000, "UNSCHEDULED");
+    const state = assertDefensiveState({ ...defensiveRecord, nextMileage, nextDate: "2026-11-21" }, 10000, "PROXIMA");
+    assert.equal(state.remaining, null);
+  }
+});
+test("Los límites de 0 y 2500 km se conservan sin fecha y cero km actuales es válido", () => {
+  for (const [nextMileage, mileage, expected, remaining] of [
+    [10000, 10000, "VENCIDA", 0], [10000, 10001, "VENCIDA", -1],
+    [12500, 10000, "PROXIMA", 2500], [12501, 10000, "AL_DIA", 2501],
+    [2500, 0, "PROXIMA", 2500],
+  ]) {
+    assert.equal(assertDefensiveState({ ...defensiveRecord, nextMileage }, mileage, expected).remaining, remaining);
+  }
+});
+test("Los límites de 0 y 30 días se conservan sin kilometraje", () => {
+  for (const [nextDate, expected, days] of [
+    ["2026-10-21", "VENCIDA", -1], ["2026-10-22", "VENCIDA", 0],
+    ["2026-11-21", "PROXIMA", 30], ["2026-11-22", "AL_DIA", 31],
+  ]) {
+    assert.equal(assertDefensiveState({ ...defensiveRecord, nextDate }, 10000, expected).days, days);
+  }
+});
+test("La validación de calendario acepta el día bisiesto y descarta fechas normalizadas", () => {
+  assert.equal(maintenanceState({ nextDate: "2028-02-29", nextMileage: null }, 0, "2028-02-28").days, 1);
+  assert.equal(maintenanceState({ nextDate: "2027-02-29", nextMileage: null }, 0, "2027-02-28").status, "UNSCHEDULED");
+  assert.equal(maintenanceState({ nextDate: "2026-11-21", nextMileage: 12500 }, 10000, "inválida").status, "PROXIMA");
+});
+test("Un objetivo inválido vigente no reactiva una programación histórica sustituida", () => {
+  const old = { ...defensiveRecord, id: "old", date: "2026-01-01", nextMileage: 5000 };
+  const current = { ...defensiveRecord, id: "current", nextDate: "inválida" };
+  const records = [old, current];
+  assert.equal(latestMaintenanceByType(records)[0], current);
+  assert.equal(summarizeMaintenance(records, 10000, defensiveDay).status, "Sin programación");
+});
+test("El resumen con datos válidos conserva prioridad, distancias, fechas y datos originales", () => {
+  const oil = { ...defensiveRecord, nextMileage: 20000, nextDate: "2027-01-01" };
+  const air = { ...defensiveRecord, id: "air-valid", maintenanceTypeCode: "AIR_FILTER", type: "Filtro de aire", nextMileage: 12500, nextDate: "2026-11-22" };
+  const records = [oil, air];
+  const original = JSON.stringify(records);
+  const summary = summarizeMaintenance(records, 10000, defensiveDay);
+  assert.equal(summary.lastDate, "2026-10-01");
+  assert.equal(summary.status, "Próxima");
+  assert.equal(summary.tone, "soon");
+  assert.equal(summary.next.record, air);
+  assert.equal(summary.next.distance, 2500);
+  assert.equal(summary.next.days, 31);
+  assert.equal(summary.next.rank, 1);
+  assert.equal(JSON.stringify(records), original);
+  assert.equal(summarizeMaintenance([], 10000, defensiveDay).status, "Sin historial");
+});
+console.log(count + " pruebas totales con validación defensiva de mantenciones completadas.");

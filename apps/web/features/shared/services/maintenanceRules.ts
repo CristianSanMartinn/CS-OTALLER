@@ -118,6 +118,20 @@ export function latestMaintenanceByType<T extends ScheduledMaintenance>(
   return [...latest.values()];
 }
 
+function maintenanceDateTimestamp(value: unknown): number | null {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return null;
+  const timestamp = Date.parse(value + "T12:00:00Z");
+  return Number.isFinite(timestamp) &&
+    new Date(timestamp).toISOString().slice(0, 10) === value
+    ? timestamp
+    : null;
+}
+
+function isValidMileage(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
 export function maintenanceState(
   record: Pick<ScheduledMaintenance, "nextMileage" | "nextDate">,
   mileage: number,
@@ -135,13 +149,17 @@ export function maintenanceState(
         : defaultMaintenanceThresholds.nearDays,
   };
   const remaining =
-    (record.nextMileage ?? 0) > 0 ? record.nextMileage! - mileage : null;
-  const parsedDays = record.nextDate
-    ? (Date.parse(record.nextDate + "T12:00:00Z") -
-        Date.parse(day + "T12:00:00Z")) /
-      86400000
-    : NaN;
-  const days = Number.isFinite(parsedDays) ? parsedDays : null;
+    isValidMileage(record.nextMileage) &&
+    record.nextMileage > 0 &&
+    isValidMileage(mileage)
+      ? record.nextMileage - mileage
+      : null;
+  const nextTimestamp = maintenanceDateTimestamp(record.nextDate);
+  const dayTimestamp = maintenanceDateTimestamp(day);
+  const days =
+    nextTimestamp !== null && dayTimestamp !== null
+      ? (nextTimestamp - dayTimestamp) / 86400000
+      : null;
   const status =
     remaining === null && days === null
       ? "UNSCHEDULED"
@@ -163,12 +181,14 @@ export function summarizeMaintenance(
   const sorted = [...records].sort(
     (a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage,
   );
-  const upcoming = latestMaintenanceByType(records).filter(
-    (record) => (record.nextMileage ?? 0) > 0 || record.nextDate,
-  );
+  const upcoming = latestMaintenanceByType(records)
+    .map((record) => ({
+      record,
+      state: maintenanceState(record, mileage, day, thresholds),
+    }))
+    .filter(({ state }) => state.status !== "UNSCHEDULED");
   const next = upcoming
-    .map((record) => {
-      const state = maintenanceState(record, mileage, day, thresholds);
+    .map(({ record, state }) => {
       return {
         record,
         distance: state.remaining ?? Infinity,
