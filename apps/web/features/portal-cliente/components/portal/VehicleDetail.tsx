@@ -107,7 +107,8 @@ export function VehicleDetail({
             <div>
               <ServicePhotos photos={order?.photos ?? []} service />
               <CustomerReminders
-                records={[maintenance]}
+                records={records}
+                recordId={maintenance.id}
                 mileage={view.vehicle.mileage}
               />
             </div>

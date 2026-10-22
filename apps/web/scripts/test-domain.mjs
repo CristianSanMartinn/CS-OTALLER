@@ -1988,3 +1988,77 @@ test("El día explícito de una consulta histórica sigue respetándose", () => 
   assert.equal(maintenanceAt(afterSantiagoMidnight).explicitDay, "Próxima");
 });
 console.log(count + " pruebas totales con fecha de Santiago completadas.");
+
+const { maintenanceRecordSummary } = load(
+  "features/portal-cliente/services/vehicleMaintenanceSummary",
+);
+const portalHistoricalDay = "2026-10-22";
+const portalHistoricalFixture = {
+  id: "historical-oil", workshopId: "workshop-a", vehicleId: "vehicle-a",
+  type: "Cambio de aceite", maintenanceTypeCode: "OIL_CHANGE",
+  interventionType: "MAINTENANCE", date: "2026-01-01", mileage: 5000,
+  nextMileage: 12000, nextDate: "2026-06-01", notes: "Notas originales",
+  workDetails: ["Filtro reemplazado"],
+};
+const portalCurrentFixture = {
+  ...portalHistoricalFixture, id: "current-oil", type: "Aceite personalizado",
+  date: "2026-10-01", mileage: 15000, nextMileage: 25000, nextDate: "2027-01-01",
+};
+test("Portal: un registro sustituido no genera alerta actual aunque sus objetivos estén vencidos", () => {
+  const records = [portalHistoricalFixture, portalCurrentFixture];
+  assert.equal(maintenanceState(portalHistoricalFixture, 15000, portalHistoricalDay).status, "VENCIDA");
+  assert.equal(maintenanceRecordSummary(records, portalHistoricalFixture.id, 15000, portalHistoricalDay), null);
+  assert.equal(maintenanceRecordSummary(records, portalCurrentFixture.id, 15000, portalHistoricalDay).tone, "current");
+});
+test("Portal: la mantención vigente conserva sus estados al día, próxima y vencida", () => {
+  for (const [mileage, expected] of [[15000, "Al día"], [22500, "Próxima"], [25000, "Vencida"]]) {
+    assert.equal(maintenanceRecordSummary([portalHistoricalFixture, portalCurrentFixture], portalCurrentFixture.id, mileage, portalHistoricalDay).status, expected);
+  }
+});
+test("Portal: categorías diferentes conservan sus programaciones independientes", () => {
+  const air = { ...portalHistoricalFixture, id: "air", maintenanceTypeCode: "AIR_FILTER", type: "Filtro aire" };
+  const cabin = { ...portalCurrentFixture, id: "cabin", maintenanceTypeCode: "CABIN_FILTER", type: "Filtro cabina" };
+  const records = [air, cabin];
+  assert.equal(maintenanceRecordSummary(records, air.id, 15000, portalHistoricalDay).status, "Vencida");
+  assert.equal(maintenanceRecordSummary(records, cabin.id, 15000, portalHistoricalDay).status, "Al día");
+});
+test("Portal: un registro antiguo sin reemplazo sigue siendo vigente", () => {
+  assert.equal(maintenanceRecordSummary([portalHistoricalFixture], portalHistoricalFixture.id, 15000, portalHistoricalDay).status, "Vencida");
+});
+test("Portal: OTHER conserva agrupación por nombre y FILTERS sigue independiente de filtros específicos", () => {
+  const oldOther = { ...portalHistoricalFixture, id: "old-other", maintenanceTypeCode: "OTHER", type: "Trabajo especial" };
+  const newOther = { ...portalCurrentFixture, id: "new-other", maintenanceTypeCode: "OTHER", type: "  trabajo   especial " };
+  const separate = { ...portalHistoricalFixture, id: "different-other", maintenanceTypeCode: "OTHER", type: "Otra reparación" };
+  assert.equal(maintenanceRecordSummary([oldOther, newOther, separate], oldOther.id, 15000, portalHistoricalDay), null);
+  assert.equal(maintenanceRecordSummary([oldOther, newOther, separate], separate.id, 15000, portalHistoricalDay).status, "Vencida");
+  const legacyFilter = { ...portalHistoricalFixture, id: "legacy-filter", maintenanceTypeCode: "FILTERS", type: "Filtros" };
+  const air = { ...portalCurrentFixture, id: "new-air", maintenanceTypeCode: "AIR_FILTER", type: "Filtro aire" };
+  assert.equal(maintenanceRecordSummary([legacyFilter, air], legacyFilter.id, 15000, portalHistoricalDay).status, "Vencida");
+});
+test("Portal: registros antiguos sin código mantienen la inferencia y selección compartidas", () => {
+  const legacy = { ...portalHistoricalFixture, maintenanceTypeCode: undefined };
+  assert.equal(maintenanceRecordSummary([legacy, portalCurrentFixture], legacy.id, 15000, portalHistoricalDay), null);
+  assert.equal(maintenanceRecordSummary([legacy], legacy.id, 15000, portalHistoricalDay).status, "Vencida");
+});
+test("Portal: una reparación sin programación no sustituye el mantenimiento vigente", () => {
+  const repair = { ...portalCurrentFixture, id: "repair", interventionType: "REPAIR", nextMileage: 0, nextDate: "" };
+  assert.equal(maintenanceRecordSummary([portalHistoricalFixture, repair], portalHistoricalFixture.id, 15000, portalHistoricalDay).status, "Vencida");
+  assert.equal(maintenanceRecordSummary([portalHistoricalFixture, repair], repair.id, 15000, portalHistoricalDay), null);
+});
+test("Portal: seleccionar históricos no cambia el resumen general ni los datos originales", () => {
+  const records = [portalHistoricalFixture, portalCurrentFixture];
+  const original = JSON.stringify(records);
+  const before = summarizeMaintenance(records, 15000, portalHistoricalDay);
+  maintenanceRecordSummary(records, portalHistoricalFixture.id, 15000, portalHistoricalDay);
+  maintenanceRecordSummary(records, portalCurrentFixture.id, 15000, portalHistoricalDay);
+  assert.deepEqual(summarize(records, 15000, portalHistoricalDay), before);
+  assert.equal(JSON.stringify(records), original);
+  assert.equal(records.length, 2);
+  assert.equal(summarize, summarizeMaintenance);
+});
+test("Portal: mantenciones de otros talleres o vehículos no sustituyen el registro seleccionado", () => {
+  const otherWorkshop = { ...portalCurrentFixture, id: "other-workshop", workshopId: "workshop-b" };
+  const otherVehicle = { ...portalCurrentFixture, id: "other-vehicle", vehicleId: "vehicle-b" };
+  assert.equal(maintenanceRecordSummary([portalHistoricalFixture, otherWorkshop, otherVehicle], portalHistoricalFixture.id, 15000, portalHistoricalDay).status, "Vencida");
+});
+console.log(count + " pruebas totales con contexto histórico del Portal completadas.");
