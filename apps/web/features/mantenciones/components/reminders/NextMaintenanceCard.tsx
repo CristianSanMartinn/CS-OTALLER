@@ -1,7 +1,7 @@
 import { Maintenance } from "@/features/shared/types/domain";
 import { summarizeMaintenance } from "@/features/shared/services/maintenanceRules";
 import { CalendarClock } from "lucide-react";
-import { dateLabel, km, today } from "@/utils/format";
+import { dateLabel, km } from "@/utils/format";
 
 export function NextMaintenanceCard({
   records,
@@ -10,7 +10,7 @@ export function NextMaintenanceCard({
   records: Maintenance[];
   mileage: number;
 }) {
-  const summary = summarizeMaintenance(records, mileage, today());
+  const summary = summarizeMaintenance(records, mileage);
   const next = summary.next?.record;
   if (!next) return null;
   const interval = [

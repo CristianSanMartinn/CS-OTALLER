@@ -1,5 +1,6 @@
 /* Pruebas de reglas de negocio mock, sin navegador ni backend. */
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
@@ -1841,3 +1842,149 @@ test("Las órdenes antiguas sin código conservan inferencia propia y fallback s
 });
 
 console.log(count + " pruebas totales con filtros independientes completadas.");
+
+// Freeze the same instant in separate processes with genuinely different zones.
+const maintenanceDateWorker = String.raw`
+import fs from "node:fs";
+import path from "node:path";
+import vm from "node:vm";
+import ts from "typescript";
+const instant = process.argv[1];
+class FixedDate extends Date {
+  constructor(...args) { super(...(args.length ? args : [instant])); }
+  static now() { return Date.parse(instant); }
+}
+const root = process.cwd();
+const cache = new Map();
+function load(relative) {
+  const filename = path.resolve(root, relative + ".ts");
+  if (cache.has(filename)) return cache.get(filename);
+  const result = { exports: {} };
+  cache.set(filename, result.exports);
+  const source = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  vm.runInNewContext(source, {
+    exports: result.exports, module: result, Date: FixedDate, Intl,
+    require: (request) => load(request.startsWith("@/") ? request.slice(2) :
+      path.relative(root, path.resolve(path.dirname(filename), request))),
+  });
+  return result.exports;
+}
+const { todayInSantiago, today } = load("utils/format");
+const { maintenanceState, summarizeMaintenance } = load("features/shared/services/maintenanceRules");
+const { vehicleMaintenanceSummary } = load("features/portal-cliente/services/vehicleMaintenanceSummary");
+const { dashboardMaintenanceSummary } = load("features/dashboard/services/maintenanceSummary");
+const { maintenanceReminder } = load("features/mantenciones/services/reminderService");
+const day = todayInSantiago();
+const base = { id: "m", workshopId: "w", vehicleId: "v", type: "Aceite",
+  maintenanceTypeCode: "OIL_CHANGE", date: "2026-10-01", mileage: 10000,
+  nextMileage: 0, nextDate: "" };
+const cases = {};
+for (const [name, patch] of Object.entries({
+  thirty: { nextDate: "2026-11-21" },
+  thirtyOne: { nextDate: "2026-11-22" },
+  zero: { nextDate: "2026-10-22" },
+  tomorrow: { nextDate: "2026-10-23" },
+  kmOnly: { nextMileage: 12500 },
+  kmOutside: { nextMileage: 12501 },
+  unscheduled: {},
+})) {
+  const record = { ...base, ...patch };
+  cases[name] = {
+    state: maintenanceState(record, 10000, day),
+    summary: summarizeMaintenance([record], 10000).status,
+    portal: vehicleMaintenanceSummary([record], 10000).status,
+    dashboard: dashboardMaintenanceSummary([{ id: "v", workshopId: "w", mileage: 10000 }], [record], "w", day),
+    reminder: maintenanceReminder(record, 10000, day).status,
+  };
+}
+console.log(JSON.stringify({ day, deviceDay: today(), cases,
+  explicitDay: summarizeMaintenance([{ ...base, nextDate: "2026-10-22" }], 10000, "2026-10-21").status }));
+`;
+const maintenanceDateRuns = new Map();
+function maintenanceAt(instant, zone = "America/Santiago") {
+  const key = instant + zone;
+  if (!maintenanceDateRuns.has(key)) {
+    const child = spawnSync(process.execPath, ["--input-type=module", "-e", maintenanceDateWorker, instant], {
+      cwd: root, env: { ...process.env, TZ: zone }, encoding: "utf8",
+    });
+    assert.equal(child.status, 0, child.stderr);
+    maintenanceDateRuns.set(key, JSON.parse(child.stdout));
+  }
+  return maintenanceDateRuns.get(key);
+}
+const beforeSantiagoMidnight = "2026-10-23T02:59:59.999Z";
+const afterSantiagoMidnight = "2026-10-23T03:00:00.000Z";
+
+test("Los estados de mantención coinciden en Santiago, UTC, Tokio y Honolulu", () => {
+  const reference = maintenanceAt(beforeSantiagoMidnight);
+  const deviceDays = new Set();
+  for (const zone of ["America/Santiago", "UTC", "Asia/Tokyo", "Pacific/Honolulu"]) {
+    const result = maintenanceAt(beforeSantiagoMidnight, zone);
+    assert.equal(result.day, "2026-10-22");
+    assert.deepEqual(result.cases, reference.cases);
+    deviceDays.add(result.deviceDay);
+  }
+  assert.equal(deviceDays.size, 2);
+});
+test("Dashboard, Portal, resumen y recordatorios conservan los mismos estados", () => {
+  const { cases } = maintenanceAt(beforeSantiagoMidnight);
+  for (const [name, state, label, reminder, countKey] of [
+    ["thirty", "PROXIMA", "Próxima", "soon", "soon"],
+    ["thirtyOne", "AL_DIA", "Al día", "scheduled", "current"],
+    ["zero", "VENCIDA", "Vencida", "due", "overdue"],
+    ["unscheduled", "UNSCHEDULED", "Sin programación", "unscheduled", "unscheduled"],
+  ]) {
+    assert.equal(cases[name].state.status, state);
+    assert.equal(cases[name].summary, label);
+    assert.equal(cases[name].portal, label);
+    assert.equal(cases[name].reminder, reminder);
+    assert.equal(cases[name].dashboard[countKey], 1);
+  }
+});
+test("El borde de 30 días es inclusivo y cambia según la medianoche de Santiago", () => {
+  const before = maintenanceAt(beforeSantiagoMidnight).cases;
+  const after = maintenanceAt(afterSantiagoMidnight).cases;
+  assert.equal(before.thirty.state.days, 30);
+  assert.equal(before.thirty.state.status, "PROXIMA");
+  assert.equal(before.thirtyOne.state.days, 31);
+  assert.equal(before.thirtyOne.state.status, "AL_DIA");
+  assert.equal(after.thirtyOne.state.days, 30);
+  assert.equal(after.thirtyOne.state.status, "PROXIMA");
+});
+test("La fecha objetivo vence exactamente al llegar al día de Santiago", () => {
+  const before = maintenanceAt(beforeSantiagoMidnight).cases;
+  const after = maintenanceAt(afterSantiagoMidnight).cases;
+  assert.equal(before.tomorrow.state.days, 1);
+  assert.equal(before.tomorrow.state.status, "PROXIMA");
+  assert.equal(after.tomorrow.state.days, 0);
+  assert.equal(after.tomorrow.state.status, "VENCIDA");
+  assert.equal(before.zero.state.status, "VENCIDA");
+});
+test("El día de mantención cambia en Santiago aunque el dispositivo ya esté en el día siguiente", () => {
+  const before = maintenanceAt(beforeSantiagoMidnight, "Asia/Tokyo");
+  const after = maintenanceAt(afterSantiagoMidnight, "Asia/Tokyo");
+  assert.equal(before.deviceDay, after.deviceDay);
+  assert.equal(before.day, "2026-10-22");
+  assert.equal(after.day, "2026-10-23");
+});
+test("Sin próxima fecha el cálculo conserva los límites de kilometraje", () => {
+  const before = maintenanceAt(beforeSantiagoMidnight).cases;
+  const after = maintenanceAt(afterSantiagoMidnight).cases;
+  assert.equal(before.kmOnly.state.days, null);
+  assert.equal(before.kmOnly.state.remaining, 2500);
+  assert.equal(before.kmOnly.state.status, "PROXIMA");
+  assert.equal(before.kmOutside.state.status, "AL_DIA");
+  assert.deepEqual(before.kmOnly, after.kmOnly);
+});
+test("Sin próximo kilometraje el estado utiliza únicamente la próxima fecha", () => {
+  const { state } = maintenanceAt(beforeSantiagoMidnight).cases.thirty;
+  assert.equal(state.remaining, null);
+  assert.equal(state.days, 30);
+  assert.equal(state.status, "PROXIMA");
+});
+test("El día explícito de una consulta histórica sigue respetándose", () => {
+  assert.equal(maintenanceAt(afterSantiagoMidnight).explicitDay, "Próxima");
+});
+console.log(count + " pruebas totales con fecha de Santiago completadas.");

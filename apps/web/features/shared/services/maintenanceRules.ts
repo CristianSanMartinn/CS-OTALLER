@@ -1,3 +1,4 @@
+import { todayInSantiago } from "@/utils/format";
 import type {
   MaintenanceClassification,
   MaintenanceThresholds,
@@ -156,12 +157,7 @@ export function maintenanceState(
 export function summarizeMaintenance(
   records: ScheduledMaintenance[],
   mileage: number,
-  day = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Santiago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date()),
+  day = todayInSantiago(),
   thresholds?: MaintenanceThresholds,
 ) {
   const sorted = [...records].sort(

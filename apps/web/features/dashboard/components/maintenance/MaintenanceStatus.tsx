@@ -1,3 +1,4 @@
+import { todayInSantiago } from "@/utils/format";
 import dashboardStyles from "../Dashboard.module.css";
 import Link from "next/link";
 import {  CalendarClock, CircleCheck, CircleHelp, TriangleAlert } from "lucide-react";
@@ -9,12 +10,7 @@ import { StatCard } from "../stats/StatCard";
 export function MaintenanceStatus() {
   const { data, user, ready } = useStore();
   if (!ready || !user) return null;
-  const day = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Santiago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
+  const day = todayInSantiago();
   const counts = dashboardMaintenanceSummary(
     data.vehicles,
     data.maintenance,

@@ -14,6 +14,13 @@ export const dateLabel = (value: string) =>
         year: "numeric",
       })
     : "Sin fecha";
+export const todayInSantiago = (date = new Date()) =>
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 export const today = () => {
   const d = new Date();
   return [
