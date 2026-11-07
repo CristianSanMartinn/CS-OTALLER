@@ -1,0 +1,118 @@
+.editor {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.preview {
+  margin: 0;
+  min-width: 0;
+}
+.imageStage {
+  position: relative;
+  margin-inline: auto;
+  background: var(--bg);
+}
+.imageStage img {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: none;
+  max-height: none;
+  transform-origin: center;
+  user-select: none;
+}
+.preview figcaption {
+  margin-top: 10px;
+  color: var(--neutral-text, #657086);
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: crosshair;
+}
+.selection {
+  position: absolute;
+  border: 2px solid #1972ec;
+  outline: 1px solid white;
+  box-shadow: inset 0 0 0 1px white;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.handle {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  min-width: 0;
+  padding: 0;
+  border: 2px solid white;
+  border-radius: 6px;
+  background: #145dcc;
+  color: white;
+  pointer-events: auto;
+  touch-action: none;
+}
+.handle:focus-visible {
+  outline: 3px solid var(--text, #142638);
+  outline-offset: 3px;
+}
+.nw {
+  left: -12px;
+  top: -12px;
+  cursor: nwse-resize;
+}
+.ne {
+  right: -12px;
+  top: -12px;
+  cursor: nesw-resize;
+}
+.sw {
+  left: -12px;
+  bottom: -12px;
+  cursor: nesw-resize;
+}
+.se {
+  right: -12px;
+  bottom: -12px;
+  cursor: nwse-resize;
+}
+.move {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: move;
+}
+.fields {
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+.fields label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.fields input {
+  width: 100%;
+  min-width: 0;
+  accent-color: #1972ec;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media (max-width: 600px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+  .actions > button {
+    flex: 1 1 100%;
+  }
+}

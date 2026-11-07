@@ -2164,3 +2164,618 @@ test("El resumen con datos válidos conserva prioridad, distancias, fechas y dat
   assert.equal(summarizeMaintenance([], 10000, defensiveDay).status, "Sin historial");
 });
 console.log(count + " pruebas totales con validación defensiva de mantenciones completadas.");
+
+// Exercise the actual order component and submit handler with the existing domain rules.
+function mountReceptionOrder({ id, initialVehicleId = "", actor = admin, store = data } = {}) {
+  const hooks = [];
+  let cursor = 0;
+  let currentData = structuredClone(store);
+  const submissions = [], navigation = [];
+  const jsx = (type, props) => ({ type, props });
+  const relative = "features/ordenes/components/editor/WorkOrderForm.tsx";
+  const result = { exports: {} };
+  const names = ["WorkOrderAssignment", "WorkOrderHeader", "OrderRegistrationModal", "CustomerSection", "VehicleSection", "ReceptionSection", "DiagnosisSection", "ScannerCodesSection", "ServicesSection", "PartsSection", "PhotoEvidenceSection", "ObservationsSection", "WorkOrderSummary", "MaintenanceSection", "CancelVisitDialog", "CancellationDetails"];
+  const stubs = {
+    react: { useState(initial) { const index = cursor++; if (!(index in hooks)) hooks[index] = typeof initial === "function" ? initial() : initial; return [hooks[index], (value) => { hooks[index] = typeof value === "function" ? value(hooks[index]) : value; }]; } },
+    "react/jsx-runtime": { jsx, jsxs: jsx, Fragment: "Fragment" },
+    "@/components/Modal/Modal": { Modal: "Modal" },
+    "next/link": { default: "Link" },
+    "next/navigation": { useRouter: () => ({ push: (url) => navigation.push(url) }) },
+    "@/components/ui/primitives": { Field: "Field", Panel: "Panel", EmptyState: "EmptyState" },
+    "@/features/shared/components/store/StoreProvider": { useStore: () => ({
+      data: currentData, user: actor, notify() {},
+      async saveWorkOrder(payload, editing) {
+        submissions.push({ payload: structuredClone(payload), editing });
+        const next = saveOrder(currentData, actor, payload);
+        let saved = next.orders.find((item) => item.id === payload.id);
+        if (!editing) {
+          saved = { ...saved, id: "persisted-reception-id", number: "OT-9001" };
+          next.orders = next.orders.map((item) => item.id === payload.id ? saved : item);
+        }
+        currentData = next;
+        return saved;
+      },
+    }) },
+  };
+  const code = ts.transpileModule(fs.readFileSync(path.join(root, relative), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  vm.runInNewContext(code, {
+    exports: result.exports, module: result, structuredClone,
+    window: { scrollTo() {} },
+    require(request) {
+      if (request in stubs) return stubs[request];
+      if (request.endsWith(".module.css")) return { default: { orderEditor: "orderEditor", quickReception: "quickReception" } };
+      const name = names.find((item) => request.endsWith("/" + item));
+      if (name) return { [name]: name };
+      return load(request.startsWith("@/") ? request.slice(2) : path.relative(root, path.resolve(root, path.dirname(relative), request)));
+    },
+  });
+  function all(node, predicate) {
+    if (!node || typeof node !== "object") return [];
+    if (Array.isArray(node)) return node.flatMap((child) => all(child, predicate));
+    return [...(predicate(node) ? [node] : []), ...all(node.props?.children, predicate)];
+  }
+  const render = () => { cursor = 0; return result.exports.WorkOrderForm({ id, initialVehicleId }); };
+  const child = (name) => all(render(), (node) => node.type === name)[0];
+  return {
+    child, submissions, navigation,
+    has: (name) => !!child(name),
+    current: () => child("ReceptionSection")?.props.order,
+    change: (patch) => {
+      const { mileage, ...rest } = patch;
+      if (Object.hasOwn(patch, "mileage")) child("ReceptionSection").props.onMileageChange(mileage === undefined ? "" : String(mileage));
+      child("ReceptionSection").props.onChange(rest);
+    },
+    reading: () => child("ReceptionSection").props.mileageInput,
+    reference: () => child("ReceptionSection").props.referenceMileage,
+    usePrevious: () => child("ReceptionSection").props.onUsePreviousMileage(),
+    pending: () => !!child("Modal"),
+    cancelSelection: () => child("Modal").props.onClose(),
+    confirmSelection(clear = false) { all(render(), n => n.type === "button" && n.props.children === (clear ? "Cambiar e ingresar nueva lectura" : "Cambiar y conservar lectura"))[0].props.onClick(); },
+    async submit() { const form = child("form"); await form.props.onSubmit({ preventDefault() {}, nativeEvent: { submitter: null } }); },
+    error: () => all(render(), (node) => node.props?.role === "alert")[0]?.props.children,
+  };
+}
+async function receptionTest(name, run) { await run(); count++; console.log("✓ " + name); }
+
+await receptionTest("Recepción rápida muestra solo ingreso y no exige secciones técnicas ni costos", async () => {
+  const vehicle = data.vehicles.find((v) => v.workshopId === admin.workshopId);
+  const form = mountReceptionOrder({ initialVehicleId: vehicle.id });
+  assert.equal(form.child("ReceptionSection").props.receptionOnly, true);
+  for (const component of ["DiagnosisSection", "ScannerCodesSection", "ServicesSection", "PartsSection", "PhotoEvidenceSection", "MaintenanceSection", "ObservationsSection", "WorkOrderSummary"]) assert.equal(form.has(component), false);
+  form.change({ reason: "Ruido al frenar", mechanicId: worker.id, mileage: vehicle.mileage });
+  await form.submit();
+  assert.equal(form.submissions[0].editing, false);
+  const payload = form.submissions[0].payload;
+  assert.equal(payload.diagnosis, ""); assert.equal(payload.status, "RECEIVED");
+  for (const key of ["services", "parts", "photos", "codes"]) assert.deepEqual(payload[key], []);
+  assert.equal(form.current().id, "persisted-reception-id");
+  assert.equal(form.current().number, "OT-9001");
+  assert.equal(form.navigation[0], "/ordenes/persisted-reception-id");
+});
+await receptionTest("Órdenes guardadas conservan todas las secciones y no borran datos técnicos al guardar recepción", async () => {
+  const enriched = { ...structuredClone(order), updatedAt: "2026-10-22T12:00:00Z" };
+  enriched.services[0].maintenanceTypeCode = "OIL_CHANGE";
+  const store = { ...data, orders: data.orders.map((item) => item.id === enriched.id ? enriched : item) };
+  const form = mountReceptionOrder({ id: enriched.id, store });
+  for (const component of ["DiagnosisSection", "ServicesSection", "PartsSection", "PhotoEvidenceSection", "MaintenanceSection", "WorkOrderSummary"]) assert.equal(form.has(component), true);
+  form.change({ reason: "Motivo corregido" }); await form.submit();
+  const payload = form.submissions[0].payload;
+  for (const key of ["diagnosis", "findings", "symptoms", "observations", "codes", "services", "parts", "photos", "updatedAt", "status"]) assert.deepEqual(payload[key], enriched[key]);
+  assert.equal(payload.services[0].maintenanceTypeCode, "OIL_CHANGE");
+  assert.equal(form.submissions[0].editing, true); assert.deepEqual(form.navigation, []);
+});
+await receptionTest("Editar distintas secciones y volver a recepción mantiene todos los cambios en la misma orden", async () => {
+  const form = mountReceptionOrder({ id: order.id });
+  form.child("DiagnosisSection").props.onChange({ diagnosis: "Diagnóstico en curso" });
+  form.child("ServicesSection").props.onChange({ services: [{ ...order.services[0], maintenanceTypeCode: "AIR_FILTER", description: "Detalle técnico" }] });
+  form.child("ReceptionSection").props.onChange({ reason: "Motivo aclarado" });
+  assert.equal(form.child("DiagnosisSection").props.order.diagnosis, "Diagnóstico en curso");
+  await form.submit();
+  assert.equal(form.submissions[0].payload.id, order.id);
+  assert.equal(form.submissions[0].payload.services[0].maintenanceTypeCode, "AIR_FILTER");
+  assert.equal(form.submissions[0].payload.diagnosis, "Diagnóstico en curso");
+});
+await receptionTest("Órdenes antiguas sin clasificación siguen editándose sin inventar códigos", async () => {
+  const legacy = structuredClone(order); delete legacy.assignmentType;
+  for (const service of legacy.services) delete service.maintenanceTypeCode;
+  const form = mountReceptionOrder({ id: legacy.id, store: { ...data, orders: [legacy] } });
+  await form.submit();
+  assert.equal(form.error(), undefined);
+  assert.deepEqual(form.submissions[0].payload.services, legacy.services);
+  assert.equal(form.submissions[0].payload.status, legacy.status);
+});
+await receptionTest("Recepción mantiene las validaciones de motivo, kilometraje y asignación", async () => {
+  const vehicle = data.vehicles.find((v) => v.workshopId === admin.workshopId);
+  for (const patch of [{ reason: "" }, { mileage: -1 }, { mechanicId: "" }]) {
+    const form = mountReceptionOrder({ initialVehicleId: vehicle.id });
+    form.change({ reason: "Recepción", mechanicId: worker.id, mileage: vehicle.mileage, ...patch });
+    await form.submit(); assert.ok(form.error()); assert.equal(form.navigation.length, 0);
+  }
+});
+await receptionTest("Un trabajador conserva sus permisos y no obtiene registro administrativo ni entrega", async () => {
+  const form = mountReceptionOrder({ id: order.id, actor: worker });
+  assert.equal(form.has("OrderRegistrationModal"), false);
+  assert.equal(form.child("WorkOrderHeader").props.canMarkReady, false);
+  form.change({ status: "DELIVERED" }); await form.submit();
+  assert.match(form.error(), /permiso/);
+});
+await receptionTest("Una orden compartida desactualizada conserva el rechazo de concurrencia", async () => {
+  const shared = { ...structuredClone(order), assignmentType: "TEAM", mechanicId: "", updatedAt: "2026-10-22T12:00:00Z" };
+  const form = mountReceptionOrder({ id: shared.id, store: { ...data, orders: [shared] } });
+  form.change({ updatedAt: "2026-10-22T11:00:00Z" }); await form.submit();
+  assert.match(form.error(), /Otra persona actualizó/);
+});
+await receptionTest("Crear recepción y editar una orden no modifica el historial de mantenciones", async () => {
+  const original = JSON.stringify(data.maintenance);
+  const form = mountReceptionOrder({ id: order.id }); await form.submit();
+  assert.equal(JSON.stringify(data.maintenance), original);
+  assert.equal(form.child("MaintenanceSection").props.orderId, order.id);
+});
+console.log(count + " pruebas totales con recepción rápida completadas.");
+
+test("La sección de recepción conserva los cuatro campos obligatorios y oculta solo síntomas al crear", () => {
+  const result = { exports: {} };
+  const jsx = (type, props) => ({ type, props });
+  const source = ts.transpileModule(fs.readFileSync(path.join(root, "features/ordenes/components/editor/sections/ReceptionSection.tsx"), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  vm.runInNewContext(source, { exports: result.exports, module: result, require(request) {
+    if (request === "react/jsx-runtime") return { jsx, jsxs: jsx };
+    if (request === "@/components/ui/primitives") return { Panel: "Panel", Field: "Field", TextField: "TextField" };
+    if (request === "@/utils/format") return { km: value => value + " km" };
+    throw new Error("Unexpected reception import: " + request);
+  } });
+  function fields(node) {
+    if (!node || typeof node !== "object") return [];
+    if (Array.isArray(node)) return node.flatMap(fields);
+    return [...(node.type === "Field" || node.type === "TextField" ? [node.props] : []), ...fields(node.props?.children)];
+  }
+  const quick = fields(result.exports.ReceptionSection({ order, onChange() {}, receptionOnly: true }));
+  assert.deepEqual(quick.map((field) => field.label), ["Fecha de ingreso", "Hora", "Kilometraje de ingreso", "Motivo de ingreso"]);
+  assert.ok(quick.every((field) => field.required));
+  const complete = fields(result.exports.ReceptionSection({ order, onChange() {} }));
+  assert.equal(complete.length, 5);
+  assert.equal(complete[4].label, "Síntomas informados por el cliente");
+  assert.equal(complete[4].value, order.symptoms);
+});
+console.log(count + " pruebas totales con campos de recepción verificados.");
+
+// Exercise the existing customer form's submit path in both reception and full modes.
+function mountQuickClient({ client, mode, live = true, failure } = {}) {
+  const state = []; let cursor = 0;
+  const savedCalls = [], callbacks = [];
+  const jsx = (type, props) => ({ type, props });
+  const relative = "features/clientes/components/forms/ClientForm.tsx";
+  const result = { exports: {} };
+  const stubs = {
+    "react/jsx-runtime": { jsx, jsxs: jsx },
+    react: { useState(initial) { const i = cursor++; if (!(i in state)) state[i] = initial; return [state[i], (v) => { state[i] = typeof v === "function" ? v(state[i]) : v; }]; } },
+    "./ClientForm.module.css": { default: { additionalDetails: "additionalDetails" } },
+    "@/components/ImageUploader/ImageUploader": { ImageUploader: "ImageUploader" },
+    "@/components/ui/primitives": { Field: "Field", TextField: "TextField", Panel: "Panel" },
+    "../reminders/ReminderPreferenceFields": { ReminderPreferenceFields: "ReminderPreferenceFields" },
+    "@/features/shared/components/store/StoreProvider": { useStore: () => ({ data, user: admin, live, async saveCustomer(customer, editing) { savedCalls.push({ customer, editing }); if (failure) throw Error(failure); return { ...customer, id: "server-customer-id" }; } }) },
+    "@/utils/format": { today: () => "2026-10-22", uid: () => "client-test-id" },
+  };
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(root, relative), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
+    exports: result.exports, module: result,
+    FormData: class { constructor(values) { this.values = values; } get(key) { return this.values[key] ?? null; } },
+    require(request) { if (request in stubs) return stubs[request]; return load(path.relative(root, path.resolve(root, path.dirname(relative), request))); },
+  });
+  const nodes = (node, predicate) => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(n => nodes(n, predicate)) : [...(predicate(node) ? [node] : []), ...nodes(node.props?.children, predicate)];
+  const render = () => { cursor = 0; return result.exports.ClientForm({ client, mode, onSave: value => callbacks.push(value), onCancel() {} }); };
+  return {
+    savedCalls, callbacks, render,
+    fields: () => nodes(render(), n => n.type === "Field" || n.type === "TextField"),
+    details: () => nodes(render(), n => n.type === "details"),
+    error: () => nodes(render(), n => n.props?.role === "alert")[0]?.props.children,
+    async submit(values) { await render().props.onSubmit({ preventDefault() {}, currentTarget: values }); },
+  };
+}
+await receptionTest("Cliente rápido: solo nombre requerido y guardado usa el cliente devuelto por el servidor", async () => {
+  const form = mountQuickClient({ mode: "reception" });
+  assert.deepEqual(form.fields().filter(n => n.props.required).map(n => n.props.name), ["name"]);
+  assert.equal(form.details().length, 1); assert.equal(form.details()[0].props.open, undefined);
+  await form.submit({ name: "  Cliente de recepción  " });
+  assert.equal(form.savedCalls.length, 1); assert.equal(form.savedCalls[0].editing, false);
+  assert.equal(form.savedCalls[0].customer.name, "Cliente de recepción");
+  assert.equal(form.savedCalls[0].customer.workshopId, admin.workshopId);
+  for (const key of ["rut", "phone", "email", "address", "notes"]) assert.equal(form.savedCalls[0].customer[key], "");
+  assert.equal(form.callbacks[0].id, "server-customer-id");
+});
+await receptionTest("Cliente rápido: nombre vacío y RUT duplicado normalizado no llaman al guardado", async () => {
+  const empty = mountQuickClient({ mode: "reception" }); await empty.submit({ name: "   " });
+  assert.equal(empty.savedCalls.length, 0); assert.match(empty.error(), /nombre completo/);
+  const existing = data.customers.find(c => c.rut);
+  const duplicate = mountQuickClient({ mode: "reception" });
+  await duplicate.submit({ name: "Otra persona", rut: existing.rut.replace(/[.\s-]/g, "").toUpperCase() });
+  assert.equal(duplicate.savedCalls.length, 0); assert.match(duplicate.error(), /Ya existe/);
+});
+await receptionTest("Cliente rápido: datos opcionales se envían completos y el error de API conserva el formulario", async () => {
+  const form = mountQuickClient({ mode: "reception", failure: "Conflicto al guardar" });
+  await form.submit({ name: "Cliente", email: "cliente@example.test", address: "Dirección de prueba", notes: "Observación de prueba", phone: "+56912345678" });
+  assert.equal(form.savedCalls[0].customer.email, "cliente@example.test");
+  assert.equal(form.savedCalls[0].customer.address, "Dirección de prueba");
+  assert.equal(form.savedCalls[0].customer.notes, "Observación de prueba");
+  assert.equal(form.callbacks.length, 0); assert.match(form.error(), /Conflicto/);
+  assert.equal(form.details().length, 1);
+});
+await receptionTest("Cliente completo y edición conservan teléfono obligatorio, fotos, notas y consentimiento", async () => {
+  const original = structuredClone(data.customers[0]);
+  for (const mode of [undefined, "reception"]) {
+    const form = mountQuickClient({ client: original, mode });
+    assert.equal(form.details().length, 0);
+    assert.equal(form.fields().find(n => n.props.name === "phone").props.required, true);
+    await form.submit({ name: original.name, rut: original.rut, phone: original.phone, email: original.email, address: original.address, notes: original.notes });
+    assert.equal(form.savedCalls[0].editing, true);
+    assert.equal(form.savedCalls[0].customer.id, original.id);
+    assert.deepEqual(structuredClone(form.savedCalls[0].customer.photos), original.photos ?? []);
+    assert.equal(form.savedCalls[0].customer.publicAccessToken, original.publicAccessToken ?? "demo-client-" + original.id);
+    assert.equal(form.savedCalls[0].customer.notes, original.notes);
+  }
+});
+await receptionTest("Registrar cliente y vehículo en recepción conserva motivo, asignación y datos de la orden", async () => {
+  const form = mountReceptionOrder();
+  form.change({ reason: "Ruido en frenos", mechanicId: worker.id, time: "09:15" });
+  const before = structuredClone(form.current());
+  form.child("CustomerSection").props.onCreate();
+  form.child("OrderRegistrationModal").props.onCustomerSave({ id: "saved-client" });
+  assert.equal(form.current().customerId, "saved-client");
+  assert.equal(form.child("OrderRegistrationModal").props.kind, "vehicle");
+  assert.equal(form.child("OrderRegistrationModal").props.customerId, "saved-client");
+  form.child("OrderRegistrationModal").props.onVehicleSave({ ...data.vehicles[0], id: "saved-vehicle", customerId: "saved-client", workshopId: admin.workshopId, mileage: 100 });
+  assert.equal(form.current().vehicleId, "saved-vehicle");
+  assert.equal(form.has("OrderRegistrationModal"), false);
+  for (const key of ["id", "reason", "mechanicId", "time", "date", "status"]) assert.equal(form.current()[key], before[key]);
+});
+console.log(count + " pruebas totales con registro rápido de clientes completadas.");
+
+function mountQuickVehicle({ vehicle, ownerId, failure } = {}) {
+  const state = []; let cursor = 0;
+  const savedCalls = [], callbacks = [];
+  const jsx = (type, props) => ({ type, props });
+  const relative = "features/vehiculos/components/forms/VehicleForm.tsx";
+  const result = { exports: {} };
+  const stubs = {
+    "react/jsx-runtime": { jsx, jsxs: jsx },
+    react: { useRef(initial) { const i=cursor++;return state[i] ?? (state[i]={current:initial}); }, useState(initial) { const i = cursor++; if (!(i in state)) state[i] = initial; return [state[i], (v) => { state[i] = typeof v === "function" ? v(state[i]) : v; }]; } },
+    "../../services/registrationReview": {},
+    "../../hooks/usePlateRegistrationCheck": { usePlateRegistrationCheck: () => ({ busy: false, blocked: false, check() {} }) },
+    "./PrivateRegistrationCapture": { PrivateRegistrationCapture: "PrivateRegistrationCapture" },
+    "./PlateRegistrationCheck": { PlateRegistrationCheck: "PlateRegistrationCheck" },
+    "./VehicleForm.module.css": { default: { technicalDetails: "technicalDetails" } },
+    "@/components/ui/primitives": { Field: "Field", SelectField: "SelectField" },
+    "@/features/shared/components/store/StoreProvider": { useStore: () => ({ data, user: admin, async saveVehicle(value, editing) { savedCalls.push({ vehicle: value, editing }); if (failure) throw Error(failure); return { ...value, id: "server-vehicle-id" }; } }) },
+    "@/utils/format": { uid: () => "vehicle-test-id" },
+  };
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(root, relative), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
+    exports: result.exports, module: result,
+    FormData: class { constructor(values) { this.values = values; } get(key) { return this.values[key] ?? null; } },
+    require(request) { if (request in stubs) return stubs[request]; throw Error("Unexpected vehicle form import: " + request); },
+  });
+  const nodes = (node, predicate) => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(n => nodes(n, predicate)) : [...(predicate(node) ? [node] : []), ...nodes(node.props?.children, predicate)];
+  const render = () => { cursor = 0; return result.exports.VehicleForm({ vehicle, ownerId, onSave: value => callbacks.push(value), onCancel() {} }); };
+  return {
+    savedCalls, callbacks,
+    fields: () => nodes(render(), n => n.type === "Field" || n.type === "SelectField"),
+    details: () => nodes(render(), n => n.type === "details"),
+    options: (name) => nodes(nodes(render(), n => n.type === "SelectField" && n.props.name === name)[0], n => n.type === "option"),
+    error: () => nodes(render(), n => n.props?.role === "alert")[0]?.props.children,
+    async submit(values) { await render().props.onSubmit({ preventDefault() {}, currentTarget: values }); },
+  };
+}
+const quickVehicleValues = { customerId: data.customers[0].id, plate: "ZZQA123", brand: "Marca QA", model: "Modelo QA", year: "2020", mileage: "85000" };
+await receptionTest("Vehículo rápido: propietario fijado por recepción prevalece sobre valores enviados por el formulario", async () => {
+  const ownerId = data.customers[0].id;
+  const form = mountQuickVehicle({ ownerId });
+  const owner = form.fields().find(n => n.props.name === "customerId");
+  assert.equal(owner.props.defaultValue, ownerId); assert.equal(owner.props.disabled, true);
+  await form.submit({ ...quickVehicleValues, customerId: "foreign-client" });
+  assert.equal(form.savedCalls[0].vehicle.customerId, ownerId);
+  assert.equal(form.savedCalls[0].vehicle.workshopId, admin.workshopId);
+  assert.equal(form.callbacks[0].id, "server-vehicle-id");
+});
+await receptionTest("Vehículo: patente, marca, modelo, año y kilometraje vacíos no llaman al guardado", async () => {
+  for (const field of ["plate", "brand", "model", "year", "mileage"]) {
+    for (const value of ["", "   ", undefined]) {
+      const form = mountQuickVehicle({ ownerId: data.customers[0].id });
+      await form.submit({ ...quickVehicleValues, [field]: value });
+      assert.equal(form.savedCalls.length, 0, field + " must not be converted to a default");
+      assert.ok(form.error()); assert.equal(form.callbacks.length, 0);
+    }
+  }
+});
+await receptionTest("Vehículo: cero real se conserva y números inválidos, decimales y fuera de rango se rechazan", async () => {
+  const valid = mountQuickVehicle(); await valid.submit({ ...quickVehicleValues, mileage: "0" });
+  assert.equal(valid.savedCalls[0].vehicle.mileage, 0);
+  assert.equal(valid.savedCalls[0].vehicle.year, 2020);
+  for (const [field, value] of [["mileage", "-1"], ["mileage", "1.5"], ["mileage", "NaN"], ["mileage", "Infinity"], ["mileage", "2147483648"], ["year", "1899"], ["year", "2020.5"], ["year", "desconocido"], ["year", String(new Date().getFullYear() + 2)]]) {
+    const form = mountQuickVehicle(); await form.submit({ ...quickVehicleValues, [field]: value });
+    assert.equal(form.savedCalls.length, 0); assert.ok(form.error());
+  }
+});
+await receptionTest("Vehículo rápido: datos técnicos permanecen montados dentro del desplegable y se incluyen en el guardado", async () => {
+  const form = mountQuickVehicle({ ownerId: data.customers[0].id });
+  assert.equal(form.details().length, 1); assert.equal(form.details()[0].props.open, undefined);
+  for (const name of ["version", "vin", "engine", "fuel", "transmission", "color"]) assert.ok(form.fields().some(n => n.props.name === name));
+  const values = { ...quickVehicleValues, version: "Versión QA", vin: "VIN-QA", engine: "Motor QA", fuel: "Diésel", transmission: "Automática", color: "Azul" };
+  await form.submit(values);
+  for (const key of ["version", "vin", "engine", "fuel", "transmission", "color"]) assert.equal(form.savedCalls[0].vehicle[key], values[key]);
+});
+await receptionTest("Vehículos nuevos: combustible y transmisión comienzan vacíos en recepción y formulario completo", async () => {
+  for (const ownerId of [undefined, data.customers[0].id]) {
+    const form = mountQuickVehicle({ ownerId });
+    for (const name of ["fuel", "transmission"]) {
+      assert.equal(form.fields().find(n => n.props.name === name).props.defaultValue, "");
+      assert.equal(form.options(name)[0].props.value, "");
+    }
+    await form.submit(quickVehicleValues);
+    assert.equal(form.savedCalls[0].vehicle.fuel, ""); assert.equal(form.savedCalls[0].vehicle.transmission, "");
+  }
+});
+await receptionTest("Edición de vehículo conserva datos técnicos, fotos y opciones históricas fuera del catálogo", async () => {
+  const original = { ...structuredClone(data.vehicles[0]), version: "Histórica", vin: "VIN-HISTORICO", engine: "Motor histórico", fuel: "GLP", transmission: "CVT", color: "Rojo", photos: [{ id: "existing-photo", url: "data:image/png;base64,AA", category: "BEFORE", description: "Original", date: "2026-10-22", userId: admin.id }] };
+  const form = mountQuickVehicle({ vehicle: original });
+  assert.equal(form.details().length, 0);
+  assert.equal(form.fields().length, 12);
+  for (const name of ["fuel", "transmission"]) {
+    assert.equal(form.fields().find(n => n.props.name === name).props.defaultValue, original[name]);
+    assert.ok(form.options(name).some(n => n.props.value === original[name]));
+  }
+  await form.submit({ ...original, year: String(original.year), mileage: String(original.mileage) });
+  assert.equal(form.savedCalls[0].editing, true);
+  for (const key of ["id", "customerId", "version", "vin", "engine", "fuel", "transmission", "color"]) assert.equal(form.savedCalls[0].vehicle[key], original[key]);
+  assert.deepEqual(form.savedCalls[0].vehicle.photos, original.photos);
+});
+await receptionTest("Vehículo: patente duplicada sigue bloqueada y un fallo de API no dispara selección de vehículo", async () => {
+  const duplicate = mountQuickVehicle(); await duplicate.submit({ ...quickVehicleValues, plate: data.vehicles[0].plate });
+  assert.equal(duplicate.savedCalls.length, 0); assert.match(duplicate.error(), /ya está registrada/);
+  const failed = mountQuickVehicle({ failure: "El propietario no pertenece a tu taller." }); await failed.submit(quickVehicleValues);
+  assert.equal(failed.callbacks.length, 0); assert.match(failed.error(), /propietario/);
+});
+console.log(count + " pruebas totales con registro manual rápido de vehículos completadas.");
+
+const plateSearch = load("features/vehiculos/services/vehiclePlateSearch.ts");
+const plateBase = data.vehicles.find(v => v.workshopId === admin.workshopId);
+const localPlateVehicles = [
+  { ...plateBase, id: "partial", plate: "XABCD12", customerId: "other-owner" },
+  { ...plateBase, id: "exact", plate: "AB-CD-12" },
+  { ...plateBase, id: "other", plate: "ABCD99", customerId: "other-owner" },
+  { ...plateBase, id: "foreign", plate: "ABCD12", workshopId: "foreign-workshop" },
+  { ...plateBase, id: "inactive", plate: "ABCD12", active: false },
+];
+test("Búsqueda de patente normaliza igual que API y prioriza exactas sobre parciales", () => {
+  for (const value of [" ab-cd-12 ", "AB CD 12", "abcd12", "AB.CD.12"]) assert.equal(plateSearch.normalizePlate(value), "ABCD12");
+  assert.equal(plateSearch.normalizePlate("---"), "");
+  const index = plateSearch.indexVehiclePlates(localPlateVehicles, admin.workshopId);
+  const result = plateSearch.searchVehiclePlates(index, "ab cd 12");
+  assert.deepEqual(result.results.map(v => v.id), ["exact", "partial"]);
+  assert.equal(result.exactCount, 1);
+});
+test("Índice local excluye otros talleres e inactivos y limita resultados sin ocultar ambigüedad", () => {
+  const list = Array.from({ length: 8 }, (_, i) => ({ ...plateBase, id: "candidate-" + i, plate: "AB-CD-12" }));
+  const index = plateSearch.indexVehiclePlates([...list, ...localPlateVehicles], admin.workshopId);
+  const result = plateSearch.searchVehiclePlates(index, "abcd12");
+  assert.equal(result.results.length, 5); assert.equal(result.exactCount, 9); assert.equal(result.total, 10);
+  assert.ok(!result.results.some(v => ["foreign", "inactive"].includes(v.id)));
+  assert.equal(plateSearch.searchVehiclePlates(index, "").total, 0);
+});
+function mountPlateSection({ searchVehicles = localPlateVehicles, customerId = plateBase.customerId, disabled = false, selectedValue = "", onSelect } = {}) {
+  const hooks = []; let cursor = 0; const selections = [];
+  const jsx = (type, props) => ({ type, props }); const result = { exports: {} };
+  const relative = "features/ordenes/components/editor/sections/VehicleSection.tsx";
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(root, relative), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
+    exports: result.exports, module: result,
+    require(request) {
+      if (request.endsWith("/usePlateRegistrationCheck")) return { usePlateRegistrationCheck: () => ({ busy: false, blocked: false, check() {} }) };
+      if (request.endsWith("/PlateRegistrationCheck")) return { PlateRegistrationCheck: "PlateRegistrationCheck" };
+      if (request === "react") return { useEffect() {}, useState(initial) { const i = cursor++; if (!(i in hooks)) hooks[i] = initial; return [hooks[i], value => { hooks[i] = value; }]; }, useMemo: run => run() };
+      if (request === "react/jsx-runtime") return { jsx, jsxs: jsx };
+      if (request === "@/components/ui/primitives") return { Field: "Field", SelectField: "SelectField" };
+      if (request.endsWith(".module.css")) return { default: {} };
+      if (request.endsWith("/vehiclePlateSearch")) return plateSearch;
+      throw Error("Unexpected search import: " + request);
+    },
+  });
+  const nodes = (node, predicate) => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(n => nodes(n, predicate)) : [...(predicate(node) ? [node] : []), ...nodes(node.props?.children, predicate)];
+  const render = () => { cursor = 0; return result.exports.VehicleSection({ vehicles: searchVehicles.filter(v => v.customerId === customerId), searchVehicles, customerId, workshopId: admin.workshopId, value: selectedValue, onChange: id => { selections.push(id); onSelect?.(id); }, disabled }); };
+  const field = () => nodes(render(), n => n.type === "Field")[0];
+  return { selections,
+    search(value) { field().props.onChange({ target: { value } }); },
+    key(key) { let prevented = false; field().props.onKeyDown({ key, preventDefault() { prevented = true; } }); return prevented; },
+    buttons: () => nodes(render(), n => n.type === "button"),
+    statuses: () => nodes(render(), n => n.props?.role === "status"),
+    text: () => JSON.stringify(render()),
+  };
+}
+test("Buscar no selecciona automáticamente; reutilizar una coincidencia requiere acción explícita", () => {
+  const section = mountPlateSection(); section.search("ab-cd-12");
+  assert.deepEqual(section.selections, []);
+  const button = section.buttons().find(n => n.props["aria-label"] === "Seleccionar AB-CD-12");
+  assert.ok(button); assert.equal(button.props.type, "button"); button.props.onClick();
+  assert.deepEqual(section.selections, ["exact"]);
+});
+test("Coincidencia de otro propietario advierte sin ofrecer selección ni revelar datos personales", () => {
+  const section = mountPlateSection(); section.search("abcd99");
+  assert.match(section.text(), /Asociado a otro cliente/);
+  assert.equal(section.buttons().some(n => n.props["aria-label"]?.startsWith("Seleccionar ")), false);
+  assert.deepEqual(section.selections, []);
+});
+test("Coincidencias normalizadas ambiguas requieren selección manual y no eligen la primera", () => {
+  const section = mountPlateSection({ searchVehicles: [...localPlateVehicles, { ...plateBase, id: "legacy", plate: "ABCD12" }] });
+  section.search("abcd12"); assert.match(section.text(), /Varias fichas coinciden/);
+  assert.deepEqual(section.selections, []);
+});
+test("Sin coincidencias solo informa disponibilidad local y advierte límite de inactivos y permisos", () => {
+  const section = mountPlateSection(); section.search("ZZ9999");
+  assert.match(section.text(), /No encontrado entre los vehículos disponibles/);
+  assert.match(section.text(), /no confirma que la patente esté libre/);
+  assert.match(section.text(), /inactivos ni fuera de tu acceso/);
+});
+test("Limpiar, cerrar, Enter y Escape no seleccionan vehículo ni envían el formulario", () => {
+  const section = mountPlateSection(); section.search("abcd12");
+  assert.equal(section.key("Enter"), true); assert.equal(section.statuses().length, 1);
+  assert.equal(section.key("Escape"), true); assert.equal(section.statuses().length, 0);
+  section.search("abcd12"); section.buttons().find(n => n.props.children === "Cerrar resultados").props.onClick();
+  assert.equal(section.statuses().length, 0);
+  section.search("abcd12"); section.buttons().find(n => n.props.children === "Limpiar búsqueda").props.onClick();
+  assert.equal(section.statuses().length, 0); assert.deepEqual(section.selections, []);
+});
+await receptionTest("Selección de vehículo conserva kilometraje escrito, incluido cero, y los demás datos de recepción", async () => {
+  const first = { ...plateBase }, second = { ...plateBase, id: "another-vehicle", mileage: 20000 };
+  const form = mountReceptionOrder({ initialVehicleId: first.id, store: { ...data, vehicles: [first, second] } });
+  for (const mileage of [98765, 0]) {
+    form.change({ mileage, reason: "Motivo conservado", time: "10:30", mechanicId: worker.id });
+    const before = structuredClone(form.current());
+    const next = before.vehicleId === second.id ? first.id : second.id;
+    form.child("VehicleSection").props.onChange(next);
+    assert.equal(form.pending(), true);
+    assert.deepEqual(structuredClone(form.current()), before);
+    form.confirmSelection();
+    assert.equal(form.current().vehicleId, next); assert.equal(form.reading(), String(mileage));
+    for (const key of Object.keys(before).filter(k => k !== "vehicleId")) assert.deepEqual(structuredClone(form.current()[key]), before[key]);
+    form.child("VehicleSection").props.onChange(""); form.confirmSelection(); assert.equal(form.reading(), String(mileage));
+  }
+});
+await receptionTest("Sin lectura manual la selección muestra referencia sin confirmarla; elegir el mismo vehículo no altera la lectura", async () => {
+  const first = { ...plateBase }, second = { ...plateBase, id: "another-vehicle", mileage: 20000 };
+  const form = mountReceptionOrder({ initialVehicleId: first.id, store: { ...data, vehicles: [first, second] } });
+  form.child("VehicleSection").props.onChange(second.id); assert.equal(form.reading(), ""); assert.equal(form.reference(), 20000);
+  form.change({ mileage: 25000 }); form.child("VehicleSection").props.onChange(second.id); assert.equal(form.reading(), "25000"); assert.equal(form.pending(), false);
+});
+await receptionTest("Búsqueda recibe solo vehículos autorizados por permisos existentes y el taller actual", async () => {
+  const form = mountReceptionOrder({ actor: worker });
+  const expected = scopedData(data, worker).vehicles.map(v => v.id);
+  assert.equal(JSON.stringify(form.child("VehicleSection").props.searchVehicles.map(v => v.id)), JSON.stringify(expected));
+  assert.ok(form.child("VehicleSection").props.searchVehicles.every(v => v.workshopId === worker.workshopId));
+});
+await receptionTest("Seleccionar ID ajeno o de otro cliente no cambia la orden; registrar vehículo tampoco borra km manual", async () => {
+  const otherOwner = { ...plateBase, id: "other-owner-vehicle", customerId: "different-owner" };
+  const form = mountReceptionOrder({ initialVehicleId: plateBase.id, store: { ...data, vehicles: [...data.vehicles, otherOwner] } });
+  form.change({ mileage: 98765 }); const before = structuredClone(form.current());
+  for (const id of [otherOwner.id, "nonexistent-id"]) { form.child("VehicleSection").props.onChange(id); assert.deepEqual(structuredClone(form.current()), before); }
+  form.child("VehicleSection").props.onCreate();
+  form.child("OrderRegistrationModal").props.onVehicleSave({ ...plateBase, id: "created-vehicle", mileage: 100 });
+  assert.equal(form.pending(), true); form.confirmSelection();
+  assert.equal(form.reading(), "98765"); assert.equal(form.current().vehicleId, "created-vehicle");
+});
+console.log(count + " pruebas totales con búsqueda local de patentes completadas.");
+
+await receptionTest("Nueva orden con vehículo conocido mantiene lectura pendiente y no construye ni envía WorkOrder incompleto", async () => {
+  const form = mountReceptionOrder({ initialVehicleId: plateBase.id });
+  assert.equal(form.reading(), ""); assert.equal(form.reference(), plateBase.mileage);
+  assert.equal(Object.hasOwn(form.current(), "mileage"), false);
+  form.change({ reason: "Recepción", mechanicId: worker.id });
+  await form.submit(); assert.equal(form.submissions.length, 0); assert.match(form.error(), /Confirma el kilometraje/);
+});
+await receptionTest("Usar kilometraje anterior es explícito y genera un payload numérico compatible", async () => {
+  const form = mountReceptionOrder({ initialVehicleId: plateBase.id });
+  form.change({ reason: "Recepción", mechanicId: worker.id });
+  assert.equal(form.reading(), ""); form.usePrevious(); assert.equal(form.reading(), String(plateBase.mileage));
+  await form.submit(); assert.equal(form.submissions.length, 1);
+  assert.equal(form.submissions[0].payload.mileage, plateBase.mileage);
+  assert.equal(typeof form.submissions[0].payload.mileage, "number");
+  assert.equal(Object.hasOwn(form.submissions[0].payload, "mileageInput"), false);
+});
+await receptionTest("Lectura vacía no es cero; cero real escrito expresamente se guarda y borrar vuelve a pendiente", async () => {
+  const vehicle = { ...plateBase, mileage: 0 };
+  const store = { ...data, vehicles: data.vehicles.map(v => v.id === vehicle.id ? vehicle : v) };
+  const form = mountReceptionOrder({ initialVehicleId: vehicle.id, store });
+  form.change({ reason: "Recepción", mechanicId: worker.id });
+  await form.submit(); assert.equal(form.submissions.length, 0);
+  form.change({ mileage: 0 }); assert.equal(form.reading(), "0"); await form.submit();
+  assert.equal(form.submissions[0].payload.mileage, 0);
+  const editing = mountReceptionOrder({ id: order.id }); editing.change({ mileage: undefined });
+  assert.equal(editing.reading(), ""); await editing.submit(); assert.equal(editing.submissions.length, 0);
+});
+await receptionTest("Edición carga lectura guardada aunque difiera del histórico y conserva datos al guardar", async () => {
+  const vehicle = data.vehicles.find(v => v.id === order.vehicleId);
+  const form = mountReceptionOrder({ id: order.id, store: { ...data, vehicles: data.vehicles.map(v => v.id === vehicle.id ? { ...v, mileage: v.mileage + 1000 } : v) } });
+  assert.equal(form.reading(), String(order.mileage));
+  await form.submit(); assert.equal(form.submissions.length, 1);
+  assert.equal(form.submissions[0].payload.mileage, order.mileage);
+  for (const key of ["services", "parts", "photos", "status", "date", "customerId", "vehicleId"]) assert.deepEqual(form.submissions[0].payload[key], structuredClone(order[key]));
+});
+await receptionTest("Cancelar cambio de vehículo conserva el borrador completo y su lectura exacta", async () => {
+  const second = { ...plateBase, id: "different-vehicle", mileage: 20000 };
+  const form = mountReceptionOrder({ initialVehicleId: plateBase.id, store: { ...data, vehicles: [...data.vehicles, second] } });
+  form.change({ mileage: 98765, reason: "Motivo", date: "2026-10-22", time: "09:45", mechanicId: worker.id });
+  const before = structuredClone(form.current());
+  form.child("VehicleSection").props.onChange(second.id); assert.equal(form.pending(), true);
+  assert.deepEqual(structuredClone(form.current()), before); assert.equal(form.reading(), "98765");
+  await form.submit(); assert.equal(form.submissions.length, 0);
+  form.cancelSelection(); assert.deepEqual(structuredClone(form.current()), before); assert.equal(form.reading(), "98765");
+});
+await receptionTest("Confirmar cambio permite conservar lectura o dejarla pendiente sin alterar los demás datos", async () => {
+  const second = { ...plateBase, id: "different-vehicle", mileage: 20000 };
+  for (const clear of [false, true]) {
+    const form = mountReceptionOrder({ initialVehicleId: plateBase.id, store: { ...data, vehicles: [...data.vehicles, second] } });
+    form.change({ mileage: 98765, reason: "Motivo", time: "09:45", mechanicId: worker.id });
+    const before = structuredClone(form.current());
+    form.child("VehicleSection").props.onChange(second.id); form.confirmSelection(clear);
+    assert.equal(form.current().vehicleId, second.id); assert.equal(form.reading(), clear ? "" : "98765");
+    assert.equal(form.reference(), 20000);
+    for (const key of Object.keys(before).filter(k => k !== "vehicleId")) assert.deepEqual(structuredClone(form.current()[key]), before[key]);
+  }
+});
+await receptionTest("Lecturas inválidas no llegan al store y el límite de kilometraje decreciente se conserva", async () => {
+  for (const value of [" ", "NaN", "Infinity", "1.5", "-1", "2147483648"]) {
+    const form = mountReceptionOrder({ initialVehicleId: plateBase.id });
+    form.child("ReceptionSection").props.onMileageChange(value); await form.submit();
+    assert.equal(form.submissions.length, 0); assert.ok(form.error());
+  }
+  const form = mountReceptionOrder({ initialVehicleId: plateBase.id });
+  form.change({ reason: "Recepción", mechanicId: worker.id, mileage: plateBase.mileage - 1 });
+  await form.submit(); assert.match(form.error(), /kilometraje no puede ser menor/); assert.deepEqual(form.navigation, []);
+});
+test("VehicleSection no ejecuta callback para la coincidencia que ya está seleccionada", () => {
+  const section = mountPlateSection({ selectedValue: "exact" }); section.search("ABCD12");
+  section.buttons().find(n => n.props["aria-label"] === "Seleccionar AB-CD-12").props.onClick();
+  assert.deepEqual(section.selections, []);
+});
+test("ReceptionSection entrega texto vacío o cero literal y el histórico se aplica solo mediante botón", () => {
+  const result = { exports: {} }; const changes = []; let uses = 0;
+  const jsx = (type, props) => ({ type, props });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(root, "features/ordenes/components/editor/sections/ReceptionSection.tsx"), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
+    exports: result.exports, module: result, require(request) {
+      if (request === "react/jsx-runtime") return { jsx, jsxs: jsx };
+      if (request === "@/components/ui/primitives") return { Panel: "Panel", Field: "Field", TextField: "TextField" };
+      if (request === "@/utils/format") return { km: value => value + " km" };
+      throw Error(request);
+    },
+  });
+  const node = result.exports.ReceptionSection({ order, onChange() {}, mileageInput: "", onMileageChange: value => changes.push(value), referenceMileage: 0, onUsePreviousMileage: () => uses++ });
+  const nodes = (n, p) => !n || typeof n !== "object" ? [] : Array.isArray(n) ? n.flatMap(c => nodes(c, p)) : [...(p(n) ? [n] : []), ...nodes(n.props?.children, p)];
+  const field = nodes(node, n => n.type === "Field" && n.props.label === "Kilometraje de ingreso")[0];
+  assert.equal(field.props.value, ""); field.props.onChange({ target: { value: "" } }); field.props.onChange({ target: { value: "0" } });
+  assert.deepEqual(changes, ["", "0"]); assert.equal(uses, 0);
+  const button = nodes(node, n => n.type === "button")[0]; assert.equal(button.props.type, "button"); button.props.onClick(); assert.equal(uses, 1);
+});
+console.log(count + " pruebas totales con borrador y confirmación de kilometraje completadas.");
+
+
+await receptionTest("Patente y recepción integradas: cancelar conserva todo y confirmar reutiliza ID con lectura manual", async () => {
+  const first = { ...plateBase }, second = { ...plateBase, id: "plate-confirmed", plate: "ZZXY99", mileage: 20000 };
+  const form = mountReceptionOrder({ initialVehicleId: first.id, store: { ...data, vehicles: [first, second] } });
+  form.change({ mileage: 98765, reason: "Ingreso sin pérdidas", time: "11:40", mechanicId: worker.id });
+  const before = structuredClone(form.current());
+  const section = mountPlateSection({ searchVehicles: [first, second], selectedValue: first.id, onSelect: id => form.child("VehicleSection").props.onChange(id) });
+  section.search("zz-xy-99"); assert.deepEqual(structuredClone(form.current()), before);
+  section.buttons().find(n => n.props["aria-label"] === "Seleccionar ZZXY99").props.onClick();
+  assert.equal(form.pending(), true); assert.deepEqual(structuredClone(form.current()), before); assert.equal(form.reading(), "98765");
+  form.cancelSelection(); assert.deepEqual(structuredClone(form.current()), before); assert.equal(form.reading(), "98765");
+  section.search("ZZXY99"); section.buttons().find(n => n.props["aria-label"] === "Seleccionar ZZXY99").props.onClick(); form.confirmSelection();
+  assert.equal(form.current().vehicleId, second.id); assert.equal(form.reading(), "98765");
+  for (const key of Object.keys(before).filter(k => k !== "vehicleId")) assert.deepEqual(structuredClone(form.current()[key]), before[key]);
+});
+
+await receptionTest("Buscar patente sin lectura no confirma el kilometraje histórico; limpiar no cambia la recepción", async () => {
+  const vehicle = { ...plateBase, plate: "ZXCV12", mileage: 12345 };
+  const form = mountReceptionOrder({ store: { ...data, vehicles: [vehicle] } });
+  form.change({ customerId: vehicle.customerId, reason: "Solo referencia" });
+  const section = mountPlateSection({ searchVehicles: [vehicle], onSelect: id => form.child("VehicleSection").props.onChange(id) });
+  section.search("zx-cv-12"); section.buttons().find(n => n.props["aria-label"] === "Seleccionar ZXCV12").props.onClick();
+  assert.equal(form.current().vehicleId, vehicle.id); assert.equal(form.reading(), ""); assert.equal(form.reference(), 12345); assert.equal(form.pending(), false);
+  const before = structuredClone(form.current()); section.search("ZXCV"); section.buttons().find(n => n.props.children === "Limpiar búsqueda").props.onClick();
+  assert.deepEqual(structuredClone(form.current()), before); assert.equal(form.reading(), "");
+  form.usePrevious(); assert.equal(form.reading(), "12345");
+});
+console.log(count + " pruebas totales con búsqueda y confirmación integradas completadas.");

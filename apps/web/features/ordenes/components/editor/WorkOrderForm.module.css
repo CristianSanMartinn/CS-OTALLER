@@ -47,3 +47,51 @@
     grid-row: 1;
   }
 }
+
+.quickReception {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 920px;
+  margin-inline: auto;
+}
+.receptionHint {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+.orderRegistrationActions summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.orderRegistrationActions summary:focus-visible {
+  outline: 3px solid #83a6ff;
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+.orderRegistrationActions[open] summary {
+  margin-bottom: 12px;
+}
+@media (max-width: 600px) {
+  .quickReception .receptionHint {
+    font-size: 12px;
+  }
+  .quickReception > div > :global(.form-actions) {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    padding: 12px 0;
+    background: var(--surface);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .quickReception > div > :global(.form-actions) :global(.button) {
+    flex: 1 1 145px;
+    justify-content: center;
+    min-height: 44px;
+  }
+}

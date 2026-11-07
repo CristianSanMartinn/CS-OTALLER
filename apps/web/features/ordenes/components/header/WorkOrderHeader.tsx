@@ -8,7 +8,7 @@ export function WorkOrderHeader({
   busy = false,
   onCancel,
 }: {
-  order: WorkOrder;
+  order: Omit<WorkOrder, "mileage">;
   isNew: boolean;
   canMarkReady?: boolean;
   busy?: boolean;
@@ -23,7 +23,11 @@ export function WorkOrderHeader({
       />
       <PageHeading
         title={isNew ? "Nueva orden de trabajo" : order.number}
-        description="Ficha de atención y seguimiento técnico del vehículo."
+        description={
+          isNew
+            ? "Recepción rápida · Crea la orden y continúa con la gestión técnica."
+            : "Ficha de atención y seguimiento técnico del vehículo."
+        }
         action={
           <div className="row-actions">
             <WorkOrderStatus status={order.status} />

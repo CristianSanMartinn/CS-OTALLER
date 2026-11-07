@@ -1,0 +1,91 @@
+.draft {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-width: 0;
+}
+.draft h4,
+.draft p {
+  margin: 0;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.field {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--neutral-surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.field dt {
+  font-weight: 700;
+}
+.field dd {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.state {
+  display: block;
+  color: var(--neutral-text);
+}
+.candidate {
+  display: grid;
+  gap: 3px;
+  margin-top: 8px;
+}
+.candidate small {
+  color: var(--neutral-text);
+}
+@media (max-width: 600px) {
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.field label {
+  display: grid;
+  gap: 5px;
+}
+.field input:not([type="checkbox"]),
+.field select {
+  width: 100%;
+  min-width: 0;
+  padding: 9px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--neutral-surface);
+  color: inherit;
+  font: inherit;
+}
+.field .confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.confirm input {
+  flex-shrink: 0;
+}
+.overwrite {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

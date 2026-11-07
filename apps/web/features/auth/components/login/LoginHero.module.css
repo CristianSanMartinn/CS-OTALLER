@@ -1,0 +1,250 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100svh;
+  background: #102b46;
+  color: white;
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.active {
+  opacity: 1;
+}
+.photo {
+  object-fit: cover;
+  object-position: 57% center;
+  transform: scale(1.035);
+  transition: transform 7s ease-out;
+}
+.active .photo {
+  transform: scale(1);
+}
+.slide:first-child .photo {
+  object-position: 55% 56%;
+}
+.shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #081d36d9, #0b243653 85%),
+    linear-gradient(0deg, #071c34eb, transparent 75%);
+}
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: clamp(32px, 4.5vw, 76px);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  width: fit-content;
+}
+.brand strong {
+  display: block;
+  font-size: clamp(23px, 2.5vw, 34px);
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  line-height: 1.2;
+}
+.brand small {
+  display: block;
+  margin-top: 7px;
+  font-size: 10px;
+  letter-spacing: 2.8px;
+  line-height: 1.7;
+  color: #e0e9f6;
+}
+.mark {
+  position: relative;
+  display: block;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+}
+.mark > svg:first-child {
+  width: 68px;
+  height: 68px;
+  stroke-width: 2.8;
+}
+.mark > svg:last-child {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  top: 17px;
+  left: 17px;
+  color: #538bff;
+  stroke-width: 3;
+  fill: #122b45;
+}
+.message {
+  margin-top: auto;
+  padding-top: 90px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 2.4px;
+  font-weight: 700;
+  color: #b7d0fa;
+}
+.message h1 {
+  margin: 20px 0;
+  font-size: clamp(37px, 4vw, 62px);
+  letter-spacing: -1.8px;
+  line-height: 1.12;
+  font-weight: 750;
+}
+.message h1 span {
+  font-weight: 400;
+}
+.message p {
+  max-width: 350px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #d4deec;
+}
+.progressNav {
+  display: flex;
+  gap: 9px;
+  width: min(100%, 260px);
+  margin-top: 22px;
+}
+.progressNav button {
+  flex: 1;
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border-radius: 6px;
+}
+.progressTrack {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ffffff45;
+}
+.progressFill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: #5c94ff;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.progressNav button[aria-pressed="true"] .progressFill {
+  animation: slideProgress 6.5s linear forwards;
+}
+.hero[data-paused="true"] .progressFill {
+  animation-play-state: paused;
+}
+.progressNav button:hover .progressTrack {
+  background: #ffffff70;
+}
+@keyframes slideProgress {
+  to {
+    transform: scaleX(1);
+  }
+}
+.caption {
+  margin-top: 44px;
+  color: #b9c9df;
+  font-size: 11px;
+}
+@media (max-width: 900px) {
+  .hero,
+  .content {
+    min-height: 0;
+    height: 190px;
+  }
+  .content {
+    padding: 16px 7% 22px;
+  }
+  .brand {
+    gap: 9px;
+  }
+  .brand strong {
+    font-size: 20px;
+  }
+  .brand small {
+    font-size: 7px;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+  .mark,
+  .mark > svg:first-child {
+    width: 40px;
+    height: 40px;
+  }
+  .mark > svg:last-child {
+    width: 22px;
+    height: 22px;
+    top: 9px;
+    left: 9px;
+  }
+  .message {
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .eyebrow,
+  .message p,
+  .caption {
+    display: none;
+  }
+  .message h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.16;
+    letter-spacing: -0.8px;
+  }
+  .progressNav {
+    margin-top: 0;
+    width: 168px;
+    gap: 7px;
+  }
+  .shade {
+    background:
+      linear-gradient(90deg, #091f3de6, #0c274b45),
+      linear-gradient(0deg, #0c213c80, transparent);
+  }
+  .slide:first-child .photo {
+    object-position: 65% 48%;
+  }
+}
+@media (max-width: 380px) {
+  .hero,
+  .content {
+    height: 180px;
+  }
+  .message h1 {
+    font-size: 22px;
+  }
+  .brand strong {
+    font-size: 19px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .photo {
+    transition: none;
+  }
+  .photo {
+    transform: none;
+  }
+  .progressNav button[aria-pressed="true"] .progressFill {
+    animation: none;
+    transform: scaleX(1);
+  }
+}

@@ -11,7 +11,7 @@ export function WorkOrderSummary({
   isNew,
   busy = false,
 }: {
-  order: WorkOrder;
+  order: Omit<WorkOrder, "mileage">;
   initialStatus: WorkOrder["status"];
   onStatus: (s: WorkOrder["status"]) => void;
   isNew: boolean;

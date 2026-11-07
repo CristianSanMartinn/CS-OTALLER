@@ -1,5 +1,7 @@
 "use client";
 import styles from "./WorkOrderForm.module.css";
+import { Modal } from "@/components/Modal/Modal";
+import type { WorkOrderDraft } from "../../types/editor.types";
 import { CancelVisitDialog } from "@/components/Modal/CancelVisitDialog";
 import { CancellationDetails } from "@/components/ui/CancellationDetails";
 import { FormEvent, useState } from "react";
@@ -7,12 +9,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Customer, Vehicle, WorkOrder } from "@/features/shared/types/domain";
 import { useStore } from "@/features/shared/components/store/StoreProvider";
-import {
-  Field,
-  Panel,
-  EmptyState,
-} from "@/components/ui/primitives";
+import { Field, Panel, EmptyState } from "@/components/ui/primitives";
 import { today, uid } from "@/utils/format";
+import { scopedData } from "@/features/shared/services/permissions";
 import { WorkOrderAssignment } from "../assignment/WorkOrderAssignment";
 import { WorkOrderHeader } from "../header/WorkOrderHeader";
 import { OrderRegistrationModal } from "../registration/OrderRegistrationModal";
@@ -27,6 +26,18 @@ import { PhotoEvidenceSection } from "./sections/PhotoEvidenceSection";
 import { ObservationsSection } from "./sections/ObservationsSection";
 import { WorkOrderSummary } from "../summary/WorkOrderSummary";
 import { MaintenanceSection } from "./sections/MaintenanceSection";
+type VehicleSelection = {
+  customerId: string;
+  vehicleId: string;
+  registeredVehicle?: Vehicle;
+  continueRegistration?: boolean;
+};
+function withoutMileage({
+  mileage: _mileage,
+  ...draft
+}: WorkOrder): WorkOrderDraft {
+  return draft;
+}
 export function WorkOrderForm({
   id,
   initialCustomerId = "",
@@ -46,9 +57,23 @@ export function WorkOrderForm({
   const [registration, setRegistration] = useState<
     "customer" | "vehicle" | null
   >(null);
+  const [vehicleRegistrationBlocked, setVehicleRegistrationBlocked] =
+    useState(false);
   const canRegister = user?.role === "ADMIN" && !id;
-  const [order, setOrder] = useState<WorkOrder>(() => {
-    if (existing) return structuredClone(existing);
+  const [mileageInput, setMileageInput] = useState(() =>
+    existing && Number.isFinite(existing.mileage)
+      ? String(existing.mileage)
+      : "",
+  );
+  const [pendingSelection, setPendingSelection] =
+    useState<VehicleSelection | null>(null);
+  const availableVehicles = user
+    ? scopedData(data, user).vehicles.filter(
+        (vehicle) => !("active" in vehicle) || vehicle.active !== false,
+      )
+    : [];
+  const [order, setOrder] = useState<WorkOrderDraft>(() => {
+    if (existing) return withoutMileage(structuredClone(existing));
     const v = data.vehicles.find((v) => v.id === initialVehicleId);
     return {
       id: uid(),
@@ -66,7 +91,6 @@ export function WorkOrderForm({
       vehicleId: v?.id ?? "",
       assignmentType: "INDIVIDUAL",
       mechanicId: user?.role === "WORKER" ? user.id : "",
-      mileage: v?.mileage ?? 0,
       reason: "",
       symptoms: "",
       diagnosis: "",
@@ -81,23 +105,104 @@ export function WorkOrderForm({
   });
   if (id && !existing)
     return <EmptyState title="Orden no encontrada o sin acceso" />;
-  const change = (patch: Partial<WorkOrder>) =>
-    setOrder((o) => ({ ...o, ...patch }));
+  const change = (patch: Partial<WorkOrderDraft>) =>
+    setOrder((current) => ({ ...current, ...patch }));
+  const selectedVehicle = availableVehicles.find(
+    (vehicle) => vehicle.id === order.vehicleId,
+  );
+  const referenceMileage =
+    selectedVehicle &&
+    Number.isInteger(selectedVehicle.mileage) &&
+    selectedVehicle.mileage >= 0 &&
+    selectedVehicle.mileage <= 2147483647
+      ? selectedVehicle.mileage
+      : undefined;
+  function applySelection(selection: VehicleSelection, clearMileage = false) {
+    const vehicle =
+      availableVehicles.find((item) => item.id === selection.vehicleId) ??
+      selection.registeredVehicle;
+    if (
+      selection.vehicleId &&
+      (!vehicle ||
+        vehicle.workshopId !== user?.workshopId ||
+        vehicle.customerId !== selection.customerId)
+    ) {
+      setError(
+        "El vehículo ya no está disponible para este cliente. Revisa la selección.",
+      );
+      setPendingSelection(null);
+      return;
+    }
+    setError("");
+    change({
+      customerId: selection.customerId,
+      vehicleId: selection.vehicleId,
+    });
+    if (clearMileage) setMileageInput("");
+    setPendingSelection(null);
+    if (selection.continueRegistration) setRegistration("vehicle");
+  }
+  function cancelSelection() {
+    setPendingSelection(null);
+    setError("");
+  }
+  function requestSelection(selection: VehicleSelection) {
+    if (
+      selection.customerId === order.customerId &&
+      selection.vehicleId === order.vehicleId
+    )
+      return;
+    if (mileageInput.trim()) setPendingSelection(selection);
+    else applySelection(selection);
+  }
   function registerCustomer(customer: Customer) {
-    change({ customerId: customer.id, vehicleId: "", mileage: 0 });
+    setRegistration(null);
     setError("");
     notify("Cliente registrado. Ahora puedes agregar su vehículo.");
-    setRegistration("vehicle");
+    requestSelection({
+      customerId: customer.id,
+      vehicleId: "",
+      continueRegistration: true,
+    });
   }
   function registerVehicle(vehicle: Vehicle) {
-    change({ vehicleId: vehicle.id, mileage: vehicle.mileage });
-    setError("");
-    notify("Vehículo registrado y seleccionado en la orden.");
     setRegistration(null);
+    setError("");
+    notify(
+      "Vehículo registrado. Confirma su selección y el kilometraje de ingreso.",
+    );
+    requestSelection({
+      customerId: order.customerId,
+      vehicleId: vehicle.id,
+      registeredVehicle: vehicle,
+    });
+  }
+  function selectVehicle(vehicleId: string) {
+    if (vehicleId === order.vehicleId) return;
+    const vehicle = availableVehicles.find(
+      (item) => item.id === vehicleId && item.customerId === order.customerId,
+    );
+    if (vehicleId && !vehicle) return;
+    requestSelection({ customerId: order.customerId, vehicleId });
   }
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (busy || preparingPhotos) return;
+    if (pendingSelection) {
+      setError("Confirma o cancela el cambio de vehículo antes de guardar.");
+      return;
+    }
+    const reading = mileageInput.trim();
+    if (!reading) {
+      setError("Confirma el kilometraje de ingreso antes de guardar.");
+      return;
+    }
+    const mileage = Number(reading);
+    if (!Number.isInteger(mileage) || mileage < 0 || mileage > 2147483647) {
+      setError("Ingresa un kilometraje válido.");
+      return;
+    }
+    const completeOrder: WorkOrder = { ...order, mileage };
     const button = (e.nativeEvent as SubmitEvent).submitter;
     const markReady =
       button?.getAttribute("name") === "intent" &&
@@ -106,10 +211,11 @@ export function WorkOrderForm({
     setError("");
     try {
       const saved = await saveWorkOrder(
-        markReady ? { ...order, status: "READY" } : order,
+        markReady ? { ...completeOrder, status: "READY" } : completeOrder,
         Boolean(id),
       );
-      setOrder(saved);
+      setOrder(withoutMileage(saved));
+      setMileageInput(String(saved.mileage));
       notify(
         markReady
           ? "Vehículo listo para retirar. Estado guardado."
@@ -156,7 +262,7 @@ export function WorkOrderForm({
           onClose={() => setCancelOpen(false)}
           onCancelled={(_, cancellation) =>
             setOrder({
-              ...structuredClone(existing),
+              ...withoutMileage(structuredClone(existing)),
               status: "CANCELLED",
               cancellation,
             })
@@ -168,7 +274,19 @@ export function WorkOrderForm({
           {error}
         </p>
       )}
-      <form id="work-order-editor" onSubmit={submit} className={styles.orderEditor}>
+      <form
+        id="work-order-editor"
+        onSubmit={submit}
+        className={
+          styles.orderEditor + (!id ? " " + styles.quickReception : "")
+        }
+      >
+        {!id && (
+          <p className={styles.receptionHint}>
+            Registra el ingreso ahora. El diagnóstico, los trabajos y los
+            repuestos se completan después de crear la orden.
+          </p>
+        )}
         <div>
           <Panel
             title="01 · Cliente y vehículo"
@@ -183,34 +301,38 @@ export function WorkOrderForm({
                 }
                 disabled={!!id}
                 onChange={(customerId) =>
-                  change({ customerId, vehicleId: "", mileage: 0 })
+                  requestSelection({ customerId, vehicleId: "" })
                 }
               />
               <VehicleSection
-                vehicles={data.vehicles.filter(
+                userId={user?.id}
+                onRegistrationBlockedChange={setVehicleRegistrationBlocked}
+                searchVehicles={availableVehicles}
+                workshopId={user?.workshopId ?? ""}
+                customerId={order.customerId}
+                vehicles={availableVehicles.filter(
                   (v) => v.customerId === order.customerId,
                 )}
                 value={order.vehicleId}
                 onCreate={
                   canRegister && order.customerId
-                    ? () => setRegistration("vehicle")
+                    ? () => {
+                        if (!vehicleRegistrationBlocked)
+                          setRegistration("vehicle");
+                      }
                     : undefined
                 }
                 disabled={!!id || !order.customerId}
-                onChange={(vehicleId) =>
-                  change({
-                    vehicleId,
-                    mileage:
-                      data.vehicles.find((v) => v.id === vehicleId)?.mileage ??
-                      0,
-                  })
-                }
+                onChange={selectVehicle}
               />
               <WorkOrderAssignment order={order} onChange={change} />
-              <Field label="Número de orden" value={order.number} readOnly />
+              {id && (
+                <Field label="Número de orden" value={order.number} readOnly />
+              )}
             </div>
             {canRegister && (
-              <div className={styles.orderRegistrationActions}>
+              <details className={styles.orderRegistrationActions}>
+                <summary>¿Necesitas registrar un cliente o vehículo?</summary>
                 <p>
                   ¿Es su primera visita? Registra al cliente y su vehículo aquí.
                 </p>
@@ -225,8 +347,11 @@ export function WorkOrderForm({
                   <button
                     type="button"
                     className="button"
-                    disabled={!order.customerId}
-                    onClick={() => setRegistration("vehicle")}
+                    disabled={!order.customerId || vehicleRegistrationBlocked}
+                    onClick={() => {
+                      if (!vehicleRegistrationBlocked)
+                        setRegistration("vehicle");
+                    }}
                   >
                     + Registrar nuevo vehículo
                   </button>
@@ -237,21 +362,38 @@ export function WorkOrderForm({
                     vehículo.
                   </small>
                 )}
-              </div>
+              </details>
             )}
           </Panel>
-          <ReceptionSection {...props} />
-          <DiagnosisSection {...props} />
-          <ScannerCodesSection {...props} />
-          <ServicesSection {...props} />
-          <PartsSection {...props} />
-          <PhotoEvidenceSection {...props} onBusyChange={setPreparingPhotos} />
-          <MaintenanceSection
-            vehicleId={order.vehicleId}
-            orderId={order.id}
-            isNew={!id}
+          <ReceptionSection
+            {...props}
+            mileageInput={mileageInput}
+            onMileageChange={setMileageInput}
+            referenceMileage={referenceMileage}
+            onUsePreviousMileage={() => {
+              if (referenceMileage !== undefined)
+                setMileageInput(String(referenceMileage));
+            }}
+            receptionOnly={!id}
           />
-          <ObservationsSection {...props} />
+          {id && (
+            <>
+              <DiagnosisSection {...props} />
+              <ScannerCodesSection {...props} />
+              <ServicesSection {...props} />
+              <PartsSection {...props} />
+              <PhotoEvidenceSection
+                {...props}
+                onBusyChange={setPreparingPhotos}
+              />
+              <MaintenanceSection
+                vehicleId={order.vehicleId}
+                orderId={order.id}
+                isNew={!id}
+              />
+              <ObservationsSection {...props} />
+            </>
+          )}
           <div className="form-actions">
             <Link className="button" href="/ordenes">
               Volver a órdenes
@@ -260,35 +402,86 @@ export function WorkOrderForm({
               className="button primary"
               disabled={busy || preparingPhotos}
             >
-              {busy ? "Guardando…" : id ? "Guardar cambios" : "Crear orden"}
+              {busy
+                ? "Guardando…"
+                : id
+                  ? "Guardar cambios"
+                  : "Crear orden y continuar"}
             </button>
           </div>
         </div>
-        <aside>
-          <WorkOrderSummary
-            order={order}
-            initialStatus={existing?.status ?? "RECEIVED"}
-            onStatus={(status) => {
-              if (status === "CANCELLED" && existing?.status !== "CANCELLED") {
-                if (existing) setCancelOpen(true);
-                else
+        {id && (
+          <aside>
+            <WorkOrderSummary
+              order={order}
+              initialStatus={existing?.status ?? "RECEIVED"}
+              onStatus={(status) => {
+                if (
+                  status === "CANCELLED" &&
+                  existing?.status !== "CANCELLED"
+                ) {
+                  if (existing) setCancelOpen(true);
+                  else
+                    setError(
+                      "Primero guarda la orden para poder cancelarla indicando el motivo.",
+                    );
+                } else if (
+                  existing?.status === "CANCELLED" &&
+                  status !== "CANCELLED"
+                )
                   setError(
-                    "Primero guarda la orden para poder cancelarla indicando el motivo.",
+                    "La orden cancelada conserva su estado. Crea una nueva orden para otra visita.",
                   );
-              } else if (
-                existing?.status === "CANCELLED" &&
-                status !== "CANCELLED"
-              )
-                setError(
-                  "La orden cancelada conserva su estado. Crea una nueva orden para otra visita.",
-                );
-              else change({ status });
-            }}
-            isNew={!id}
-            busy={busy || preparingPhotos}
-          />
-        </aside>
+                else change({ status });
+              }}
+              isNew={!id}
+              busy={busy || preparingPhotos}
+            />
+          </aside>
+        )}
       </form>
+      {pendingSelection && (
+        <Modal title="Confirmar cambio de vehículo" onClose={cancelSelection}>
+          <div className="panel-padding">
+            <p>
+              Nueva selección:{" "}
+              {availableVehicles.find(
+                (vehicle) => vehicle.id === pendingSelection.vehicleId,
+              )?.plate ??
+                pendingSelection.registeredVehicle?.plate ??
+                "sin vehículo seleccionado"}
+              .
+            </p>
+            <p>
+              Ya ingresaste una lectura de {mileageInput} km. El cambio de
+              selección todavía no se ha aplicado.
+            </p>
+            <p>
+              ¿Quieres conservar esa lectura para la nueva selección o ingresar
+              una nueva? El motivo, la fecha y la asignación se conservarán.
+            </p>
+          </div>
+          <div className="form-actions">
+            <button type="button" className="button" onClick={cancelSelection}>
+              Cancelar cambio
+            </button>
+            <button
+              type="button"
+              className="button"
+              onClick={() => applySelection(pendingSelection, true)}
+            >
+              Cambiar e ingresar nueva lectura
+            </button>
+            <button
+              type="button"
+              className="button primary"
+              onClick={() => applySelection(pendingSelection)}
+            >
+              Cambiar y conservar lectura
+            </button>
+          </div>
+        </Modal>
+      )}
       {canRegister && registration && (
         <OrderRegistrationModal
           key={registration}

@@ -19,7 +19,9 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         >
           <Menu />
         </button>
-        <span className="header-workshop">{data.workshop.name}</span>
+        <span className="header-workshop" title={data.workshop.name}>
+          {data.workshop.name}
+        </span>
         <span className="header-divider" />
         <span className="demo-label">{live ? "EN LÍNEA" : "DEMO"}</span>
       </div>

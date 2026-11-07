@@ -28,11 +28,15 @@ export function OrderRegistrationModal({
     >
       <p className="section-hint">
         {kind === "customer"
-          ? "Escribe los datos del cliente. Al guardar, podrás registrar su vehículo y continuar con esta orden."
+          ? "Ingresa su nombre y, si lo tienes, su teléfono o RUT. Al guardar, podrás registrar su vehículo y continuar con esta orden."
           : "El vehículo quedará asociado al cliente seleccionado y se agregará a esta orden."}
       </p>
       {kind === "customer" ? (
-        <ClientForm onSave={onCustomerSave} onCancel={onClose} />
+        <ClientForm
+          mode="reception"
+          onSave={onCustomerSave}
+          onCancel={onClose}
+        />
       ) : (
         <VehicleForm
           ownerId={customerId}

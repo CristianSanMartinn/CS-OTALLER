@@ -1,195 +1,372 @@
 .loginScreen {
-  min-height: 100vh;
+  min-height: 100svh;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: var(--neutral-surface, #fff);
-}
-.loginStory {
-  background: #142137;
-  color: #e8f0ff;
-  padding: 45px 9%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-.loginStory :global(.brand) {
-  padding: 0;
-}
-.loginStory > :global(.brand) {
-  margin-bottom: 60px;
-}
-.loginStory :global(.eyebrow) {
-  color: #829fcf;
-  font-size: 9px;
-}
-.loginStory h1 {
-  font-size: 47px;
-  line-height: 1.2;
-  letter-spacing: -1.8px;
-  margin: 20px 0;
-}
-.loginStory h1 em {
-  font-style: normal;
-  color: #6e9bfa;
-}
-.loginStory p {
-  font-size: 13px;
-  color: var(--neutral-text, #91a2bd);
-  max-width: 320px;
-  line-height: 1.9;
-}
-.loginStory > small {
-  color: var(--neutral-text, #5f7698);
-  font-size: 10px;
-}
-.loginGraphic {
-  height: 170px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 350px;
-  color: #527bb7;
-  border: 1px solid #2b3d57;
-  border-radius: 14px;
-  margin: 40px 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 24px,
-      #24365060 25px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 24px,
-      #24365060 25px
-    );
-}
-.graphicTag {
-  position: absolute;
-  bottom: 15px;
-  font-size: 7px;
-  letter-spacing: 2px;
-  color: #6886b1;
+  grid-template-columns: 1.08fr 1fr;
+  background: #f5f7fc;
+  color: #13213e;
+  color-scheme: light;
 }
 .loginFormSide {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  padding: 44px clamp(28px, 4vw, 72px) 25px;
   position: relative;
-  padding: 60px 30px;
 }
 .loginFormWrap {
-  width: 360px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 470px;
+}
+.accessBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #eaf0ff;
+  color: #2b66e6;
+  padding: 9px 13px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.7px;
 }
 .loginFormWrap h2 {
-  font-size: 28px;
-  margin: 22px 0 7px;
-  letter-spacing: -0.8px;
+  font-size: clamp(28px, 2.6vw, 39px);
+  margin: 21px 0 8px;
+  line-height: 1.15;
+  letter-spacing: -1.3px;
+  font-weight: 800;
+  color: #101c39;
 }
-.loginFormWrap > p {
-  color: var(--neutral-text, #92a0b4);
-  font-size: 13px;
+.subtitle {
+  color: #7b8ca8;
+  font-size: 16px;
   margin-bottom: 32px;
 }
 .loginFormWrap form > :global(.field) {
   margin-bottom: 20px;
 }
+.loginFormWrap :global(.field) {
+  color: #223450;
+  font-size: 13px;
+  gap: 8px;
+}
 .loginFormWrap :global(.field) input {
-  padding: 13px;
-  font-size: 12px;
+  min-height: 52px;
+  padding: 13px 15px;
+  font-size: 15px;
+  border-radius: 11px;
+  background: #fff;
+  color: #14243e;
+  border-color: #dce3ee;
+}
+.loginFormWrap :global(.field) input::placeholder {
+  color: #8a9ab4;
+}
+.loginFormWrap :global(.field) > div {
+  border-radius: 11px;
+  border-color: #dce3ee;
+  background: #fff;
+}
+.loginFormWrap :global(.field) > div:focus-within {
+  outline: 3px solid #3166e919;
+  border-color: #7399f2;
+}
+.loginFormWrap :global(.field) > div input {
+  background: transparent;
+  box-shadow: none;
+}
+.loginFormWrap :global(.field) button {
+  min-width: 48px;
+  min-height: 48px;
+  color: #7587a4;
 }
 .loginOptions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2px 0 24px;
-  font-size: 11px;
-  color: var(--neutral-text, #7d8da5);
+  gap: 10px;
+  margin: 2px 0 20px;
+  font-size: 12px;
+  color: #273958;
 }
 .loginOptions label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.loginOptions input {
+  width: 19px;
+  height: 19px;
+  accent-color: #2463eb;
 }
 .loginOptions :global(.text-button) {
-  font-size: 11px;
+  min-height: 40px;
+  color: #2463d7;
+  font-size: 12px;
+  padding: 0;
+  text-align: right;
+}
+.workshopAccess {
+  margin-bottom: 20px;
+  padding: 0 16px;
+  border-radius: 13px;
+  background: #edf2fd;
+}
+.workshopAccess summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 0;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.workshopAccess summary::-webkit-details-marker {
+  display: none;
+}
+.workshopAccess summary > svg:first-child {
+  color: #6276cf;
+  flex-shrink: 0;
+}
+.workshopAccess summary > svg:last-child {
+  margin-left: auto;
+  color: #3064d9;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.workshopAccess[open] summary > svg:last-child {
+  transform: rotate(180deg);
+}
+.workshopAccess summary:focus-visible {
+  outline: 3px solid #83a6ff;
+  outline-offset: 3px;
+  border-radius: 5px;
+}
+.workshopAccess :global(.help-text) {
+  padding: 10px 0 16px;
+  color: #667996;
 }
 .loginSubmit {
   width: 100%;
-  height: 46px;
-  justify-content: space-between;
-  padding: 0 16px;
+  min-height: 54px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: #2463eb;
+  color: #fff;
+  box-shadow: 0 7px 18px #2463eb26;
+  font-size: 16px;
+  position: relative;
+}
+.loginSubmit:hover:not(:disabled) {
+  background: #1552d0;
+}
+.loginSubmit svg {
+  position: absolute;
+  right: 20px;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 24px 0 19px;
+  font-size: 12px;
+  color: #8c9ab0;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #dfe5ef;
+}
+.secondaryActions {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 10px;
+}
+.secondaryActions a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 8px;
+  min-height: 48px;
+  border: 1px solid #dbe3ef;
+  border-radius: 11px;
+  background: #fff;
+  color: #2463d7;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.secondaryActions a:hover {
+  background: #eef3ff;
+  border-color: #a9bff2;
+}
+.secondaryActions svg {
+  flex-shrink: 0;
 }
 .demoCredentials {
-  margin-top: 27px;
-  border: 1px solid #e6edf7;
-  background: var(--neutral-surface, #f8faff);
-  border-radius: 8px;
-  padding: 16px;
+  margin-top: 24px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  color: #829dc3;
+  padding: 16px;
+  border: 1px solid #dce5f1;
+  border-radius: 12px;
+  background: #fff;
+  color: #617596;
+}
+.demoCredentials strong {
+  color: #28466d;
+  font-size: 12px;
+}
+.demoCredentials p {
+  font-size: 12px;
+  margin: 7px 0;
+  line-height: 1.8;
 }
 .demoCredentials svg {
   flex-shrink: 0;
 }
-.demoCredentials strong {
-  font-size: 11px;
-  color: var(--neutral-text, #7088ad);
-}
-.demoCredentials p {
-  font-size: 11px;
-  line-height: 1.8;
-  margin: 6px 0;
-  color: var(--neutral-text, #8b9db6);
-}
-.demoCredentials code {
-  color: #547bb6;
-}
 .demoCredentials small {
-  font-size: 9px;
-  color: var(--neutral-text, #a1afc2);
-}
-.loginCopyright {
-  position: absolute;
-  bottom: 24px;
-  color: var(--neutral-text, #b0bac9);
   font-size: 10px;
 }
-@media (max-width: 1000px) {
-  .loginStory h1 {
-    font-size: 36px;
+.loginCopyright {
+  margin-top: 32px;
+  font-size: 10px;
+  color: #8998af;
+}
+@media (min-width: 901px) {
+  .loginFormSide {
+    background: white;
   }
 }
-@media (max-width: 760px) {
-  .loginStory {
-    display: none;
+@media (max-width: 1100px) and (min-width: 901px) {
+  .loginScreen {
+    grid-template-columns: 1fr 1fr;
   }
+  .secondaryActions {
+    grid-template-columns: 1fr;
+  }
+  .loginOptions {
+    font-size: 11px;
+  }
+  .loginOptions :global(.text-button) {
+    font-size: 11px;
+  }
+}
+@media (max-width: 900px) {
   .loginScreen {
     display: block;
+    background: #fff;
   }
   .loginFormSide {
-    min-height: 100vh;
-    padding: 45px 25px;
+    margin-top: -18px;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    padding: 19px 7% 16px;
+    z-index: 1;
+  }
+  .loginFormWrap {
+    max-width: 520px;
+  }
+  .accessBadge {
+    padding: 6px 10px;
+    font-size: 9px;
+    letter-spacing: 1.2px;
+  }
+  .accessBadge svg {
+    width: 15px;
+    height: 15px;
   }
   .loginFormWrap h2 {
-    font-size: 29px;
+    font-size: clamp(26px, 5.9vw, 34px);
+    letter-spacing: -0.9px;
+    margin: 12px 0 5px;
   }
-  .loginFormWrap:before {
-    content: "C.S.OTALLER";
-    display: block;
-    font-weight: 800;
-    letter-spacing: 1px;
-    font-size: 20px;
-    color: var(--neutral-text, #213b60);
-    margin-bottom: 40px;
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .loginFormWrap form {
+    display: flex;
+    flex-direction: column;
+  }
+  .loginFormWrap form > :global(.field) {
+    margin-bottom: 14px;
+  }
+  .loginFormWrap :global(.field) {
+    gap: 6px;
+    font-size: 12px;
+  }
+  .loginFormWrap :global(.field) input {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 11px 13px;
+  }
+  .loginOptions {
+    margin: 0 0 12px;
+  }
+  .loginSubmit {
+    order: 1;
+    min-height: 50px;
+  }
+  .workshopAccess {
+    order: 2;
+    margin: 12px 0 0;
+    background: #f2f5fc;
+  }
+  .workshopAccess summary {
+    padding: 12px 0;
+    min-height: 44px;
+    font-size: 12px;
+  }
+  .divider {
+    margin: 16px 0 8px;
+  }
+  .secondaryActions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .secondaryActions a {
+    border: 0;
+    background: transparent;
+    padding: 7px 2px;
+    min-height: 44px;
+    font-size: 11px;
+  }
+  .secondaryActions svg {
+    width: 16px;
+    height: 16px;
+  }
+  .loginCopyright {
+    margin-top: 12px;
+  }
+}
+@media (max-width: 380px) {
+  .loginOptions {
+    gap: 5px;
+    font-size: 11px;
+  }
+  .loginOptions :global(.text-button) {
+    font-size: 11px;
+  }
+  .secondaryActions {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workshopAccess summary > svg:last-child {
+    transition: none;
   }
 }

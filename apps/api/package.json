@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:integration": "pnpm build && node scripts/test-integration.cjs",
     "test:maintenance-types": "pnpm build && node scripts/test-maintenance-types.cjs",
-    "test:oil-catalog": "pnpm build && node scripts/test-oil-catalog.cjs"
+    "test:oil-catalog": "pnpm build && node scripts/test-oil-catalog.cjs",
+    "test:plate-check": "pnpm build && node --test scripts/test-plate-check.cjs"
   },
   "dependencies": {
     "@nestjs/common": "11.2.7",

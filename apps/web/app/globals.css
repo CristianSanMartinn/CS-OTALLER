@@ -358,7 +358,18 @@ select:disabled {
   align-items: center;
   gap: 17px;
 }
+.header-left {
+  flex: 1;
+  min-width: 0;
+}
+.header-left > :not(.header-workshop) {
+  flex-shrink: 0;
+}
 .header-workshop {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
   font-weight: 600;
 }
@@ -391,6 +402,7 @@ select:disabled {
   flex-shrink: 0;
 }
 .header-right {
+  flex-shrink: 0;
   gap: 11px;
 }
 .user-label strong {

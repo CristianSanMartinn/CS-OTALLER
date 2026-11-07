@@ -1,3 +1,4 @@
+import styles from "./ClientForm.module.css";
 import { ImageUploader } from "@/components/ImageUploader/ImageUploader";
 import { Panel } from "@/components/ui/primitives";
 import { Photo } from "@/features/shared/types/domain";
@@ -16,12 +17,15 @@ export function ClientForm({
   client,
   onSave,
   onCancel,
+  mode = "full",
 }: {
   client?: Customer;
+  mode?: "full" | "reception";
   onSave: (c: Customer) => void;
   onCancel: () => void;
 }) {
   const { data, user, live, saveCustomer } = useStore();
+  const quick = mode === "reception" && !client;
   const [preparing, setPreparing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>(client?.photos ?? []);
@@ -31,9 +35,13 @@ export function ClientForm({
   );
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (preparing) return;
+    if (busy || preparing) return;
     const f = new FormData(e.currentTarget);
     const get = (key: string) => String(f.get(key) ?? "").trim();
+    if (!get("name")) {
+      setError("Ingresa el nombre completo del cliente.");
+      return;
+    }
     const rut = get("rut");
     const normalizedRut = rut.replace(/[.\s-]/g, "").toLowerCase();
     if (
@@ -87,6 +95,35 @@ export function ClientForm({
       setBusy(false);
     }
   }
+  const additionalFields = (
+    <>
+      <Field
+        label="Correo electrónico"
+        name="email"
+        type="email"
+        defaultValue={client?.email}
+      />
+      <Field label="Dirección" name="address" defaultValue={client?.address} />
+      <TextField
+        label="Observaciones"
+        name="notes"
+        defaultValue={client?.notes}
+      />
+    </>
+  );
+  const photographs = (
+    <Panel
+      title="Fotografías del cliente y su vehículo"
+      subtitle="Puedes tomar fotos durante la recepción o agregar las que entregó el cliente."
+    >
+      <ImageUploader
+        photos={photos}
+        onChange={setPhotos}
+        onBusyChange={setPreparing}
+        userId={user!.id}
+      />
+    </Panel>
+  );
   return (
     <form onSubmit={submit}>
       <div className="form-grid">
@@ -103,51 +140,42 @@ export function ClientForm({
           defaultValue={client?.rut}
         />
         <Field
-          label="Teléfono"
+          label={quick ? "Teléfono (opcional)" : "Teléfono"}
           name="phone"
           type="tel"
-          required
+          required={!quick}
           defaultValue={client?.phone}
         />
-        <Field
-          label="Correo electrónico"
-          name="email"
-          type="email"
-          defaultValue={client?.email}
-        />
-        <Field
-          label="Dirección"
-          name="address"
-          defaultValue={client?.address}
-        />
-        <TextField
-          label="Observaciones"
-          name="notes"
-          defaultValue={client?.notes}
-        />
+        {!quick && additionalFields}
       </div>
-      {!live && (
+      {!quick && !live && (
         <ReminderPreferenceFields
           value={preferences}
           onChange={setPreferences}
         />
+      )}
+      {quick && (
+        <details className={styles.additionalDetails}>
+          <summary>Completar más datos (opcional)</summary>
+          <p className="section-hint">
+            Puedes agregarlos ahora o después desde la ficha del cliente.
+          </p>
+          <div className="form-grid">{additionalFields}</div>
+          {!live && (
+            <ReminderPreferenceFields
+              value={preferences}
+              onChange={setPreferences}
+            />
+          )}
+          {photographs}
+        </details>
       )}
       {error && (
         <p role="alert" className="error">
           {error}
         </p>
       )}
-      <Panel
-        title="Fotografías del cliente y su vehículo"
-        subtitle="Puedes tomar fotos durante la recepción o agregar las que entregó el cliente."
-      >
-        <ImageUploader
-          photos={photos}
-          onChange={setPhotos}
-          onBusyChange={setPreparing}
-          userId={user!.id}
-        />
-      </Panel>
+      {!quick && photographs}
       <div className="form-actions">
         <button
           type="button"

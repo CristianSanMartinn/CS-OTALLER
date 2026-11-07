@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { previewProtectionHeaders } from "./previewProtection";
 const cookieName = "otaller.auth";
 const protectedPaths =
-  /^(auth\/(me|profile|preferences)|customers(?:\/[0-9a-f-]{36}(?:\/(portal|archive|restore))?)?|notifications(?:\/(?:read-all|[0-9a-f-]{36}\/read))?|presence(?:\/(heartbeat|disconnect))?|users(?:\/[0-9a-f-]{36})?|work-orders(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|appointments(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|maintenance(?:\/oils)?|workshop(?:\/(activity|related-customers))?|vehicles(?:\/[0-9a-f-]{36})?)$/i;
+  /^(auth\/(me|profile|preferences)|customers(?:\/[0-9a-f-]{36}(?:\/(portal|archive|restore))?)?|notifications(?:\/(?:read-all|[0-9a-f-]{36}\/read))?|presence(?:\/(heartbeat|disconnect))?|users(?:\/[0-9a-f-]{36})?|work-orders(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|appointments(?:\/[0-9a-f-]{36}(?:\/cancel)?)?|maintenance(?:\/oils)?|workshop(?:\/(activity|related-customers))?|vehicles(?:\/(?:[0-9a-f-]{36}|plate-check))?)$/i;
 export async function backendProxy(request: NextRequest, segments: string[]) {
   const path = segments.join("/");
   const publicRoute =
@@ -14,6 +14,23 @@ export async function backendProxy(request: NextRequest, segments: string[]) {
       { message: "Ruta no disponible." },
       { status: 404 },
     );
+  const plateCheck = path.toLowerCase() === "vehicles/plate-check";
+  if (plateCheck && request.method !== "GET")
+    return NextResponse.json(
+      { message: "Método no permitido." },
+      { status: 405 },
+    );
+  if (plateCheck) {
+    const parameters = request.nextUrl.searchParams;
+    if (
+      [...parameters.keys()].some((key) => key !== "plate") ||
+      parameters.getAll("plate").length !== 1
+    )
+      return NextResponse.json(
+        { message: "Parámetros no permitidos." },
+        { status: 400 },
+      );
+  }
   if (request.method !== "GET") {
     const origin = request.headers.get("origin");
     if (
@@ -60,6 +77,11 @@ export async function backendProxy(request: NextRequest, segments: string[]) {
     )
       throw new Error("La API debe usar HTTPS.");
     const url = new URL(base.toString().replace(/\/$/, "") + "/" + path);
+    if (plateCheck)
+      url.searchParams.set(
+        "plate",
+        request.nextUrl.searchParams.get("plate") ?? "",
+      );
     const upstream = await fetch(url, {
       method: request.method,
       headers: {

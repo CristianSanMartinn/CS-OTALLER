@@ -1,0 +1,17 @@
+.check {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--neutral-surface, white);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.check > button {
+  max-width: 100%;
+  white-space: normal;
+}
+.check > p {
+  margin: 10px 0 0;
+}

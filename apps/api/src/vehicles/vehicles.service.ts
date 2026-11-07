@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  ForbiddenException,
   NotFoundException,
 } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
@@ -11,6 +12,19 @@ import { AuthUser } from "../auth/auth.types.js";
 @Injectable()
 export class VehiclesService {
   constructor(private readonly db: DatabaseService) {}
+  async checkPlate(user: AuthUser, input: unknown) {
+    if (user.role !== "ADMIN") throw new ForbiddenException("Esta operación requiere un administrador.");
+    if (typeof input !== "string" || !input.trim() || input.length > 20)
+      throw new BadRequestException("Ingresa una patente válida de hasta 20 caracteres.");
+    const plate = input.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!plate) throw new BadRequestException("Ingresa una patente válida.");
+    // LIMIT 2 detects legacy formatting collisions without returning identities.
+    const { rows } = await this.db.query<{ active: boolean }>(
+      "SELECT active FROM vehicles WHERE workshop_id=$1 AND regexp_replace(upper(license_plate), '[^A-Z0-9]', '', 'g')=$2 LIMIT 2",
+      [user.workshopId, plate],
+    );
+    return { status: rows.length > 1 ? "AMBIGUOUS" : !rows.length ? "NO_MATCH" : rows[0].active ? "ACTIVE" : "INACTIVE" };
+  }
   async findAll(user: AuthUser) {
     return (
       await this.db.query(
@@ -88,7 +102,7 @@ export class VehiclesService {
         ? "UPDATE vehicles SET customer_id=$1,license_plate=$2,brand=$3,model=$4,version=$5,year=$6,vin=$7,engine=$8,fuel_type=$9,transmission=$10,mileage=$11,color=$12,updated_at=now() WHERE workshop_id=$13 AND id=$14 AND active RETURNING *"
         : "INSERT INTO vehicles (customer_id,license_plate,brand,model,version,year,vin,engine,fuel_type,transmission,mileage,color,workshop_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *";
 
-      return this.db.transaction(async (c) => {
+      return await this.db.transaction(async (c) => {
         if (id) {
           const locked = (
             await c.query(
@@ -134,7 +148,12 @@ export class VehiclesService {
         return v;
       });
     } catch (e) {
-      if ((e as { code?: string }).code === "23505")
+      const pgError = e as { code?: string; constraint?: string; table?: string };
+      if (
+        pgError.code === "23505" &&
+        pgError.table === "vehicles" &&
+        pgError.constraint === "uq_vehicle_plate_workshop"
+      )
         throw new ConflictException(
           "Esta patente ya está registrada en tu taller.",
         );

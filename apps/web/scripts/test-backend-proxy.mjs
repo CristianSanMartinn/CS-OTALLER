@@ -199,3 +199,20 @@ test("El catálogo de aceite requiere sesión y se reenvía a la API correcta", 
   );
   assert.equal(proxy.calls[0].url, previewUrl + "/maintenance/oils");
 });
+
+
+test("Consulta puntual reenvía solo plate con sesión y sin cache", async () => {
+ const proxy=createProxy({API_URL:previewUrl});const req=request({session:true});req.nextUrl=new URL('https://example.test/api/backend/vehicles/plate-check?plate=ab-cd12');
+ const response=await proxy.backendProxy(req,['vehicles','plate-check']);assert.equal(response.status,200);assert.equal(new URL(proxy.calls[0].url).searchParams.get('plate'),'ab-cd12');assert.equal(proxy.calls[0].options.cache,'no-store');assert.equal(response.headers.get('Cache-Control'),'no-store');
+});
+test("Consulta puntual no abre parámetros, métodos ni rutas genéricos", async () => {
+ for(const query of ['','?plate=A&plate=B','?plate=A&workshop_id=other','?plate=A&includeInactive=true']){
+  const proxy=createProxy({API_URL:previewUrl});const req=request({session:true});req.nextUrl=new URL('https://example.test/api/backend/vehicles/plate-check'+query);
+  assert.equal((await proxy.backendProxy(req,['vehicles','plate-check'])).status,400);assert.equal(proxy.calls.length,0);
+ }
+ const proxy=createProxy({API_URL:previewUrl});const req=request({session:true});req.method='POST';assert.equal((await proxy.backendProxy(req,['vehicles','plate-check'])).status,405);assert.equal(proxy.calls.length,0);
+ assert.equal((await proxy.backendProxy(request({session:true}),['vehicles','unrestricted'])).status,404);
+});
+test("Consulta puntual sin sesión no accede al upstream", async()=>{
+ const proxy=createProxy({API_URL:previewUrl});const req=request();req.nextUrl=new URL('https://example.test/api/backend/vehicles/plate-check?plate=ABCD12');assert.equal((await proxy.backendProxy(req,['vehicles','plate-check'])).status,401);assert.equal(proxy.calls.length,0);
+});
